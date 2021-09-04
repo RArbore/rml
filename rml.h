@@ -16,6 +16,12 @@
 #ifndef RML_H_
 #define RML_H_
 
+#include <stdlib.h>
+#include <limits.h>
+
+#define MAX_GRAD_TENSORS SIZE_MAX
+#define MAX_GRAD_GRAPHS SIZE_MAX
+
 // Definition of different types of tensors (tensors can have any of the C primitive types as elements, enum used to store internally which primitive type is currently used by tensor)
 typedef enum {
     TENSOR_TYPE_BYTE = 0x00,
@@ -28,30 +34,19 @@ typedef enum {
     TENSOR_TYPE_ULONG,
     TENSOR_TYPE_FLOAT,
     TENSOR_TYPE_DOUBLE,
-    TENSOR_TYPE_LDOUBLE,
-    TENSOR_TYPE_COUNT
+    TENSOR_TYPE_LDOUBLE
 } tensor_type_t;
 
-// Definition of different types for dimension storage (dimension sizes for tensors are a subset of C primitives, just unsigned fixed point primitives)
-typedef enum {
-    DIM_TYPE_UBYTE = 0x00,
-    DIM_TYPE_USHORT,
-    DIM_TYPE_UINT,
-    DIM_TYPE_ULONG,
-    DIM_TYPE_COUNT
-} dim_type_t;
-
 typedef struct {
-    unsigned char num_dims;
-    dim_type_t dim_type;
-    void *dims;
+    size_t num_dims;
+    size_t *dims;
 } dims_t;
 
 // Tensor struct - direct access to any of a tensor's elements should be avoided in favor of using library methods
 typedef struct {
     tensor_type_t tensor_type;
-    unsigned char grad_graph;
-    unsigned long tensor_id;
+    size_t grad_graph;
+    size_t tensor_id;
     dims_t *dims;
     void *data;
 } tensor_t;
@@ -63,13 +58,13 @@ extern dims_t *rml_dims(int count, ...);
 extern void rml_free_dims(dims_t *dims);
 
 // Create a tensor with undefined elements
-extern tensor_t *rml_create_tensor(tensor_type_t type, int count, dims_t *dims);
+extern tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims);
 
 // Create a tensor with all 0 elements
-extern tensor_t *rml_zeros_tensor(tensor_type_t type, int count, dims_t *dims);
+extern tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims);
 
 // Create a tensor with all 1 elements
-extern tensor_t *rml_ones_tensor(tensor_type_t type, int count, dims_t *dims);
+extern tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims);
 
 // Clone a tensor
 extern tensor_t *rml_clone_tensor(tensor_t *tensor);
