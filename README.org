@@ -1,0 +1,6 @@
+#+TITLE: rml
+rml is a C library for machine learning. rml is currently under development - below is a list of planned features
+* TODO Tensors (initialization, destruction, basic operations)
+* TODO Nice file I/O with CSVs
+* TODO Basic deep learning layers
+* TODO POSIX threading
