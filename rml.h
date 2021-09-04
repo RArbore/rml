@@ -16,9 +16,6 @@
 #ifndef RML_H_
 #define RML_H_
 
-#include <stdlib.h>
-#include <stdarg.h>
-
 // Definition of different types of tensors (tensors can have any of the C primitive types as elements, enum used to store internally which primitive type is currently used by tensor)
 typedef enum {
     TENSOR_TYPE_BYTE = 0x00,
@@ -44,31 +41,44 @@ typedef enum {
     DIM_TYPE_COUNT
 } dim_type_t;
 
+typedef struct {
+    unsigned char num_dims;
+    dim_type_t dim_type;
+    void *dims;
+} dims_t;
+
 // Tensor struct - direct access to any of a tensor's elements should be avoided in favor of using library methods
 typedef struct {
     tensor_type_t tensor_type;
-    dim_type_t dim_type;
-    unsigned char num_dims;
     unsigned char grad_graph;
     unsigned long tensor_id;
-    void *dims;
+    dims_t *dims;
     void *data;
 } tensor_t;
 
+// Create a dimensions struct (variadic)
+extern dims_t *rml_dims(int count, ...);
+
+// Free a dimensions struct
+extern void rml_free_dims(dims_t *dims);
+
 // Create a tensor with undefined elements
-extern tensor_t *rml_create_tensor(tensor_type_t type, int count, ...);
+extern tensor_t *rml_create_tensor(tensor_type_t type, int count, dims_t *dims);
 
 // Create a tensor with all 0 elements
-extern tensor_t *rml_zeros_tensor(tensor_type_t type, int count, ...);
+extern tensor_t *rml_zeros_tensor(tensor_type_t type, int count, dims_t *dims);
 
 // Create a tensor with all 1 elements
-extern tensor_t *rml_ones_tensor(tensor_type_t type, int count, ...);
+extern tensor_t *rml_ones_tensor(tensor_type_t type, int count, dims_t *dims);
 
 // Clone a tensor
 extern tensor_t *rml_clone_tensor(tensor_t *tensor);
 
+// Free a tensor
+extern void rml_free_tensor(tensor_t *tensor);
+
 // Access a single tensor element - this WILL break gradient graph, rml_tensor_access should be used to preserve gradient graph
-extern void *rml_tensor_primitive_access(tensor_t *tensor, ...);
+extern void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication)
 extern tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b);
