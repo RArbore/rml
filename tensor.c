@@ -42,11 +42,37 @@ tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims){
 }
 
 tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims){
+    tensor_t *tensor = malloc(sizeof(tensor_t));
 
+    tensor->tensor_type = type;
+    // TODO implement setting grad_graph and tensor_id
+    tensor->dims = dims;
+    size_t elements = 1;
+    for (size_t i = 0; i < dims->num_dims; i++) {
+        elements *= dims->dims[i];
+    }
+    tensor->data = calloc(elements, rml_sizeof_type(type));
+
+    return tensor;
 }
 
 tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
+    tensor_t *tensor = malloc(sizeof(tensor_t));
 
+    tensor->tensor_type = type;
+    // TODO implement setting grad_graph and tensor_id
+    tensor->dims = dims;
+    size_t elements = 1;
+    for (size_t i = 0; i < dims->num_dims; i++) {
+        elements *= dims->dims[i];
+    }
+    tensor->data = malloc(elements * rml_sizeof_type(type));
+    for (size_t i = 0; i < elements; i++) {
+        void *data = tensor->data + i;
+        SWITCH_ENUM_TYPES(type, ASSIGN_VOID_POINTER, data, 1);
+    }
+
+    return tensor;
 }
 
 tensor_t *rml_clone_tensor(tensor_t *tensor){
