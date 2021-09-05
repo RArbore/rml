@@ -15,6 +15,8 @@
 
 #include "tensor.h"
 
+#define RAND_GRANULARITY 1000000
+
 dims_t *rml_create_dims(size_t count, ...) {
     dims_t *dims = malloc(sizeof(dims_t));
     dims->num_dims = count;
@@ -121,6 +123,21 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
     return tensor;
 }
 
+tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims) {
+    assert(type == TENSOR_TYPE_FLOAT || type == TENSOR_TYPE_DOUBLE || type == TENSOR_TYPE_LDOUBLE);
+    tensor_t *tensor = malloc(sizeof(tensor_t));
+
+    tensor->tensor_type = type;
+    // TODO implement setting grad_graph and tensor_id
+    tensor->dims = dims;
+    tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
+    for (size_t i = 0; i < dims->flat_size; i++) {
+        SWITCH_ENUM_TYPES(type, ASSIGN_VOID_POINTER, tensor->data, (long double) (rand() % RAND_GRANULARITY) / RAND_GRANULARITY, i);
+    }
+
+    return tensor;
+}
+
 tensor_t *rml_clone_tensor(tensor_t *tensor){
     tensor_t *clone = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
@@ -170,6 +187,14 @@ tensor_t *rml_tensor_matmul_naive(tensor_t *a, tensor_t *b){
     }
 
     return result;
+}
+
+tensor_t *rml_tensor_matmul_strassen(tensor_t *a, tensor_t *b) {
+    assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
+    assert(a->dims->dims[1] == b->dims->dims[0]);
+    CAST_TENSORS_WIDEN(a, b)
+
+    tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
 }
 
 tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type){

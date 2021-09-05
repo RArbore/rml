@@ -72,6 +72,9 @@ extern tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims);
 // Create a tensor with all 1 elements
 extern tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims);
 
+// Create a tensor with all random elements, uniform [0-1)
+extern tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims);
+
 // Clone a tensor
 extern tensor_t *rml_clone_tensor(tensor_t *tensor);
 
@@ -86,6 +89,9 @@ extern void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation)
 extern tensor_t *rml_tensor_matmul_naive(tensor_t *a, tensor_t *b);
+
+// Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, Strassen's algorithm implementation)
+extern tensor_t *rml_tensor_matmul_strassen(tensor_t *a, tensor_t *b);
 
 // Cast a tensor to a different type (inplace, pointer to a returned only for convenience)
 extern tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type);

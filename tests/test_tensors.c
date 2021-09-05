@@ -1,11 +1,12 @@
 #include <stdio.h>
+#include <time.h>
 #include <rml.h>
 
 int main() {
-    printf("Hddeloo w\n");
-    tensor_t *tensor_a = rml_create_tensor(TENSOR_TYPE_UBYTE, rml_create_dims(2, 2, 2), 4, 1, 1, 1, 1);
-    printf("Heloo w\n");
-    tensor_t *tensor_b = rml_create_tensor(TENSOR_TYPE_UBYTE, rml_create_dims(2, 2, 3), 6, 1, 2, 3, 4, 5, 6);
+    clock_t t = clock();
+    tensor_t *tensor_a = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 1000, 1000));
+    tensor_t *tensor_b = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 1000, 1000));
     tensor_t *tensor_c = rml_tensor_matmul_naive(tensor_a, tensor_b);
-    rml_print_tensor(tensor_c);
+    t = clock() - t;
+    printf("Time taken: %f\n", ((double) t) / CLOCKS_PER_SEC);
 }
