@@ -17,6 +17,8 @@
 #define TENSOR_H_
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #endif // TENSOR_H_

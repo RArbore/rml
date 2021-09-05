@@ -55,6 +55,7 @@ tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims){
     tensor->dims = dims;
     size_t elements = 1;
     for (size_t i = 0; i < dims->num_dims; i++) {
+        assert(SIZE_MAX / dims->dims[i] >= elements); // Check for overflow
         elements *= dims->dims[i];
     }
     tensor->data = malloc(elements * rml_sizeof_type(type));
@@ -70,6 +71,7 @@ tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims){
     tensor->dims = dims;
     size_t elements = 1;
     for (size_t i = 0; i < dims->num_dims; i++) {
+        assert(SIZE_MAX / dims->dims[i] >= elements); // Check for overflow
         elements *= dims->dims[i];
     }
     tensor->data = calloc(elements, rml_sizeof_type(type));
@@ -85,6 +87,7 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
     tensor->dims = dims;
     size_t elements = 1;
     for (size_t i = 0; i < dims->num_dims; i++) {
+        assert(SIZE_MAX / dims->dims[i] >= elements); // Check for overflow
         elements *= dims->dims[i];
     }
     tensor->data = malloc(elements * rml_sizeof_type(type));
@@ -107,7 +110,12 @@ void rml_free_tensor(tensor_t *tensor) {
 }
 
 void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims){
-
+    assert(dims->num_dims == tensor->dims->num_dims);
+    size_t index = 0;
+    for (size_t i = 0; i < dims->num_dims; i++) {
+        index = index * tensor->dims->dims[i] + dims->dims[i];
+    }
+    return tensor->data + index;
 }
 
 tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b){

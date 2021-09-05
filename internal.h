@@ -22,6 +22,11 @@
 
 #define ASSIGN_VOID_POINTER(type, dest, value) (*((type *) data) = value)
 
+#define ADD_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) + *((type *) b))
+#define SUB_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) - *((type *) b))
+#define MUL_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) * *((type *) b))
+#define DIV_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) / *((type *) b))
+
 #define SWITCH_ENUM_TYPES(type, macro, ...) \
     switch (type) { \
         case TENSOR_TYPE_BYTE: \

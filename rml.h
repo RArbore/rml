@@ -17,10 +17,6 @@
 #define RML_H_
 
 #include <stdlib.h>
-#include <limits.h>
-
-#define MAX_GRAD_TENSORS SIZE_MAX
-#define MAX_GRAD_GRAPHS SIZE_MAX
 
 // Definition of different types of tensors (tensors can have any of the C primitive types as elements, enum used to store internally which primitive type is currently used by tensor)
 typedef enum {
