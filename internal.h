@@ -38,14 +38,15 @@
         type *a_data = (type *) a->data; \
         type *b_clone_data = (type *) b_clone->data; \
         type *result_data = (type *) result->data; \
+        size_t index_res = 0; \
         for (size_t r = 0; r < result->dims->dims[0]; r++) { \
             for (size_t c = 0; c < result->dims->dims[1]; c++) { \
-                size_t index_res = r * result->dims->dims[1] + c; \
                 size_t index_a = r * a->dims->dims[1]; \
                 size_t index_b = c * b_clone->dims->dims[1]; \
                 for (size_t i = 0; i < a->dims->dims[1]; i++) { \
                     result_data[index_res] += a_data[index_a++] * b_clone_data[index_b++]; \
                 } \
+                index_res++; \
             } \
         } \
     }
