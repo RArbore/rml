@@ -141,7 +141,7 @@ tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims) {
 tensor_t *rml_clone_tensor(tensor_t *tensor){
     tensor_t *clone = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-        SWITCH_ENUM_TYPES(clone->tensor_type, COPY_VOID_POINTER, clone->data, tensor->data, i);
+        SWITCH_ENUM_TYPES(clone->tensor_type, COPY_VOID_POINTER, clone->data, tensor->data, i, i);
     }
     return clone;
 }
@@ -189,12 +189,41 @@ tensor_t *rml_tensor_matmul_naive(tensor_t *a, tensor_t *b){
     return result;
 }
 
-tensor_t *rml_tensor_matmul_strassen(tensor_t *a, tensor_t *b) {
+tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b){
     assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
     assert(a->dims->dims[1] == b->dims->dims[0]);
     CAST_TENSORS_WIDEN(a, b)
 
+    tensor_t *b_clone = rml_clone_tensor(b);
+    rml_tensor_transpose_inplace(b_clone);
     tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
+    SWITCH_ENUM_TYPES(result->tensor_type, TRANSPOSED_MATRIX_MULTIPLY, a, b_clone, result);
+    free(b_clone);
+
+    return result;
+}
+
+tensor_t *rml_tensor_transpose_inplace(tensor_t *tensor) {
+    assert(tensor->dims->num_dims == 2);
+    void *new;
+    SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, new, tensor->dims->flat_size);
+
+    for (size_t r = 0; r < tensor->dims->dims[0]; r++) {
+        for (size_t c = 0; c < tensor->dims->dims[1]; c++) {
+            SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, new, tensor->data, c * tensor->dims->dims[0] + r, r * tensor->dims->dims[1] + c);
+        }
+    }
+    free(tensor->data);
+    tensor->data = new;
+    size_t swap = tensor->dims->dims[0];
+    tensor->dims->dims[0] = tensor->dims->dims[1];
+    tensor->dims->dims[1] = swap;
+
+    return tensor;
+}
+
+tensor_t *rml_tensor_permute_inplace(tensor_t *tensor) {
+
 }
 
 tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type){
@@ -202,7 +231,7 @@ tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type){
     void *new;
     SWITCH_ENUM_TYPES(type, MALLOC_VOID_POINTER, new, tensor->dims->flat_size);
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-        SWITCH_2_ENUM_TYPES(type, tensor->tensor_type, CAST_VOID_POINTER, new, tensor->data, i);
+        SWITCH_2_ENUM_TYPES(type, tensor->tensor_type, CAST_VOID_POINTER, new, tensor->data, i, i);
     }
     free(tensor->data);
     tensor->data = new;

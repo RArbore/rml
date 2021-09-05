@@ -90,8 +90,14 @@ extern void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims);
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation)
 extern tensor_t *rml_tensor_matmul_naive(tensor_t *a, tensor_t *b);
 
-// Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, Strassen's algorithm implementation)
-extern tensor_t *rml_tensor_matmul_strassen(tensor_t *a, tensor_t *b);
+// Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation w/ some memory optimizations)
+extern tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b);
+
+// Transpose a matrix (asserted that tensor is 2d, for more general form, see rml_tensor_permute_inplace)
+extern tensor_t *rml_tensor_transpose_inplace(tensor_t *tensor);
+
+// Permute axes of a matrix
+extern tensor_t *rml_tensor_permute_inplace(tensor_t *tensor);
 
 // Cast a tensor to a different type (inplace, pointer to a returned only for convenience)
 extern tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type);
