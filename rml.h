@@ -51,6 +51,12 @@ typedef struct {
 // Create a dimensions struct (variadic)
 extern dims_t *rml_create_dims(int count, ...);
 
+// Clone a dimensions struct
+extern dims_t *rml_clone_dims(dims_t *dims);
+
+// Check equivalence between dimensions structs
+extern int rml_dims_equiv(dims_t *a, dims_t *b);
+
 // Free a dimensions struct
 extern void rml_free_dims(dims_t *dims);
 

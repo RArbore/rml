@@ -55,6 +55,14 @@ dims_t *rml_clone_dims(dims_t *dims) {
     return clone;
 }
 
+int rml_dims_equiv(dims_t *a, dims_t *b) {
+    if (a->num_dims != b->num_dims || a->flat_size != b->flat_size) return 0;
+    for (size_t i = 0; i < a->flat_size; i++) {
+        if (a->dims[i] != b->dims[i]) return 0;
+    }
+    return 1;
+}
+
 void rml_free_dims(dims_t *dims) {
     free(dims->dims);
     free(dims);
@@ -90,7 +98,7 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
     tensor->dims = dims;
     tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
     for (size_t i = 0; i < dims->flat_size; i++) {
-        SWITCH_ENUM_TYPES(type, ASSIGN_VOID_POINTER, tensor->data + i, 1);
+        SWITCH_ENUM_TYPES(type, ASSIGN_VOID_POINTER, tensor->data, 1, i);
     }
 
     return tensor;
@@ -99,7 +107,7 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
 tensor_t *rml_clone_tensor(tensor_t *tensor){
     tensor_t *clone = rml_create_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-        SWITCH_ENUM_TYPES(clone->tensor_type, COPY_VOID_POINTER, clone->data + i, tensor->data + i);
+        SWITCH_ENUM_TYPES(clone->tensor_type, COPY_VOID_POINTER, clone->data, tensor->data, i);
     }
     return clone;
 }
@@ -132,11 +140,28 @@ tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b){
 }
 
 tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type){
-
+    if (tensor->tensor_type == type) return tensor;
+    void *new;
+    SWITCH_ENUM_TYPES(type, MALLOC_VOID_POINTER, new, tensor->dims->flat_size);
+    for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+        SWITCH_2_ENUM_TYPES(type, tensor->tensor_type, CAST_VOID_POINTER, new, tensor->data, i);
+    }
+    free(tensor->data);
+    tensor->data = new;
+    return tensor;
 }
 
 tensor_t *rml_tensor_add_inplace(tensor_t *a, tensor_t *b){
-
+    if (a->tensor_type > b->tensor_type) {
+        rml_cast_tensor_inplace(b, a->tensor_type);
+    }
+    else if (a->tensor_type < b->tensor_type) {
+        rml_cast_tensor_inplace(a, b->tensor_type);
+    }
+    assert(a->tensor_type == b->tensor_type);
+    assert(rml_dims_equiv(a->dims, b->dims));
+    SWITCH_ENUM_TYPES(a->tensor_type, ADD_TENSORS, a, b, a);
+    return a;
 }
 
 tensor_t *rml_tensor_mul_inplace(tensor_t *a, tensor_t *b){

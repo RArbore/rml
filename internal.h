@@ -17,17 +17,29 @@
 #define INTERNAL_H_
 
 #include <stdlib.h>
+#include <assert.h>
 #include <stdio.h>
 
 #include "rml.h"
 
-#define ASSIGN_VOID_POINTER(type, dest, value) (*((type *) dest) = value)
-#define COPY_VOID_POINTER(type, dest, src) (*((type *) dest) = *((type *) src))
+#define ASSIGN_VOID_POINTER(type, dest, value, index) {*((type *) dest + index) = value;}
+#define COPY_VOID_POINTER(type, dest, src, index) {*((type *) dest + index) = *((type *) src + index);}
+#define MALLOC_VOID_POINTER(type, ptr, size) {ptr = malloc(size * sizeof(type));}
+#define CAST_VOID_POINTER(type_new, type_old, dest, src, index) {*((type_new *) dest + index) = *((type_old *) src + index);}
 
-#define ADD_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) + *((type *) b))
-#define SUB_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) - *((type *) b))
-#define MUL_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) * *((type *) b))
-#define DIV_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) / *((type *) b))
+#define ADD_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) + *((type *) b);}
+#define SUB_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) - *((type *) b);}
+#define MUL_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) * *((type *) b);}
+#define DIV_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) / *((type *) b);}
+
+#define ADD_TENSORS(type, tensor_a, tensor_b, tensor_c) { \
+        type *cast_a = (type *) tensor_a->data; \
+        type *cast_b = (type *) tensor_b->data; \
+        type *cast_c = (type *) tensor_c->data; \
+        for (size_t i = 0; i < tensor_a->dims->flat_size; i++) { \
+            cast_c[i] = cast_a[i] + cast_b[i]; \
+        } \
+    }
 
 #define SWITCH_ENUM_TYPES(type, macro, ...) \
     switch (type) { \
@@ -63,6 +75,43 @@
             break; \
         case TENSOR_TYPE_LDOUBLE: \
             macro(long double, ##__VA_ARGS__); \
+            break; \
+    }
+
+#define SWITCH_2_ENUM_TYPES(type1, type2, macro, ...) \
+    switch (type2) { \
+        case TENSOR_TYPE_BYTE: \
+            SWITCH_ENUM_TYPES(type1, macro, char, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_UBYTE: \
+            SWITCH_ENUM_TYPES(type1, macro, unsigned char, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_SHORT: \
+            SWITCH_ENUM_TYPES(type1, macro, short, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_USHORT: \
+            SWITCH_ENUM_TYPES(type1, macro, unsigned short, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_INT: \
+            SWITCH_ENUM_TYPES(type1, macro, int, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_UINT: \
+            SWITCH_ENUM_TYPES(type1, macro, unsigned int, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_LONG: \
+            SWITCH_ENUM_TYPES(type1, macro, long, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_ULONG: \
+            SWITCH_ENUM_TYPES(type1, macro, unsigned long, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_FLOAT: \
+            SWITCH_ENUM_TYPES(type1, macro, float, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_DOUBLE: \
+            SWITCH_ENUM_TYPES(type1, macro, double, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_LDOUBLE: \
+            SWITCH_ENUM_TYPES(type1, macro, long double, ##__VA_ARGS__); \
             break; \
     }
 
