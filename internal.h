@@ -66,6 +66,20 @@
             break; \
     }
 
+#define INDEX_VOID_POINTER(type, ptr, index) (\
+    type == TENSOR_TYPE_BYTE ? (void *) ((char *) ptr + index) : \
+    type == TENSOR_TYPE_UBYTE ? (void *) ((unsigned char *) ptr + index) : \
+    type == TENSOR_TYPE_SHORT ? (void *) ((short *) ptr + index) : \
+    type == TENSOR_TYPE_USHORT ? (void *) ((unsigned short *) ptr + index) : \
+    type == TENSOR_TYPE_INT ? (void *) ((int *) ptr + index) : \
+    type == TENSOR_TYPE_UINT ? (void *) ((unsigned int *) ptr + index) : \
+    type == TENSOR_TYPE_LONG ? (void *) ((long *) ptr + index) : \
+    type == TENSOR_TYPE_ULONG ? (void *) ((unsigned long *) ptr + index) : \
+    type == TENSOR_TYPE_FLOAT ? (void *) ((float *) ptr + index) : \
+    type == TENSOR_TYPE_DOUBLE ? (void *) ((double *) ptr + index) : \
+    (void *) ((long double *) ptr + index) \
+)
+
 #define PRINT_VOID_POINTER(type, ptr, index) \
     switch (type) { \
         case TENSOR_TYPE_BYTE: \

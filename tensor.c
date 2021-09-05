@@ -124,7 +124,7 @@ void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims){
     for (size_t i = 0; i < dims->num_dims; i++) {
         index = index * tensor->dims->dims[i] + dims->dims[i];
     }
-    return tensor->data + index;
+    return INDEX_VOID_POINTER(tensor->tensor_type, tensor->data, index);
 }
 
 tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b){
