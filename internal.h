@@ -26,6 +26,7 @@
 #define COPY_VOID_POINTER(type, dest, src, index) {*((type *) dest + index) = *((type *) src + index);}
 #define MALLOC_VOID_POINTER(type, ptr, size) {ptr = malloc(size * sizeof(type));}
 #define CAST_VOID_POINTER(type_new, type_old, dest, src, index) {*((type_new *) dest + index) = *((type_old *) src + index);}
+#define STORE_VOID_FROM_VA(type_dest, type_va, ap, dest, index) {*((type_dest *) dest + index) = va_arg(ap, type_va);}
 
 #define ADD_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) + *((type *) b);}
 #define SUB_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) - *((type *) b);}
@@ -121,6 +122,43 @@
             break; \
         case TENSOR_TYPE_LDOUBLE: \
             SWITCH_ENUM_TYPES(type1, macro, long double, ##__VA_ARGS__); \
+            break; \
+    }
+
+#define SWITCH_ENUM_TYPES_VA(type, ...) \
+    switch (type) { \
+        case TENSOR_TYPE_BYTE: \
+            STORE_VOID_FROM_VA(char, int, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_UBYTE: \
+            STORE_VOID_FROM_VA(unsigned char, int, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_SHORT: \
+            STORE_VOID_FROM_VA(short, int, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_USHORT: \
+            STORE_VOID_FROM_VA(unsigned short, int, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_INT: \
+            STORE_VOID_FROM_VA(int, int, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_UINT: \
+            STORE_VOID_FROM_VA(unsigned int, unsigned int, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_LONG: \
+            STORE_VOID_FROM_VA(long, long, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_ULONG: \
+            STORE_VOID_FROM_VA(unsigned long, unsigned long, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_FLOAT: \
+            STORE_VOID_FROM_VA(float, double, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_DOUBLE: \
+            STORE_VOID_FROM_VA(double, double, ##__VA_ARGS__); \
+            break; \
+        case TENSOR_TYPE_LDOUBLE: \
+            STORE_VOID_FROM_VA(long double, long double, ##__VA_ARGS__); \
             break; \
     }
 

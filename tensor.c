@@ -15,14 +15,14 @@
 
 #include "tensor.h"
 
-dims_t *rml_create_dims(int count, ...) {
+dims_t *rml_create_dims(size_t count, ...) {
     dims_t *dims = malloc(sizeof(dims_t));
     dims->num_dims = count;
     dims->dims = malloc(count * sizeof(size_t));
 
     va_list ap;
     va_start(ap, count);
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
         dims->dims[i] = va_arg(ap, size_t);
     }
     va_end(ap);
@@ -66,13 +66,32 @@ void rml_free_dims(dims_t *dims) {
     free(dims);
 }
 
-tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims){
+tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims){
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
     // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
     tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
+
+    return tensor;
+}
+
+tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...){
+    tensor_t *tensor = malloc(sizeof(tensor_t));
+
+    tensor->tensor_type = type;
+    // TODO implement setting grad_graph and tensor_id
+    tensor->dims = dims;
+    tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
+    assert(count == dims->flat_size);
+
+    va_list ap;
+    va_start(ap, count);
+    for (size_t i = 0; i < count; i++) {
+        SWITCH_ENUM_TYPES_VA(type, ap, tensor->data, i);
+    }
+    va_end(ap);
 
     return tensor;
 }
@@ -103,7 +122,7 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
 }
 
 tensor_t *rml_clone_tensor(tensor_t *tensor){
-    tensor_t *clone = rml_create_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
+    tensor_t *clone = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         SWITCH_ENUM_TYPES(clone->tensor_type, COPY_VOID_POINTER, clone->data, tensor->data, i);
     }

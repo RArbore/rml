@@ -49,7 +49,7 @@ typedef struct {
 } tensor_t;
 
 // Create a dimensions struct (variadic)
-extern dims_t *rml_create_dims(int count, ...);
+extern dims_t *rml_create_dims(size_t count, ...);
 
 // Clone a dimensions struct
 extern dims_t *rml_clone_dims(dims_t *dims);
@@ -61,7 +61,10 @@ extern int rml_dims_equiv(dims_t *a, dims_t *b);
 extern void rml_free_dims(dims_t *dims);
 
 // Create a tensor with undefined elements
-extern tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims);
+extern tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims);
+
+// Create a tensor with specified elements (behavior undefined if number of arguments provided isn't equal to flat size of tensor)
+extern tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...);
 
 // Create a tensor with all 0 elements
 extern tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims);
