@@ -55,7 +55,7 @@ dims_t *rml_clone_dims(dims_t *dims) {
 
 int rml_dims_equiv(dims_t *a, dims_t *b) {
     if (a->num_dims != b->num_dims || a->flat_size != b->flat_size) return 0;
-    for (size_t i = 0; i < a->flat_size; i++) {
+    for (size_t i = 0; i < a->num_dims; i++) {
         if (a->dims[i] != b->dims[i]) return 0;
     }
     return 1;
