@@ -41,6 +41,15 @@
         } \
     }
 
+#define MUL_TENSORS(type, tensor_a, tensor_b, tensor_c) { \
+        type *cast_a = (type *) tensor_a->data; \
+        type *cast_b = (type *) tensor_b->data; \
+        type *cast_c = (type *) tensor_c->data; \
+        for (size_t i = 0; i < tensor_a->dims->flat_size; i++) { \
+            cast_c[i] = cast_a[i] * cast_b[i]; \
+        } \
+    }
+
 #define SWITCH_ENUM_TYPES(type, macro, ...) \
     switch (type) { \
         case TENSOR_TYPE_BYTE: \

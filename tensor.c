@@ -13,9 +13,7 @@
     You should have received a copy of the GNU Lesser General Public License
     along with rml. If not, see <https://www.gnu.org/licenses/>.  */
 
-#include "internal.h"
 #include "tensor.h"
-#include "rml.h"
 
 dims_t *rml_create_dims(int count, ...) {
     dims_t *dims = malloc(sizeof(dims_t));
@@ -148,6 +146,7 @@ tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type){
     }
     free(tensor->data);
     tensor->data = new;
+    tensor->tensor_type = type;
     return tensor;
 }
 
@@ -165,7 +164,16 @@ tensor_t *rml_tensor_add_inplace(tensor_t *a, tensor_t *b){
 }
 
 tensor_t *rml_tensor_mul_inplace(tensor_t *a, tensor_t *b){
-
+    if (a->tensor_type > b->tensor_type) {
+        rml_cast_tensor_inplace(b, a->tensor_type);
+    }
+    else if (a->tensor_type < b->tensor_type) {
+        rml_cast_tensor_inplace(a, b->tensor_type);
+    }
+    assert(a->tensor_type == b->tensor_type);
+    assert(rml_dims_equiv(a->dims, b->dims));
+    SWITCH_ENUM_TYPES(a->tensor_type, MUL_TENSORS, a, b, a);
+    return a;
 }
 
 tensor_t *rml_concat_inplace(tensor_t *a, tensor_t *b, unsigned char dim){

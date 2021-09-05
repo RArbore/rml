@@ -21,4 +21,7 @@
 #include <stdarg.h>
 #include <assert.h>
 
+#include "internal.h"
+#include "rml.h"
+
 #endif // TENSOR_H_
