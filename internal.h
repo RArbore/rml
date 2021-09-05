@@ -23,15 +23,27 @@
 #include "rml.h"
 
 #define ASSIGN_VOID_POINTER(type, dest, value, index) {*((type *) dest + index) = value;}
-#define COPY_VOID_POINTER(type, dest, src, index) {*((type *) dest + index) = *((type *) src + index);}
 #define MALLOC_VOID_POINTER(type, ptr, size) {ptr = malloc(size * sizeof(type));}
 #define CAST_VOID_POINTER(type_new, type_old, dest, src, index) {*((type_new *) dest + index) = *((type_old *) src + index);}
+#define COPY_VOID_POINTER(type, dest, src, index) CAST_VOID_POINTER(type, type, dest, src, index);
 #define STORE_VOID_FROM_VA(type_dest, type_va, ap, dest, index) {*((type_dest *) dest + index) = va_arg(ap, type_va);}
 
 #define ADD_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) + *((type *) b);}
 #define SUB_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) - *((type *) b);}
 #define MUL_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) * *((type *) b);}
 #define DIV_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) / *((type *) b);}
+
+#define ACCUM_VOID_POINTERS(type, a, b, c, i1, i2, i3) {*((type *) c + i3) += *((type *) a + i1) * *((type *) b + i2);}
+
+#define CAST_TENSORS_WIDEN(a, b) { \
+        if (a->tensor_type > b->tensor_type) { \
+            rml_cast_tensor_inplace(b, a->tensor_type); \
+        } \
+        else if (a->tensor_type < b->tensor_type) { \
+            rml_cast_tensor_inplace(a, b->tensor_type); \
+        } \
+        assert(a->tensor_type == b->tensor_type); \
+    }
 
 #define ADD_TENSORS(type, tensor_a, tensor_b, tensor_c) { \
         type *cast_a = (type *) tensor_a->data; \
