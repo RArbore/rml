@@ -1,3 +1,18 @@
+/*  This file is part of rml.
+
+    rml is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    rml is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with rml. If not, see <https://www.gnu.org/licenses/>.  */
+
 #ifndef INTERNAL_H_
 #define INTERNAL_H_
 
@@ -42,7 +57,7 @@
         case TENSOR_TYPE_LDOUBLE: \
             macro(long double, ##__VA_ARGS__); \
             break; \
-    } \
+    }
 
 size_t rml_sizeof_type(tensor_type_t tensor_type);
 

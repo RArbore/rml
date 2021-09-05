@@ -52,7 +52,7 @@ typedef struct {
 } tensor_t;
 
 // Create a dimensions struct (variadic)
-extern dims_t *rml_dims(int count, ...);
+extern dims_t *rml_create_dims(int count, ...);
 
 // Free a dimensions struct
 extern void rml_free_dims(dims_t *dims);

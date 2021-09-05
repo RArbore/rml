@@ -17,8 +17,29 @@
 #include "tensor.h"
 #include "rml.h"
 
-dims_t *rml_dims(int count, ...) {
+dims_t *rml_create_dims(int count, ...) {
+    dims_t *dims = malloc(sizeof(dims_t));
+    dims->num_dims = count;
+    dims->dims = malloc(count * sizeof(size_t));
 
+    va_list ap;
+    va_start(ap, count);
+    for (int i = 0; i < count; i++) {
+        dims->dims[i] = va_arg(ap, size_t);
+    }
+    va_end(ap);
+
+    return dims;
+}
+
+dims_t *rml_clone_dims(dims_t *dims) {
+    dims_t *clone = malloc(sizeof(dims_t));
+    clone->num_dims = dims->num_dims;
+    clone->dims = malloc(clone->num_dims * sizeof(size_t));
+    for (size_t i = 0; i < clone->num_dims; i++) {
+        clone->dims[i] = dims->dims[i];
+    }
+    return clone;
 }
 
 void rml_free_dims(dims_t *dims) {
