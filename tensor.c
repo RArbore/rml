@@ -29,6 +29,12 @@ dims_t *rml_create_dims(int count, ...) {
     }
     va_end(ap);
 
+    dims->flat_size = 1;
+    for (size_t i = 0; i < dims->num_dims; i++) {
+        assert(SIZE_MAX / dims->dims[i] >= dims->flat_size); // Check for overflow
+        dims->flat_size *= dims->dims[i];
+    }
+
     return dims;
 }
 
@@ -39,6 +45,13 @@ dims_t *rml_clone_dims(dims_t *dims) {
     for (size_t i = 0; i < clone->num_dims; i++) {
         clone->dims[i] = dims->dims[i];
     }
+
+    clone->flat_size = 1;
+    for (size_t i = 0; i < clone->num_dims; i++) {
+        assert(SIZE_MAX / clone->dims[i] >= dims->flat_size); // Check for overflow
+        clone->flat_size *= dims->dims[i];
+    }
+
     return clone;
 }
 
@@ -53,12 +66,7 @@ tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims){
     tensor->tensor_type = type;
     // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
-    size_t elements = 1;
-    for (size_t i = 0; i < dims->num_dims; i++) {
-        assert(SIZE_MAX / dims->dims[i] >= elements); // Check for overflow
-        elements *= dims->dims[i];
-    }
-    tensor->data = malloc(elements * rml_sizeof_type(type));
+    tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
 
     return tensor;
 }
@@ -69,12 +77,7 @@ tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims){
     tensor->tensor_type = type;
     // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
-    size_t elements = 1;
-    for (size_t i = 0; i < dims->num_dims; i++) {
-        assert(SIZE_MAX / dims->dims[i] >= elements); // Check for overflow
-        elements *= dims->dims[i];
-    }
-    tensor->data = calloc(elements, rml_sizeof_type(type));
+    tensor->data = calloc(dims->flat_size, rml_sizeof_type(type));
 
     return tensor;
 }
@@ -85,22 +88,20 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
     tensor->tensor_type = type;
     // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
-    size_t elements = 1;
-    for (size_t i = 0; i < dims->num_dims; i++) {
-        assert(SIZE_MAX / dims->dims[i] >= elements); // Check for overflow
-        elements *= dims->dims[i];
-    }
-    tensor->data = malloc(elements * rml_sizeof_type(type));
-    for (size_t i = 0; i < elements; i++) {
-        void *data = tensor->data + i;
-        SWITCH_ENUM_TYPES(type, ASSIGN_VOID_POINTER, data, 1);
+    tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
+    for (size_t i = 0; i < dims->flat_size; i++) {
+        SWITCH_ENUM_TYPES(type, ASSIGN_VOID_POINTER, tensor->data + i, 1);
     }
 
     return tensor;
 }
 
 tensor_t *rml_clone_tensor(tensor_t *tensor){
-
+    tensor_t *clone = rml_create_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
+    for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+        SWITCH_ENUM_TYPES(clone->tensor_type, COPY_VOID_POINTER, clone->data + i, tensor->data + i);
+    }
+    return clone;
 }
 
 void rml_free_tensor(tensor_t *tensor) {

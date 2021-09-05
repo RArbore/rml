@@ -20,7 +20,8 @@
 
 #include "rml.h"
 
-#define ASSIGN_VOID_POINTER(type, dest, value) (*((type *) data) = value)
+#define ASSIGN_VOID_POINTER(type, dest, value) (*((type *) dest) = value)
+#define COPY_VOID_POINTER(type, dest, src) (*((type *) dest) = *((type *) src))
 
 #define ADD_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) + *((type *) b))
 #define SUB_VOID_POINTERS(type, a, b, c) (*((type *) c) = *((type *) a) - *((type *) b))

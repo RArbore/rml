@@ -36,6 +36,7 @@ typedef enum {
 typedef struct {
     size_t num_dims;
     size_t *dims;
+    size_t flat_size;
 } dims_t;
 
 // Tensor struct - direct access to any of a tensor's elements should be avoided in favor of using library methods
