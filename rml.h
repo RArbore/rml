@@ -69,6 +69,9 @@ extern tensor_t *rml_clone_tensor(tensor_t *tensor);
 // Free a tensor
 extern void rml_free_tensor(tensor_t *tensor);
 
+// Print a tensor to stdout
+extern void rml_print_tensor(tensor_t *tensor);
+
 // Access a single tensor element - this WILL break gradient graph, rml_tensor_access should be used to preserve gradient graph
 extern void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims);
 

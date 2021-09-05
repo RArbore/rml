@@ -17,6 +17,7 @@
 #define INTERNAL_H_
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "rml.h"
 
@@ -62,6 +63,43 @@
             break; \
         case TENSOR_TYPE_LDOUBLE: \
             macro(long double, ##__VA_ARGS__); \
+            break; \
+    }
+
+#define PRINT_VOID_POINTER(type, ptr, index) \
+    switch (type) { \
+        case TENSOR_TYPE_BYTE: \
+            printf("%d", *((char *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_UBYTE: \
+            printf("%u", *((unsigned char *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_SHORT: \
+            printf("%d", *((short *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_USHORT: \
+            printf("%u", *((unsigned short *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_INT: \
+            printf("%d", *((int *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_UINT: \
+            printf("%u", *((unsigned int *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_LONG: \
+            printf("%ld", *((long *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_ULONG: \
+            printf("%lu", *((unsigned long *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_FLOAT: \
+            printf("%f", *((float *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_DOUBLE: \
+            printf("%f", *((double *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_LDOUBLE: \
+            printf("%Lf", *((long double *) ptr + index)); \
             break; \
     }
 

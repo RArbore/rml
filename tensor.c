@@ -110,6 +110,14 @@ void rml_free_tensor(tensor_t *tensor) {
     free(tensor);
 }
 
+void rml_print_tensor(tensor_t *tensor) {
+    for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+        PRINT_VOID_POINTER(tensor->tensor_type, tensor->data, i);
+        if (i + 1 < tensor->dims->flat_size) printf(" ");
+    }
+    printf("\n");
+}
+
 void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims){
     assert(dims->num_dims == tensor->dims->num_dims);
     size_t index = 0;
