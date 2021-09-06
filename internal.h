@@ -37,6 +37,7 @@
 #define DIV_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) / *((type *) b);}
 
 #define ACCUM_VOID_POINTERS(type, a, b, c, i1, i2, i3) {*((type *) c + i3) += *((type *) a + i1) * *((type *) b + i2);}
+
 #define FAST_MATRIX_MULTIPLY(type, a, b_clone, result) { \
         type *a_data = (type *) a->data; \
         type *b_clone_data = (type *) b_clone->data; \
@@ -54,6 +55,40 @@
             } \
         } \
     }
+
+/*
+#define FAST_MATRIX_MULTIPLY(type, a, b, result) { \
+        type *a_data = (type *) a->data; \
+        type *b_data = (type *) b->data; \
+        type *result_data = (type *) result->data; \
+        size_t inner_dim = a->dims->dims[1]; \
+        size_t left_dim = result->dims->dims[0]; \
+        size_t right_dim = result->dims->dims[1]; \
+        size_t ss = SS(type); \
+        type *res_ptr, *a_ptr, *b_ptr; \
+        size_t r, c, i, r2, c2, i2; \
+        for (r = 0; r < left_dim; r += ss) { \
+            for (c = 0; c < right_dim; c += ss) { \
+                for (i = 0; i < inner_dim; i += ss) { \
+                    for (r2 = 0, \
+                        res_ptr = result_data + r * right_dim + c, \
+                        a_ptr = a_data + r * inner_dim + i; \
+                        r2 < ss; r2++, \
+                        res_ptr += right_dim, a_ptr += inner_dim) { \
+                        for (i2 = 0, \
+                            b_ptr = b_data + i * right_dim + c; \
+                            i2 < ss; i2++, \
+                            b_ptr += right_dim) { \
+                            for (c2 = 0; c2 < ss; c2++) { \
+                                res_ptr[c2] += a_ptr[i2] * b_ptr[c2]; \
+                            } \
+                        } \
+                    } \
+                } \
+            } \
+        } \
+    }
+*/
 
 #define CAST_TENSORS_WIDEN(a, b) { \
         if (a->tensor_type > b->tensor_type) { \
