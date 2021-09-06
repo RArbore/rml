@@ -20,6 +20,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <cblas.h>
 
 #include "rml.h"
 
@@ -37,6 +38,14 @@
 #define DIV_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) / *((type *) b);}
 
 #define ACCUM_VOID_POINTERS(type, a, b, c, i1, i2, i3) {*((type *) c + i3) += *((type *) a + i1) * *((type *) b + i2);}
+
+#define BLAS_MATRIX_MULTIPLY_SINGLE(a, b, result) { \
+        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (float *) a->data, a->dims->dims[1], (float *) b->data, b->dims->dims[1], 0., (float *) result->data, b->dims->dims[1]); \
+    }
+
+#define BLAS_MATRIX_MULTIPLY_DOUBLE(a, b, result) { \
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (double *) a->data, a->dims->dims[1], (double *) b->data, b->dims->dims[1], 0., (double *) result->data, b->dims->dims[1]); \
+    }
 
 #define FAST_MATRIX_MULTIPLY(type, a, b_clone, result) { \
         type *a_data = (type *) a->data; \

@@ -93,6 +93,9 @@ extern tensor_t *rml_tensor_matmul_naive(tensor_t *a, tensor_t *b);
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation w/ some memory optimizations)
 extern tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b);
 
+// Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, use BLAS)
+extern tensor_t *rml_tensor_matmul_blas(tensor_t *a, tensor_t *b);
+
 // Transpose a matrix (asserted that tensor is 2d, for more general form, see rml_tensor_permute_inplace)
 extern tensor_t *rml_tensor_transpose_inplace(tensor_t *tensor);
 

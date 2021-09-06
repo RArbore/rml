@@ -172,7 +172,7 @@ void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims){
 tensor_t *rml_tensor_matmul_naive(tensor_t *a, tensor_t *b){
     assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
     assert(a->dims->dims[1] == b->dims->dims[0]);
-    CAST_TENSORS_WIDEN(a, b)
+    CAST_TENSORS_WIDEN(a, b);
 
     tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
     for (size_t r = 0; r < result->dims->dims[0]; r++) {
@@ -192,13 +192,30 @@ tensor_t *rml_tensor_matmul_naive(tensor_t *a, tensor_t *b){
 tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b){
     assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
     assert(a->dims->dims[1] == b->dims->dims[0]);
-    CAST_TENSORS_WIDEN(a, b)
+    CAST_TENSORS_WIDEN(a, b);
 
     tensor_t *b_clone = rml_clone_tensor(b);
     rml_tensor_transpose_inplace(b_clone);
     tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
     SWITCH_ENUM_TYPES(result->tensor_type, FAST_MATRIX_MULTIPLY, a, b_clone, result);
     free(b_clone);
+
+    return result;
+}
+
+tensor_t *rml_tensor_matmul_blas(tensor_t *a, tensor_t *b){
+    assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
+    assert(a->dims->dims[1] == b->dims->dims[0]);
+    CAST_TENSORS_WIDEN(a, b);
+    assert(a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE);
+
+    tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
+    if (result->tensor_type == TENSOR_TYPE_FLOAT) {
+        BLAS_MATRIX_MULTIPLY_SINGLE(a, b, result);
+    }
+    else {
+        BLAS_MATRIX_MULTIPLY_DOUBLE(a, b, result);
+    }
 
     return result;
 }
