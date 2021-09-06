@@ -18,9 +18,12 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <unistd.h>
 #include <stdio.h>
 
 #include "rml.h"
+
+#define SS(type) (sysconf(_SC_LEVEL1_DCACHE_LINESIZE) / sizeof(type))
 
 #define ASSIGN_VOID_POINTER(type, dest, value, index) {*((type *) dest + index) = value;}
 #define MALLOC_VOID_POINTER(type, ptr, size) {ptr = malloc(size * sizeof(type));}
@@ -34,7 +37,7 @@
 #define DIV_VOID_POINTERS(type, a, b, c) {*((type *) c) = *((type *) a) / *((type *) b);}
 
 #define ACCUM_VOID_POINTERS(type, a, b, c, i1, i2, i3) {*((type *) c + i3) += *((type *) a + i1) * *((type *) b + i2);}
-#define TRANSPOSED_MATRIX_MULTIPLY(type, a, b_clone, result) { \
+#define FAST_MATRIX_MULTIPLY(type, a, b_clone, result) { \
         type *a_data = (type *) a->data; \
         type *b_clone_data = (type *) b_clone->data; \
         type *result_data = (type *) result->data; \

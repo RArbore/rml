@@ -197,7 +197,7 @@ tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b){
     tensor_t *b_clone = rml_clone_tensor(b);
     rml_tensor_transpose_inplace(b_clone);
     tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
-    SWITCH_ENUM_TYPES(result->tensor_type, TRANSPOSED_MATRIX_MULTIPLY, a, b_clone, result);
+    SWITCH_ENUM_TYPES(result->tensor_type, FAST_MATRIX_MULTIPLY, a, b_clone, result);
     free(b_clone);
 
     return result;
