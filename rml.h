@@ -102,8 +102,11 @@ extern tensor_t *rml_matmul_blas_tensor(tensor_t *a, tensor_t *b);
 // Transpose a matrix (asserted that tensor is 2d, for more general form, see rml_tensor_permute_inplace)
 extern tensor_t *rml_transpose_tensor_inplace(tensor_t *tensor);
 
-// Permute axes of a matrix
+// Permute axes of a tensor
 extern tensor_t *rml_permute_tensor_inplace(tensor_t *tensor, size_t *perms);
+
+// Reshape tensor
+extern tensor_t *rml_reshape_tensor_inplace(tensor_t *tensor, size_t *new_dims);
 
 // Cast a tensor to a different type (inplace, pointer to a returned only for convenience)
 extern tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type);

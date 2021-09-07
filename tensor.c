@@ -280,6 +280,18 @@ tensor_t *rml_permute_tensor_inplace(tensor_t *tensor, size_t *perms) {
     return tensor;
 }
 
+tensor_t *rml_reshape_tensor_inplace(tensor_t *tensor, size_t *new_dims) {
+    size_t flat_size_check = 1;
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        flat_size_check *= new_dims[i];
+    }
+    assert(flat_size_check == tensor->dims->flat_size);
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        tensor->dims->dims[i] = new_dims[i];
+    }
+    return tensor;
+}
+
 tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type) {
     if (tensor->tensor_type == type) return tensor;
     void *new;
