@@ -88,33 +88,33 @@ extern void rml_free_tensor(tensor_t *tensor);
 extern void rml_print_tensor(tensor_t *tensor);
 
 // Access a single tensor element - this WILL break gradient graph, rml_tensor_access should be used to preserve gradient graph
-extern void *rml_tensor_primitive_access(tensor_t *tensor, dims_t *dims);
+extern void *rml_primitive_access_tensor(tensor_t *tensor, dims_t *dims);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation)
-extern tensor_t *rml_tensor_matmul_naive(tensor_t *a, tensor_t *b);
+extern tensor_t *rml_matmul_naive_tensor(tensor_t *a, tensor_t *b);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation w/ some memory optimizations)
-extern tensor_t *rml_tensor_matmul(tensor_t *a, tensor_t *b);
+extern tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, use BLAS)
-extern tensor_t *rml_tensor_matmul_blas(tensor_t *a, tensor_t *b);
+extern tensor_t *rml_matmul_blas_tensor(tensor_t *a, tensor_t *b);
 
 // Transpose a matrix (asserted that tensor is 2d, for more general form, see rml_tensor_permute_inplace)
-extern tensor_t *rml_tensor_transpose_inplace(tensor_t *tensor);
+extern tensor_t *rml_transpose_tensor_inplace(tensor_t *tensor);
 
 // Permute axes of a matrix
-extern tensor_t *rml_tensor_permute_inplace(tensor_t *tensor, size_t *perms);
+extern tensor_t *rml_permute_tensor_inplace(tensor_t *tensor, size_t *perms);
 
 // Cast a tensor to a different type (inplace, pointer to a returned only for convenience)
 extern tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type);
 
 // Element-wise add tensor b to tensor a (inplace, pointer to a returned only for convenience)
-extern tensor_t *rml_tensor_add_inplace(tensor_t *a, tensor_t *b);
+extern tensor_t *rml_add_tensor_inplace(tensor_t *a, tensor_t *b);
 
 // Element-wise multiply tensor a by tensor b (inplace, pointer to a returned only for convenience)
-extern tensor_t *rml_tensor_mul_inplace(tensor_t *a, tensor_t *b);
+extern tensor_t *rml_mul_tensor_inplace(tensor_t *a, tensor_t *b);
 
 // Concatenate tensor b to tensor a (inplace, pointer to a returned only for convenience)
-extern tensor_t *rml_concat_inplace(tensor_t *a, tensor_t *b, unsigned char dim);
+extern tensor_t *rml_concat_tensor_inplace(tensor_t *a, tensor_t *b, unsigned char dim);
 
 #endif // RML_H_
