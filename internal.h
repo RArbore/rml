@@ -127,6 +127,15 @@
         } \
     }
 
+#define SCALE_TENSOR(type, tensor_src, scalar, tensor_dest) { \
+        type *cast_src = (type *) tensor_src->data; \
+        type *cast_scalar = (type *) scalar; \
+        type *cast_dest = (type *) tensor_dest->data; \
+        for (size_t i = 0; i < tensor_src->dims->flat_size; i++) { \
+            cast_dest[i] = cast_src[i] * *cast_scalar; \
+        } \
+    }
+
 #define SWITCH_ENUM_TYPES(type, macro, ...) \
     switch (type) { \
         case TENSOR_TYPE_BYTE: \

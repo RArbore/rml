@@ -319,6 +319,12 @@ tensor_t *rml_mul_tensor_inplace(tensor_t *a, tensor_t *b) {
     return a;
 }
 
+tensor_t *rml_scale_tensor_inplace(tensor_t *a, void *scalar) {
+    SWITCH_ENUM_TYPES(a->tensor_type, SCALE_TENSOR, a, scalar, a);
+    return a;
+}
+
+
 tensor_t *rml_concat_tensor_inplace(tensor_t *a, tensor_t *b, unsigned char dim) {
 
 }

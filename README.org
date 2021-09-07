@@ -5,7 +5,7 @@ rml is a simple C library for machine learning. rml is currently under developme
 - TODO Nice file I/O with CSVs & a .rml format (denser tensor serialization)
 - TODO POSIX threading
   - For custom, non-cblas function implementations
-- TODO Python bindings
+- TODO Python & Golang bindings
 - TODO Basic deep learning layers (inference)
 - TODO Graph generation of operations conducted in series
 - TODO Backprop gradients over generated graph
