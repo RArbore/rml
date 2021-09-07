@@ -60,6 +60,9 @@ extern int rml_dims_equiv(dims_t *a, dims_t *b);
 // Free a dimensions struct
 extern void rml_free_dims(dims_t *dims);
 
+// Print a dimensions struct to stdout
+extern void rml_print_dims(dims_t *dims);
+
 // Create a tensor with undefined elements
 extern tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims);
 
@@ -100,7 +103,7 @@ extern tensor_t *rml_tensor_matmul_blas(tensor_t *a, tensor_t *b);
 extern tensor_t *rml_tensor_transpose_inplace(tensor_t *tensor);
 
 // Permute axes of a matrix
-extern tensor_t *rml_tensor_permute_inplace(tensor_t *tensor);
+extern tensor_t *rml_tensor_permute_inplace(tensor_t *tensor, size_t *perms);
 
 // Cast a tensor to a different type (inplace, pointer to a returned only for convenience)
 extern tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type);
