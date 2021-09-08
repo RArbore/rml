@@ -99,6 +99,9 @@ extern tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b);
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, use BLAS)
 extern tensor_t *rml_matmul_blas_tensor(tensor_t *a, tensor_t *b);
 
+// Concatenate tensor b to tensor a
+extern tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim);
+
 // Transpose a matrix (asserted that tensor is 2d, for more general form, see rml_tensor_permute_inplace, inplace, pointer to a returned tensor only for convenience)
 extern tensor_t *rml_transpose_tensor_inplace(tensor_t *tensor);
 
@@ -119,8 +122,5 @@ extern tensor_t *rml_mul_tensor_inplace(tensor_t *a, tensor_t *b);
 
 // Element-wise multiply tensor a by scalar (inplace, pointer to a returned tensor only for convenience)
 extern tensor_t *rml_scale_tensor_inplace(tensor_t *a, void *scalar);
-
-// Concatenate tensor b to tensor a (inplace, pointer to a returned tensor only for convenience)
-extern tensor_t *rml_concat_tensor_inplace(tensor_t *a, tensor_t *b, unsigned char dim);
 
 #endif // RML_H_

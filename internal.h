@@ -101,9 +101,11 @@
 
 #define CAST_TENSORS_WIDEN(a, b) { \
         if (a->tensor_type > b->tensor_type) { \
+            b = rml_clone_tensor(b); \
             rml_cast_tensor_inplace(b, a->tensor_type); \
         } \
         else if (a->tensor_type < b->tensor_type) { \
+            a = rml_clone_tensor(a); \
             rml_cast_tensor_inplace(a, b->tensor_type); \
         } \
         assert(a->tensor_type == b->tensor_type); \
