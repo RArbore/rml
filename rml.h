@@ -18,6 +18,10 @@
 
 #include <stdlib.h>
 
+/////////////
+// TENSORS //
+/////////////
+
 // Definition of different types of tensors (tensors can have any of the C primitive types as elements, enum used to store internally which primitive type is currently used by tensor)
 typedef enum {
     TENSOR_TYPE_BYTE = 0x00,
@@ -146,5 +150,8 @@ extern tensor_t *rml_log_tensor(tensor_t *tensor);
 
 // Element-wise power of tensor
 extern tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar);
+
+// Element-wise absolute value of tensor
+extern tensor_t *rml_abs_tensor(tensor_t *tensor);
 
 #endif // RML_H_

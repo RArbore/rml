@@ -191,7 +191,7 @@ tensor_t *rml_matmul_naive_tensor(tensor_t *a, tensor_t *b){
             for (size_t i = 0; i < a->dims->dims[1]; i++) {
                 size_t index_a = r * a->dims->dims[1] + i;
                 size_t index_b = i * b->dims->dims[1] + c;
-                SWITCH_ENUM_TYPES(result->tensor_type, ACCUM_VOID_POINTERS, a->data, b->data, result->data, index_a, index_b, index_res);
+                SWITCH_ENUM_TYPES(result->tensor_type, ACCUM_VOID_POINTER, a->data, b->data, result->data, index_a, index_b, index_res);
             }
         }
     }
@@ -442,7 +442,7 @@ tensor_t *rml_div_tensor(tensor_t *a, tensor_t *b) {
     return c;
 }
 
-tensor_t *rml_incremenet_tensor(tensor_t *a, void *scalar) {
+tensor_t *rml_increment_tensor(tensor_t *a, void *scalar) {
     tensor_t *result = rml_clone_tensor(a);
     SWITCH_ENUM_TYPES(a->tensor_type, INCREMENT_TENSOR, a, scalar, result);
     return result;
@@ -478,6 +478,7 @@ tensor_t *rml_exp_tensor(tensor_t *tensor) {
         default:
             break;
     }
+
     return result;
 }
 
@@ -505,6 +506,7 @@ tensor_t *rml_log_tensor(tensor_t *tensor) {
         default:
             break;
     }
+
     return result;
 }
 
@@ -531,6 +533,15 @@ tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar) {
             break;
         default:
             break;
+    }
+
+    return result;
+}
+
+tensor_t *rml_abs_tensor(tensor_t *tensor) {
+    tensor_t *result = rml_clone_tensor(tensor);
+    for (size_t i = 0; i< result->dims->flat_size; i++) {
+        SWITCH_ENUM_TYPES(result->tensor_type, ABS_VOID_POINTER, result->data, tensor->data, i, i);
     }
     return result;
 }

@@ -10,4 +10,11 @@ int main() {
     tensor_t *b = rml_pow_tensor(a, &c);
     rml_print_tensor(b);
     rml_print_dims(b->dims);
+    c = -2;
+    tensor_t *d = rml_increment_tensor(b, &c);
+    rml_print_tensor(d);
+    rml_print_dims(d->dims);
+    tensor_t *e = rml_abs_tensor(d);
+    rml_print_tensor(e);
+    rml_print_dims(e->dims);
 }
