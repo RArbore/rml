@@ -88,7 +88,7 @@ extern void rml_free_tensor(tensor_t *tensor);
 extern void rml_print_tensor(tensor_t *tensor);
 
 // Access a single tensor element - this WILL break gradient graph, rml_tensor_access should be used to preserve gradient graph
-extern void *rml_primitive_access_tensor(tensor_t *tensor, dims_t *dims);
+extern void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation)
 extern tensor_t *rml_matmul_naive_tensor(tensor_t *a, tensor_t *b);

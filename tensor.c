@@ -164,13 +164,15 @@ void rml_print_tensor(tensor_t *tensor) {
     printf("\n");
 }
 
-void *rml_primitive_access_tensor(tensor_t *tensor, dims_t *dims){
-    assert(dims->num_dims == tensor->dims->num_dims);
+void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos){
     size_t index = 0;
-    for (size_t i = 0; i < dims->num_dims; i++) {
-        index = index * tensor->dims->dims[i] + dims->dims[i];
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        index = index * tensor->dims->dims[i] + pos[i];
     }
-    return INDEX_VOID_POINTER(tensor->tensor_type, tensor->data, index);
+    void *ret;
+    SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, ret, 1);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, ret, tensor->data, 0, index);
+    return ret;
 }
 
 tensor_t *rml_matmul_naive_tensor(tensor_t *a, tensor_t *b){
