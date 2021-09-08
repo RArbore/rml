@@ -280,7 +280,7 @@ tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_
             if (d < result->dims->num_dims - 1) {
                 i_divided /= result->dims->dims[d + 1];
             }
-            pos_workspace[d] = i_divided % tensor->dims->dims[d] + lower_bound[d];
+            pos_workspace[d] = i_divided % result->dims->dims[d] + lower_bound[d];
             if (d == 0) reached_zero = 1;
         }
         size_t old_pos = 0;
