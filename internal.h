@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <cblas.h>
+#include <math.h>
 
 #include "rml.h"
 
@@ -128,6 +129,15 @@
         } \
     }
 
+#define SUB_TENSORS(type, tensor_a, tensor_b, tensor_c) { \
+        type *cast_a = (type *) tensor_a->data; \
+        type *cast_b = (type *) tensor_b->data; \
+        type *cast_c = (type *) tensor_c->data; \
+        for (size_t i = 0; i < tensor_a->dims->flat_size; i++) { \
+            cast_c[i] = cast_a[i] - cast_b[i]; \
+        } \
+    }
+
 #define MUL_TENSORS(type, tensor_a, tensor_b, tensor_c) { \
         type *cast_a = (type *) tensor_a->data; \
         type *cast_b = (type *) tensor_b->data; \
@@ -137,12 +147,78 @@
         } \
     }
 
+#define DIV_TENSORS(type, tensor_a, tensor_b, tensor_c) { \
+        type *cast_a = (type *) tensor_a->data; \
+        type *cast_b = (type *) tensor_b->data; \
+        type *cast_c = (type *) tensor_c->data; \
+        for (size_t i = 0; i < tensor_a->dims->flat_size; i++) { \
+            cast_c[i] = cast_a[i] / cast_b[i]; \
+        } \
+    }
+
+#define INCREMENT_TENSOR(type, tensor_src, scalar, tensor_dest) { \
+        type *cast_src = (type *) tensor_src->data; \
+        type *cast_scalar = (type *) scalar; \
+        type *cast_dest = (type *) tensor_dest->data; \
+        for (size_t i = 0; i < tensor_src->dims->flat_size; i++) { \
+            cast_dest[i] = cast_src[i] + *cast_scalar; \
+        } \
+    }
+
 #define SCALE_TENSOR(type, tensor_src, scalar, tensor_dest) { \
         type *cast_src = (type *) tensor_src->data; \
         type *cast_scalar = (type *) scalar; \
         type *cast_dest = (type *) tensor_dest->data; \
         for (size_t i = 0; i < tensor_src->dims->flat_size; i++) { \
             cast_dest[i] = cast_src[i] * *cast_scalar; \
+        } \
+    }
+
+#define EXPF_TENSOR(tensor, result) { \
+        float *cast_src = (float *) tensor->data; \
+        float *cast_dest = (float *) result->data; \
+        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
+            cast_dest[i] = expf(cast_src[i]); \
+        } \
+    }
+
+#define EXPD_TENSOR(tensor, result) { \
+        double *cast_src = (double *) tensor->data; \
+        double *cast_dest = (double *) result->data; \
+        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
+            cast_dest[i] = exp(cast_src[i]); \
+        } \
+    }
+
+#define EXPLD_TENSOR(tensor, result) { \
+        long double *cast_src = (long double *) tensor->data; \
+        long double *cast_dest = (long double *) result->data; \
+        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
+            cast_dest[i] = expl(cast_src[i]); \
+        } \
+    }
+
+#define LOGF_TENSOR(tensor, result) { \
+        float *cast_src = (float *) tensor->data; \
+        float *cast_dest = (float *) result->data; \
+        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
+            cast_dest[i] = logf(cast_src[i]); \
+        } \
+    }
+
+#define LOGD_TENSOR(tensor, result) { \
+        double *cast_src = (double *) tensor->data; \
+        double *cast_dest = (double *) result->data; \
+        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
+            cast_dest[i] = log(cast_src[i]); \
+        } \
+    }
+
+#define LOGLD_TENSOR(tensor, result) { \
+        long double *cast_src = (long double *) tensor->data; \
+        long double *cast_dest = (long double *) result->data; \
+        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
+            cast_dest[i] = logl(cast_src[i]); \
         } \
     }
 

@@ -76,12 +76,17 @@ void rml_print_dims(dims_t *dims) {
     printf("\n");
 }
 
-tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims){
+tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims, void *data){
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
     tensor->dims = dims;
     tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
+    if (data != NULL) {
+        for (size_t i = 0; i < dims->flat_size; i++) {
+            SWITCH_ENUM_TYPES(type, COPY_VOID_POINTER, tensor->data, data, i, i);
+        }
+    }
 
     return tensor;
 }
@@ -132,7 +137,6 @@ tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims) {
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
-    // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
     tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
     for (size_t i = 0; i < dims->flat_size; i++) {
@@ -143,7 +147,7 @@ tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims) {
 }
 
 tensor_t *rml_clone_tensor(tensor_t *tensor){
-    tensor_t *clone = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
+    tensor_t *clone = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         SWITCH_ENUM_TYPES(clone->tensor_type, COPY_VOID_POINTER, clone->data, tensor->data, i, i);
     }
@@ -239,7 +243,7 @@ tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim) {
     dims->flat_size /= dims->dims[dim];
     dims->dims[dim] = a->dims->dims[dim] + b->dims->dims[dim];
     dims->flat_size *= dims->dims[dim];
-    tensor_t *result = rml_init_tensor(a->tensor_type, dims);
+    tensor_t *result = rml_init_tensor(a->tensor_type, dims, NULL);
     size_t pos_workspace[result->dims->num_dims];
     for (size_t i = 0; i < result->dims->num_dims; i++) {
         pos_workspace[i] = 0;
@@ -273,7 +277,7 @@ tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_
         dims->dims[i] = upper_bound[i] - lower_bound[i];
         dims->flat_size *= dims->dims[i];
     }
-    tensor_t *result = rml_init_tensor(tensor->tensor_type, dims);
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, dims, NULL);
     size_t pos_workspace[result->dims->num_dims], i_divided;
     for (size_t i = 0; i < result->dims->flat_size; i++) {
         i_divided = i;
@@ -325,7 +329,7 @@ tensor_t *rml_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound)
 
 tensor_t *rml_transpose_tensor(tensor_t *tensor) {
     assert(tensor->dims->num_dims == 2);
-    tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
 
     for (size_t r = 0; r < tensor->dims->dims[0]; r++) {
         for (size_t c = 0; c < tensor->dims->dims[1]; c++) {
@@ -347,7 +351,7 @@ tensor_t *rml_permute_tensor(tensor_t *tensor, size_t *perms) {
     dims_t *new_dims_struct = rml_clone_dims(tensor->dims);
     free(new_dims_struct->dims);
     new_dims_struct->dims = new_dims;
-    tensor_t *result = rml_init_tensor(tensor->tensor_type, new_dims_struct);
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, new_dims_struct, NULL);
     size_t pos_workspace[tensor->dims->num_dims], i_divided;
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         i_divided = i;
@@ -401,8 +405,18 @@ tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type) {
 tensor_t *rml_add_tensor(tensor_t *a, tensor_t *b) {
     CAST_TENSORS_WIDEN(a, b)
     assert(rml_dims_equiv(a->dims, b->dims));
-    tensor_t *c = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims));
+    tensor_t *c = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims), NULL);
     SWITCH_ENUM_TYPES(a->tensor_type, ADD_TENSORS, a, b, c);
+    CLEANUP_CAST_TENSORS_WIDEN;
+
+    return c;
+}
+
+tensor_t *rml_sub_tensor(tensor_t *a, tensor_t *b) {
+    CAST_TENSORS_WIDEN(a, b)
+    assert(rml_dims_equiv(a->dims, b->dims));
+    tensor_t *c = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims), NULL);
+    SWITCH_ENUM_TYPES(a->tensor_type, SUB_TENSORS, a, b, c);
     CLEANUP_CAST_TENSORS_WIDEN;
 
     return c;
@@ -411,15 +425,73 @@ tensor_t *rml_add_tensor(tensor_t *a, tensor_t *b) {
 tensor_t *rml_mul_tensor(tensor_t *a, tensor_t *b) {
     CAST_TENSORS_WIDEN(a, b)
     assert(rml_dims_equiv(a->dims, b->dims));
-    tensor_t *c = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims));
+    tensor_t *c = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims), NULL);
     SWITCH_ENUM_TYPES(a->tensor_type, MUL_TENSORS, a, b, c);
     CLEANUP_CAST_TENSORS_WIDEN;
 
     return c;
 }
 
+tensor_t *rml_div_tensor(tensor_t *a, tensor_t *b) {
+    CAST_TENSORS_WIDEN(a, b)
+    assert(rml_dims_equiv(a->dims, b->dims));
+    tensor_t *c = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims), NULL);
+    SWITCH_ENUM_TYPES(a->tensor_type, DIV_TENSORS, a, b, c);
+    CLEANUP_CAST_TENSORS_WIDEN;
+
+    return c;
+}
+
+tensor_t *rml_incremenet_tensor(tensor_t *a, void *scalar) {
+    tensor_t *result = rml_clone_tensor(a);
+    SWITCH_ENUM_TYPES(a->tensor_type, INCREMENT_TENSOR, a, scalar, result);
+    return result;
+}
+
 tensor_t *rml_scale_tensor(tensor_t *a, void *scalar) {
     tensor_t *result = rml_clone_tensor(a);
     SWITCH_ENUM_TYPES(a->tensor_type, SCALE_TENSOR, a, scalar, result);
+    return result;
+}
+
+tensor_t *rml_exp_tensor(tensor_t *tensor) {
+    assert(tensor->tensor_type == TENSOR_TYPE_FLOAT ||
+           tensor->tensor_type == TENSOR_TYPE_DOUBLE ||
+           tensor->tensor_type == TENSOR_TYPE_LDOUBLE);
+    tensor_t *result = rml_clone_tensor(tensor);
+    switch (tensor->tensor_type) {
+        case TENSOR_TYPE_FLOAT:
+            EXPF_TENSOR(tensor, result);
+            break;
+        case TENSOR_TYPE_DOUBLE:
+            EXPD_TENSOR(tensor, result);
+            break;
+        case TENSOR_TYPE_LDOUBLE:
+            EXPLD_TENSOR(tensor, result);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+tensor_t *rml_log_tensor(tensor_t *tensor) {
+    assert(tensor->tensor_type == TENSOR_TYPE_FLOAT ||
+           tensor->tensor_type == TENSOR_TYPE_DOUBLE ||
+           tensor->tensor_type == TENSOR_TYPE_LDOUBLE);
+    tensor_t *result = rml_clone_tensor(tensor);
+    switch (tensor->tensor_type) {
+        case TENSOR_TYPE_FLOAT:
+            LOGF_TENSOR(tensor, result);
+            break;
+        case TENSOR_TYPE_DOUBLE:
+            LOGD_TENSOR(tensor, result);
+            break;
+        case TENSOR_TYPE_LDOUBLE:
+            LOGLD_TENSOR(tensor, result);
+            break;
+        default:
+            break;
+    }
     return result;
 }

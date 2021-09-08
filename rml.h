@@ -64,7 +64,7 @@ extern void rml_free_dims(dims_t *dims);
 extern void rml_print_dims(dims_t *dims);
 
 // Create a tensor with undefined elements
-extern tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims);
+extern tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims, void *data);
 
 // Create a tensor with specified elements (behavior undefined if number of arguments provided isn't equal to flat size of tensor)
 extern tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...);
@@ -123,10 +123,25 @@ extern tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type);
 // Element-wise add tensor b to tensor a
 extern tensor_t *rml_add_tensor(tensor_t *a, tensor_t *b);
 
+// Element-wise subtract tensor b to tensor a
+extern tensor_t *rml_sub_tensor(tensor_t *a, tensor_t *b);
+
 // Element-wise multiply tensor a by tensor b
 extern tensor_t *rml_mul_tensor(tensor_t *a, tensor_t *b);
 
-// Element-wise multiply tensor a by scalar
+// Element-wise divide tensor a by tensor b
+extern tensor_t *rml_div_tensor(tensor_t *a, tensor_t *b);
+
+// Element-wise add to tensor by a scalar
+extern tensor_t *rml_increment_tensor(tensor_t *a, void *scalar);
+
+// Element-wise multiply tensor by a scalar
 extern tensor_t *rml_scale_tensor(tensor_t *a, void *scalar);
+
+// Element-wise exponentiation of tensor
+extern tensor_t *rml_exp_tensor(tensor_t *tensor);
+
+// Element-wise logarithm of tensor
+extern tensor_t *rml_log_tensor(tensor_t *tensor);
 
 #endif // RML_H_
