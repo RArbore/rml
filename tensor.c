@@ -308,16 +308,22 @@ tensor_t *rml_permute_tensor(tensor_t *tensor, size_t *perms) {
     return result;
 }
 
-tensor_t *rml_reshape_tensor(tensor_t *tensor, size_t *new_dims) {
+tensor_t *rml_reshape_tensor(tensor_t *tensor, size_t *new_dims, size_t count) {
     size_t flat_size_check = 1;
-    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+    for (size_t i = 0; i < count; i++) {
         flat_size_check *= new_dims[i];
     }
     assert(flat_size_check == tensor->dims->flat_size);
     tensor_t *result = rml_clone_tensor(tensor);
-    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
-        result->dims->dims[i] = new_dims[i];
+    dims_t *new_dims_struct = malloc(sizeof(dims_t));
+    new_dims_struct->num_dims = count;
+    new_dims_struct->flat_size = flat_size_check;
+    new_dims_struct->dims = malloc(count * sizeof(size_t));
+    for (size_t i = 0; i < count; i++) {
+        new_dims_struct->dims[i] = new_dims[i];
     }
+    rml_free_dims(result->dims);
+    result->dims = new_dims_struct;
     return result;
 }
 

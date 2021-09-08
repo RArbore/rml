@@ -109,7 +109,7 @@ extern tensor_t *rml_transpose_tensor(tensor_t *tensor);
 extern tensor_t *rml_permute_tensor(tensor_t *tensor, size_t *perms);
 
 // Reshape tensor
-extern tensor_t *rml_reshape_tensor(tensor_t *tensor, size_t *new_dims);
+extern tensor_t *rml_reshape_tensor(tensor_t *tensor, size_t *new_dims, size_t count);
 
 // Cast a tensor to a different type
 extern tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type);
