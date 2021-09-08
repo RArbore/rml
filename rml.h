@@ -151,6 +151,42 @@ extern tensor_t *rml_log_tensor(tensor_t *tensor);
 // Element-wise power of tensor
 extern tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar);
 
+// Element-wise sin of tensor
+extern tensor_t *rml_sin_tensor(tensor_t *tensor);
+
+// Element-wise cos of tensor
+extern tensor_t *rml_cos_tensor(tensor_t *tensor);
+
+// Element-wise tan of tensor
+extern tensor_t *rml_tan_tensor(tensor_t *tensor);
+
+// Element-wise sinh of tensor
+extern tensor_t *rml_sinh_tensor(tensor_t *tensor);
+
+// Element-wise cosh of tensor
+extern tensor_t *rml_cosh_tensor(tensor_t *tensor);
+
+// Element-wise tanh of tensor
+extern tensor_t *rml_tanh_tensor(tensor_t *tensor);
+
+// Element-wise asin of tensor
+extern tensor_t *rml_asin_tensor(tensor_t *tensor);
+
+// Element-wise acos of tensor
+extern tensor_t *rml_acos_tensor(tensor_t *tensor);
+
+// Element-wise atan of tensor
+extern tensor_t *rml_atan_tensor(tensor_t *tensor);
+
+// Element-wise asinh of tensor
+extern tensor_t *rml_asinh_tensor(tensor_t *tensor);
+
+// Element-wise acosh of tensor
+extern tensor_t *rml_acosh_tensor(tensor_t *tensor);
+
+// Element-wise atanh of tensor
+extern tensor_t *rml_atanh_tensor(tensor_t *tensor);
+
 // Element-wise absolute value of tensor
 extern tensor_t *rml_abs_tensor(tensor_t *tensor);
 

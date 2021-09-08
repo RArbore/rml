@@ -454,7 +454,7 @@ tensor_t *rml_scale_tensor(tensor_t *a, void *scalar) {
     return result;
 }
 
-tensor_t *rml_exp_tensor(tensor_t *tensor) {
+tensor_t *rml_floating_point_op_tensor(tensor_t *tensor, float (*f)(float), double (*d)(double), long double (*ld)(long double)) {
     assert(tensor->tensor_type == TENSOR_TYPE_FLOAT ||
            tensor->tensor_type == TENSOR_TYPE_DOUBLE ||
            tensor->tensor_type == TENSOR_TYPE_LDOUBLE);
@@ -462,17 +462,17 @@ tensor_t *rml_exp_tensor(tensor_t *tensor) {
     switch (tensor->tensor_type) {
         case TENSOR_TYPE_FLOAT:
             for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-                ((float *) result->data)[i] = expf(((float *) tensor->data)[i]);
+                ((float *) result->data)[i] = f(((float *) tensor->data)[i]);
             }
             break;
         case TENSOR_TYPE_DOUBLE:
             for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-                ((double *) result->data)[i] = exp(((double *) tensor->data)[i]);
+                ((double *) result->data)[i] = d(((double *) tensor->data)[i]);
             }
             break;
         case TENSOR_TYPE_LDOUBLE:
             for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-                ((long double *) result->data)[i] = expl(((long double *) tensor->data)[i]);
+                ((long double *) result->data)[i] = ld(((long double *) tensor->data)[i]);
             }
             break;
         default:
@@ -482,32 +482,12 @@ tensor_t *rml_exp_tensor(tensor_t *tensor) {
     return result;
 }
 
-tensor_t *rml_log_tensor(tensor_t *tensor) {
-    assert(tensor->tensor_type == TENSOR_TYPE_FLOAT ||
-           tensor->tensor_type == TENSOR_TYPE_DOUBLE ||
-           tensor->tensor_type == TENSOR_TYPE_LDOUBLE);
-    tensor_t *result = rml_clone_tensor(tensor);
-    switch (tensor->tensor_type) {
-        case TENSOR_TYPE_FLOAT:
-            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-                ((float *) result->data)[i] = logf(((float *) tensor->data)[i]);
-            }
-            break;
-        case TENSOR_TYPE_DOUBLE:
-            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-                ((double *) result->data)[i] = log(((double *) tensor->data)[i]);
-            }
-            break;
-        case TENSOR_TYPE_LDOUBLE:
-            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-                ((long double *) result->data)[i] = logl(((long double *) tensor->data)[i]);
-            }
-            break;
-        default:
-            break;
-    }
+tensor_t *rml_exp_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, expf, exp, expl);
+}
 
-    return result;
+tensor_t *rml_log_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, logf, log, logl);
 }
 
 tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar) {
@@ -538,10 +518,85 @@ tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar) {
     return result;
 }
 
+tensor_t *rml_sin_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, sinf, sin, sinl);
+}
+
+tensor_t *rml_cos_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, cosf, cos, cosl);
+}
+
+tensor_t *rml_tan_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, tanf, tan, tanl);
+}
+
+tensor_t *rml_sinh_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, sinhf, sinh, sinhl);
+}
+
+tensor_t *rml_cosh_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, coshf, cosh, coshl);
+}
+
+tensor_t *rml_tanh_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, tanhf, tanh, tanhl);
+}
+
+tensor_t *rml_asin_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, asinf, asin, asinl);
+}
+
+tensor_t *rml_acos_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, acosf, acos, acosl);
+}
+
+tensor_t *rml_atan_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, atanf, atan, atanl);
+}
+
+tensor_t *rml_asinh_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, asinhf, asinh, asinhl);
+}
+
+tensor_t *rml_acosh_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, acoshf, acosh, acoshl);
+}
+
+tensor_t *rml_atanh_tensor(tensor_t *tensor) {
+    return rml_floating_point_op_tensor(tensor, atanhf, atanh, atanhl);
+}
+
 tensor_t *rml_abs_tensor(tensor_t *tensor) {
     tensor_t *result = rml_clone_tensor(tensor);
     for (size_t i = 0; i< result->dims->flat_size; i++) {
         SWITCH_ENUM_TYPES(result->tensor_type, ABS_VOID_POINTER, result->data, tensor->data, i, i);
     }
     return result;
+}
+
+size_t rml_sizeof_type(tensor_type_t tensor_type) {
+    switch (tensor_type) {
+        case TENSOR_TYPE_BYTE:
+            return sizeof(char);
+        case TENSOR_TYPE_UBYTE:
+            return sizeof(unsigned char);
+        case TENSOR_TYPE_SHORT:
+            return sizeof(short);
+        case TENSOR_TYPE_USHORT:
+            return sizeof(unsigned short);
+        case TENSOR_TYPE_INT:
+            return sizeof(int);
+        case TENSOR_TYPE_UINT:
+            return sizeof(unsigned int);
+        case TENSOR_TYPE_LONG:
+            return sizeof(long);
+        case TENSOR_TYPE_ULONG:
+            return sizeof(unsigned long);
+        case TENSOR_TYPE_FLOAT:
+            return sizeof(float);
+        case TENSOR_TYPE_DOUBLE:
+            return sizeof(double);
+        case TENSOR_TYPE_LDOUBLE:
+            return sizeof(long double);
+    }
 }

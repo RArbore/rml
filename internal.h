@@ -332,6 +332,4 @@
             break; \
     }
 
-size_t rml_sizeof_type(tensor_type_t tensor_type);
-
 #endif // INTERNAL_H_
