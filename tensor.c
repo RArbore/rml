@@ -261,6 +261,40 @@ tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim) {
     return result;
 }
 
+tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_bound) {
+    dims_t *dims = malloc(sizeof(dims_t));
+    dims->num_dims = tensor->dims->num_dims;
+    dims->dims = malloc(dims->num_dims * sizeof(size_t));
+    dims->flat_size = 1;
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        assert(lower_bound[i] < upper_bound[i]);
+        dims->dims[i] = upper_bound[i] - lower_bound[i];
+        dims->flat_size *= dims->dims[i];
+    }
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, dims);
+    size_t pos_workspace[result->dims->num_dims], i_divided;
+    for (size_t i = 0; i < result->dims->flat_size; i++) {
+        i_divided = i;
+        int reached_zero = 0;
+        for (size_t d = result->dims->num_dims - 1; !reached_zero; d--) {
+            if (d < result->dims->num_dims - 1) {
+                i_divided /= result->dims->dims[d + 1];
+            }
+            pos_workspace[d] = i_divided % tensor->dims->dims[d] + lower_bound[d];
+            if (d == 0) reached_zero = 1;
+        }
+        size_t old_pos = 0;
+        for (size_t d = 0; d < tensor->dims->num_dims; d++) {
+            size_t prev_mult = 0;
+            if (d > 0) prev_mult = tensor->dims->dims[d];
+            old_pos = old_pos * prev_mult + pos_workspace[d];
+        }
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->data, tensor->data, i, old_pos);
+    }
+
+    return result;
+}
+
 tensor_t *rml_transpose_tensor(tensor_t *tensor) {
     assert(tensor->dims->num_dims == 2);
     tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
