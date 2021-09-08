@@ -80,7 +80,6 @@ tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims){
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
-    // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
     tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
 
@@ -91,7 +90,6 @@ tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...)
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
-    // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
     tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
     assert(count == dims->flat_size);
@@ -110,7 +108,6 @@ tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims){
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
-    // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
     tensor->data = calloc(dims->flat_size, rml_sizeof_type(type));
 
@@ -121,7 +118,6 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
-    // TODO implement setting grad_graph and tensor_id
     tensor->dims = dims;
     tensor->data = malloc(dims->flat_size * rml_sizeof_type(type));
     for (size_t i = 0; i < dims->flat_size; i++) {
@@ -193,6 +189,7 @@ tensor_t *rml_matmul_naive_tensor(tensor_t *a, tensor_t *b){
             }
         }
     }
+    CLEANUP_CAST_TENSORS_WIDEN;
 
     return result;
 }
@@ -202,11 +199,11 @@ tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b){
     assert(a->dims->dims[1] == b->dims->dims[0]);
     CAST_TENSORS_WIDEN(a, b);
 
-    tensor_t *b_clone = rml_clone_tensor(b);
-    rml_transpose_tensor_inplace(b_clone);
+    tensor_t *b_clone = rml_transpose_tensor(b);
     tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
     SWITCH_ENUM_TYPES(result->tensor_type, FAST_MATRIX_MULTIPLY, a, b_clone, result);
     free(b_clone);
+    CLEANUP_CAST_TENSORS_WIDEN;
 
     return result;
 }
@@ -224,6 +221,7 @@ tensor_t *rml_matmul_blas_tensor(tensor_t *a, tensor_t *b){
     else {
         BLAS_MATRIX_MULTIPLY_DOUBLE(a, b, result);
     }
+    CLEANUP_CAST_TENSORS_WIDEN;
 
     return result;
 }
@@ -258,31 +256,36 @@ tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim) {
              d > 0 && pos_workspace[d] >= result->dims->dims[d];
              pos_workspace[d] = 0, pos_workspace[d - 1]++, d--);
     }
+    CLEANUP_CAST_TENSORS_WIDEN;
+
     return result;
 }
 
-tensor_t *rml_transpose_tensor_inplace(tensor_t *tensor) {
+tensor_t *rml_transpose_tensor(tensor_t *tensor) {
     assert(tensor->dims->num_dims == 2);
-    void *new;
-    SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, new, tensor->dims->flat_size);
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
 
     for (size_t r = 0; r < tensor->dims->dims[0]; r++) {
         for (size_t c = 0; c < tensor->dims->dims[1]; c++) {
-            SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, new, tensor->data, c * tensor->dims->dims[0] + r, r * tensor->dims->dims[1] + c);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->data, tensor->data, c * tensor->dims->dims[0] + r, r * tensor->dims->dims[1] + c);
         }
     }
-    free(tensor->data);
-    tensor->data = new;
-    size_t swap = tensor->dims->dims[0];
-    tensor->dims->dims[0] = tensor->dims->dims[1];
-    tensor->dims->dims[1] = swap;
+    size_t swap = result->dims->dims[0];
+    result->dims->dims[0] = result->dims->dims[1];
+    result->dims->dims[1] = swap;
 
-    return tensor;
+    return result;
 }
 
-tensor_t *rml_permute_tensor_inplace(tensor_t *tensor, size_t *perms) {
-    void *new;
-    SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, new, tensor->dims->flat_size);
+tensor_t *rml_permute_tensor(tensor_t *tensor, size_t *perms) {
+    size_t *new_dims = malloc(tensor->dims->num_dims * sizeof(size_t));
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        new_dims[i] = tensor->dims->dims[perms[i]];
+    }
+    dims_t *new_dims_struct = rml_clone_dims(tensor->dims);
+    free(new_dims_struct->dims);
+    new_dims_struct->dims = new_dims;
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, new_dims_struct);
     size_t pos_workspace[tensor->dims->num_dims], i_divided;
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         i_divided = i;
@@ -300,59 +303,55 @@ tensor_t *rml_permute_tensor_inplace(tensor_t *tensor, size_t *perms) {
             if (d > 0) prev_mult = tensor->dims->dims[perms[d]];
             new_pos = new_pos * prev_mult + pos_workspace[perms[d]];
         }
-        SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, new, tensor->data, new_pos, i);
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->data, tensor->data, new_pos, i);
     }
-    free(tensor->data);
-    tensor->data = new;
-    size_t *new_dims = malloc(tensor->dims->num_dims * sizeof(size_t));
-    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
-        new_dims[i] = tensor->dims->dims[perms[i]];
-    }
-    free(tensor->dims->dims);
-    tensor->dims->dims = new_dims;
-    return tensor;
+    return result;
 }
 
-tensor_t *rml_reshape_tensor_inplace(tensor_t *tensor, size_t *new_dims) {
+tensor_t *rml_reshape_tensor(tensor_t *tensor, size_t *new_dims) {
     size_t flat_size_check = 1;
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
         flat_size_check *= new_dims[i];
     }
     assert(flat_size_check == tensor->dims->flat_size);
+    tensor_t *result = rml_clone_tensor(tensor);
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
-        tensor->dims->dims[i] = new_dims[i];
+        result->dims->dims[i] = new_dims[i];
     }
-    return tensor;
+    return result;
 }
 
-tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type) {
-    if (tensor->tensor_type == type) return tensor;
-    void *new;
-    SWITCH_ENUM_TYPES(type, MALLOC_VOID_POINTER, new, tensor->dims->flat_size);
+tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type) {
+    tensor_t *result = rml_clone_tensor(tensor);
+    if (tensor->tensor_type == type) return result;
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
-        SWITCH_2_ENUM_TYPES(type, tensor->tensor_type, CAST_VOID_POINTER, new, tensor->data, i, i);
+        SWITCH_2_ENUM_TYPES(type, tensor->tensor_type, CAST_VOID_POINTER, result->data, tensor->data, i, i);
     }
-    free(tensor->data);
-    tensor->data = new;
-    tensor->tensor_type = type;
-    return tensor;
+    return result;
 }
 
-tensor_t *rml_add_tensor_inplace(tensor_t *a, tensor_t *b) {
+tensor_t *rml_add_tensor(tensor_t *a, tensor_t *b) {
     CAST_TENSORS_WIDEN(a, b)
     assert(rml_dims_equiv(a->dims, b->dims));
-    SWITCH_ENUM_TYPES(a->tensor_type, ADD_TENSORS, a, b, a);
-    return a;
+    tensor_t *c = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims));
+    SWITCH_ENUM_TYPES(a->tensor_type, ADD_TENSORS, a, b, c);
+    CLEANUP_CAST_TENSORS_WIDEN;
+
+    return c;
 }
 
-tensor_t *rml_mul_tensor_inplace(tensor_t *a, tensor_t *b) {
+tensor_t *rml_mul_tensor(tensor_t *a, tensor_t *b) {
     CAST_TENSORS_WIDEN(a, b)
     assert(rml_dims_equiv(a->dims, b->dims));
-    SWITCH_ENUM_TYPES(a->tensor_type, MUL_TENSORS, a, b, a);
-    return a;
+    tensor_t *c = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims));
+    SWITCH_ENUM_TYPES(a->tensor_type, MUL_TENSORS, a, b, c);
+    CLEANUP_CAST_TENSORS_WIDEN;
+
+    return c;
 }
 
-tensor_t *rml_scale_tensor_inplace(tensor_t *a, void *scalar) {
-    SWITCH_ENUM_TYPES(a->tensor_type, SCALE_TENSOR, a, scalar, a);
-    return a;
+tensor_t *rml_scale_tensor(tensor_t *a, void *scalar) {
+    tensor_t *result = rml_clone_tensor(a);
+    SWITCH_ENUM_TYPES(a->tensor_type, SCALE_TENSOR, a, scalar, result);
+    return result;
 }

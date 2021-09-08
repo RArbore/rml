@@ -99,16 +99,24 @@
     }
 */
 
-#define CAST_TENSORS_WIDEN(a, b) { \
+#define CAST_TENSORS_WIDEN(a, b) \
+    tensor_t *A_CASTED = NULL; \
+    tensor_t *B_CASTED = NULL; \
+    { \
         if (a->tensor_type > b->tensor_type) { \
-            b = rml_clone_tensor(b); \
-            rml_cast_tensor_inplace(b, a->tensor_type); \
+            b = rml_cast_tensor(b, a->tensor_type); \
+            B_CASTED = b; \
         } \
         else if (a->tensor_type < b->tensor_type) { \
-            a = rml_clone_tensor(a); \
-            rml_cast_tensor_inplace(a, b->tensor_type); \
+            a = rml_cast_tensor(a, b->tensor_type); \
+            A_CASTED = a; \
         } \
         assert(a->tensor_type == b->tensor_type); \
+    }
+
+#define CLEANUP_CAST_TENSORS_WIDEN { \
+        free(A_CASTED); \
+        free(B_CASTED); \
     }
 
 #define ADD_TENSORS(type, tensor_a, tensor_b, tensor_c) { \

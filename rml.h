@@ -102,25 +102,25 @@ extern tensor_t *rml_matmul_blas_tensor(tensor_t *a, tensor_t *b);
 // Concatenate tensor b to tensor a
 extern tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim);
 
-// Transpose a matrix (asserted that tensor is 2d, for more general form, see rml_tensor_permute_inplace, inplace, pointer to a returned tensor only for convenience)
-extern tensor_t *rml_transpose_tensor_inplace(tensor_t *tensor);
+// Transpose a matrix (asserted that tensor is 2d, for more general form, see rml_tensor_permute_inplace)
+extern tensor_t *rml_transpose_tensor(tensor_t *tensor);
 
-// Permute axes of a tensor (inplace, pointer to a returned tensor only for convenience)
-extern tensor_t *rml_permute_tensor_inplace(tensor_t *tensor, size_t *perms);
+// Permute axes of a tensor
+extern tensor_t *rml_permute_tensor(tensor_t *tensor, size_t *perms);
 
-// Reshape tensor (inplace, pointer to a returned tensor only for convenience)
-extern tensor_t *rml_reshape_tensor_inplace(tensor_t *tensor, size_t *new_dims);
+// Reshape tensor
+extern tensor_t *rml_reshape_tensor(tensor_t *tensor, size_t *new_dims);
 
-// Cast a tensor to a different type (inplace, pointer to a returned tensor only for convenience)
-extern tensor_t *rml_cast_tensor_inplace(tensor_t *tensor, tensor_type_t type);
+// Cast a tensor to a different type
+extern tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type);
 
-// Element-wise add tensor b to tensor a (inplace, pointer to a returned tensor only for convenience)
-extern tensor_t *rml_add_tensor_inplace(tensor_t *a, tensor_t *b);
+// Element-wise add tensor b to tensor a
+extern tensor_t *rml_add_tensor(tensor_t *a, tensor_t *b);
 
-// Element-wise multiply tensor a by tensor b (inplace, pointer to a returned tensor only for convenience)
-extern tensor_t *rml_mul_tensor_inplace(tensor_t *a, tensor_t *b);
+// Element-wise multiply tensor a by tensor b
+extern tensor_t *rml_mul_tensor(tensor_t *a, tensor_t *b);
 
-// Element-wise multiply tensor a by scalar (inplace, pointer to a returned tensor only for convenience)
-extern tensor_t *rml_scale_tensor_inplace(tensor_t *a, void *scalar);
+// Element-wise multiply tensor a by scalar
+extern tensor_t *rml_scale_tensor(tensor_t *a, void *scalar);
 
 #endif // RML_H_
