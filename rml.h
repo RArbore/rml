@@ -105,6 +105,9 @@ extern tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim);
 // Slice a tensor (index section)
 extern tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_bound);
 
+// Assign a slice of tensor a the values in tensor b
+extern tensor_t *rml_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound);
+
 // Transpose a matrix (asserted that tensor is 2d, for more general form, see rml_tensor_permute_inplace)
 extern tensor_t *rml_transpose_tensor(tensor_t *tensor);
 

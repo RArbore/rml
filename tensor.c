@@ -297,6 +297,32 @@ tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_
     return result;
 }
 
+tensor_t *rml_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound) {
+    assert(a->dims->num_dims == b->dims->num_dims);
+    tensor_t *result = rml_clone_tensor(a);
+    size_t pos_workspace[b->dims->num_dims], i_divided;
+    for (size_t i = 0; i < b->dims->flat_size; i++) {
+        i_divided = i;
+        int reached_zero = 0;
+        for (size_t d = b->dims->num_dims - 1; !reached_zero; d--) {
+            if (d < b->dims->num_dims - 1) {
+                i_divided /= b->dims->dims[d + 1];
+            }
+            pos_workspace[d] = i_divided % b->dims->dims[d] + lower_bound[d];
+            if (d == 0) reached_zero = 1;
+        }
+        size_t new_pos = 0;
+        for (size_t d = 0; d < result->dims->num_dims; d++) {
+            size_t prev_mult = 0;
+            if (d > 0) prev_mult = result->dims->dims[d];
+            new_pos = new_pos * prev_mult + pos_workspace[d];
+        }
+        SWITCH_2_ENUM_TYPES(result->tensor_type, b->tensor_type, CAST_VOID_POINTER, result->data, b->data, new_pos, i);
+    }
+
+    return result;
+}
+
 tensor_t *rml_transpose_tensor(tensor_t *tensor) {
     assert(tensor->dims->num_dims == 2);
     tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims));
