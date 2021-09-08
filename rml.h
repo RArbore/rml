@@ -144,4 +144,7 @@ extern tensor_t *rml_exp_tensor(tensor_t *tensor);
 // Element-wise logarithm of tensor
 extern tensor_t *rml_log_tensor(tensor_t *tensor);
 
+// Element-wise power of tensor
+extern tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar);
+
 #endif // RML_H_

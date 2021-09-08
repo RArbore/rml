@@ -174,54 +174,6 @@
         } \
     }
 
-#define EXPF_TENSOR(tensor, result) { \
-        float *cast_src = (float *) tensor->data; \
-        float *cast_dest = (float *) result->data; \
-        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
-            cast_dest[i] = expf(cast_src[i]); \
-        } \
-    }
-
-#define EXPD_TENSOR(tensor, result) { \
-        double *cast_src = (double *) tensor->data; \
-        double *cast_dest = (double *) result->data; \
-        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
-            cast_dest[i] = exp(cast_src[i]); \
-        } \
-    }
-
-#define EXPLD_TENSOR(tensor, result) { \
-        long double *cast_src = (long double *) tensor->data; \
-        long double *cast_dest = (long double *) result->data; \
-        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
-            cast_dest[i] = expl(cast_src[i]); \
-        } \
-    }
-
-#define LOGF_TENSOR(tensor, result) { \
-        float *cast_src = (float *) tensor->data; \
-        float *cast_dest = (float *) result->data; \
-        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
-            cast_dest[i] = logf(cast_src[i]); \
-        } \
-    }
-
-#define LOGD_TENSOR(tensor, result) { \
-        double *cast_src = (double *) tensor->data; \
-        double *cast_dest = (double *) result->data; \
-        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
-            cast_dest[i] = log(cast_src[i]); \
-        } \
-    }
-
-#define LOGLD_TENSOR(tensor, result) { \
-        long double *cast_src = (long double *) tensor->data; \
-        long double *cast_dest = (long double *) result->data; \
-        for (size_t i = 0; i < tensor->dims->flat_size; i++) { \
-            cast_dest[i] = logl(cast_src[i]); \
-        } \
-    }
-
 #define SWITCH_ENUM_TYPES(type, macro, ...) \
     switch (type) { \
         case TENSOR_TYPE_BYTE: \

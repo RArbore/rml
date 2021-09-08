@@ -461,13 +461,19 @@ tensor_t *rml_exp_tensor(tensor_t *tensor) {
     tensor_t *result = rml_clone_tensor(tensor);
     switch (tensor->tensor_type) {
         case TENSOR_TYPE_FLOAT:
-            EXPF_TENSOR(tensor, result);
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((float *) result->data)[i] = expf(((float *) tensor->data)[i]);
+            }
             break;
         case TENSOR_TYPE_DOUBLE:
-            EXPD_TENSOR(tensor, result);
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((double *) result->data)[i] = exp(((double *) tensor->data)[i]);
+            }
             break;
         case TENSOR_TYPE_LDOUBLE:
-            EXPLD_TENSOR(tensor, result);
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((long double *) result->data)[i] = expl(((long double *) tensor->data)[i]);
+            }
             break;
         default:
             break;
@@ -482,13 +488,46 @@ tensor_t *rml_log_tensor(tensor_t *tensor) {
     tensor_t *result = rml_clone_tensor(tensor);
     switch (tensor->tensor_type) {
         case TENSOR_TYPE_FLOAT:
-            LOGF_TENSOR(tensor, result);
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((float *) result->data)[i] = logf(((float *) tensor->data)[i]);
+            }
             break;
         case TENSOR_TYPE_DOUBLE:
-            LOGD_TENSOR(tensor, result);
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((double *) result->data)[i] = log(((double *) tensor->data)[i]);
+            }
             break;
         case TENSOR_TYPE_LDOUBLE:
-            LOGLD_TENSOR(tensor, result);
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((long double *) result->data)[i] = logl(((long double *) tensor->data)[i]);
+            }
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar) {
+    assert(tensor->tensor_type == TENSOR_TYPE_FLOAT ||
+           tensor->tensor_type == TENSOR_TYPE_DOUBLE ||
+           tensor->tensor_type == TENSOR_TYPE_LDOUBLE);
+    tensor_t *result = rml_clone_tensor(tensor);
+    switch (tensor->tensor_type) {
+        case TENSOR_TYPE_FLOAT:
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((float *) result->data)[i] = powf(((float *) tensor->data)[i], *((float *) scalar));
+            }
+            break;
+        case TENSOR_TYPE_DOUBLE:
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((double *) result->data)[i] = pow(((double *) tensor->data)[i], *((double *) scalar));
+            }
+            break;
+        case TENSOR_TYPE_LDOUBLE:
+            for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+                ((long double *) result->data)[i] = powl(((long double *) tensor->data)[i], *((long double *) scalar));
+            }
             break;
         default:
             break;
