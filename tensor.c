@@ -574,6 +574,32 @@ tensor_t *rml_abs_tensor(tensor_t *tensor) {
     return result;
 }
 
+void *rml_max_tensor(tensor_t *tensor) {
+    size_t max_pos = 0;
+    for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+        int comp;
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COMPARE_VOID_POINTER, tensor->data, tensor->data, max_pos, i, comp);
+        if (comp == -1) max_pos = i;
+    }
+    void *result;
+    SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, result, 1);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result, tensor->data, 0, max_pos);
+    return result;
+}
+
+void *rml_min_tensor(tensor_t *tensor) {
+    size_t min_pos = 0;
+    for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+        int comp;
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COMPARE_VOID_POINTER, tensor->data, tensor->data, min_pos, i, comp);
+        if (comp == 1) min_pos = i;
+    }
+    void *result;
+    SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, result, 1);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result, tensor->data, 0, min_pos);
+    return result;
+}
+
 size_t rml_sizeof_type(tensor_type_t tensor_type) {
     switch (tensor_type) {
         case TENSOR_TYPE_BYTE:

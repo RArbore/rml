@@ -33,8 +33,12 @@
 #define COPY_VOID_POINTER(type, dest, src, i1, i2) CAST_VOID_POINTER(type, type, dest, src, i1, i2);
 #define STORE_VOID_FROM_VA(type_dest, type_va, ap, dest, index) {*((type_dest *) dest + index) = va_arg(ap, type_va);}
 #define ABS_VOID_POINTER(type, dest, src, i1, i2) {*((type *) dest + i1) = *((type *) src + i2) >= 0 ? *((type *) src + i2) : -*((type *) src + i2);}
-
 #define ACCUM_VOID_POINTER(type, a, b, c, i1, i2, i3) {*((type *) c + i3) += *((type *) a + i1) * *((type *) b + i2);}
+#define COMPARE_VOID_POINTER(type, a, b, i1, i2, res) { \
+        if(*((type *) a + i1) > *((type *) b + i2)) res = 1; \
+        else if(*((type *) a + i1) < *((type *) b + i2)) res = -1; \
+        else res = 0; \
+    }
 
 #define BLAS_MATRIX_MULTIPLY_SINGLE(a, b, result) { \
         cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (float *) a->data, a->dims->dims[1], (float *) b->data, b->dims->dims[1], 0., (float *) result->data, b->dims->dims[1]); \

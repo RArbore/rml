@@ -17,4 +17,7 @@ int main() {
     tensor_t *e = rml_abs_tensor(d);
     rml_print_tensor(e);
     rml_print_dims(e->dims);
+    float *max = rml_max_tensor(e);
+    float *min = rml_min_tensor(e);
+    printf("%f %f\n", *min, *max);
 }

@@ -190,4 +190,10 @@ extern tensor_t *rml_atanh_tensor(tensor_t *tensor);
 // Element-wise absolute value of tensor
 extern tensor_t *rml_abs_tensor(tensor_t *tensor);
 
+// Find maximum value of tensor
+extern void *rml_max_tensor(tensor_t *tensor);
+
+// Find minimum value of tensor
+extern void *rml_min_tensor(tensor_t *tensor);
+
 #endif // RML_H_
