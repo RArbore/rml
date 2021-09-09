@@ -20,4 +20,9 @@ int main() {
     float *max = rml_max_tensor(e);
     float *min = rml_min_tensor(e);
     printf("%f %f\n", *min, *max);
+    tensor_t *softmax = rml_softmax_tensor(e);
+    rml_print_tensor(softmax);
+    rml_print_dims(softmax->dims);
+    float *sum = rml_sum_tensor(softmax);
+    printf("%f\n", *sum);
 }

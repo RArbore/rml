@@ -27,8 +27,15 @@
 
 #define SS(type) (sysconf(_SC_LEVEL1_DCACHE_LINESIZE) / sizeof(type))
 
+#define INCREMENT_VOID_POINTER_VAL(type, ptr, i, val) {*((type *) ptr + i) += val;}
+#define SCALE_VOID_POINTER_VAL(type, ptr, i, val) {*((type *) ptr + i) *= val;}
+#define INCREMENT_VOID_POINTER_PTR(type, ptr, i, ptr_val, i_val) {*((type *) ptr + i) += *((type *) ptr_val + i_val);}
+#define SCALE_VOID_POINTER_PTR(type, ptr, i, ptr_val, i_val) {*((type *) ptr + i) *= *((type *) ptr_val + i_val);}
+#define INV_VOID_POINTER(type, ptr, i) {*((type *) ptr + i) = 1 / *((type *) ptr + i);}
+
 #define ASSIGN_VOID_POINTER(type, dest, value, index) {*((type *) dest + index) = value;}
 #define MALLOC_VOID_POINTER(type, ptr, size) {ptr = malloc(size * sizeof(type));}
+#define CALLOC_VOID_POINTER(type, ptr, size) {ptr = calloc(size, sizeof(type));}
 #define CAST_VOID_POINTER(type_new, type_old, dest, src, i1, i2) {*((type_new *) dest + i1) = *((type_old *) src + i2);}
 #define COPY_VOID_POINTER(type, dest, src, i1, i2) CAST_VOID_POINTER(type, type, dest, src, i1, i2);
 #define STORE_VOID_FROM_VA(type_dest, type_va, ap, dest, index) {*((type_dest *) dest + index) = va_arg(ap, type_va);}

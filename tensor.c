@@ -394,7 +394,7 @@ tensor_t *rml_reshape_tensor(tensor_t *tensor, size_t *new_dims, size_t count) {
 }
 
 tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type) {
-    tensor_t *result = rml_clone_tensor(tensor);
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
     if (tensor->tensor_type == type) return result;
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         SWITCH_2_ENUM_TYPES(type, tensor->tensor_type, CAST_VOID_POINTER, result->data, tensor->data, i, i);
@@ -458,7 +458,7 @@ tensor_t *rml_floating_point_op_tensor(tensor_t *tensor, float (*f)(float), doub
     assert(tensor->tensor_type == TENSOR_TYPE_FLOAT ||
            tensor->tensor_type == TENSOR_TYPE_DOUBLE ||
            tensor->tensor_type == TENSOR_TYPE_LDOUBLE);
-    tensor_t *result = rml_clone_tensor(tensor);
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
     switch (tensor->tensor_type) {
         case TENSOR_TYPE_FLOAT:
             for (size_t i = 0; i < tensor->dims->flat_size; i++) {
@@ -494,7 +494,7 @@ tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar) {
     assert(tensor->tensor_type == TENSOR_TYPE_FLOAT ||
            tensor->tensor_type == TENSOR_TYPE_DOUBLE ||
            tensor->tensor_type == TENSOR_TYPE_LDOUBLE);
-    tensor_t *result = rml_clone_tensor(tensor);
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
     switch (tensor->tensor_type) {
         case TENSOR_TYPE_FLOAT:
             for (size_t i = 0; i < tensor->dims->flat_size; i++) {
@@ -567,10 +567,25 @@ tensor_t *rml_atanh_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_abs_tensor(tensor_t *tensor) {
-    tensor_t *result = rml_clone_tensor(tensor);
+    tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
     for (size_t i = 0; i< result->dims->flat_size; i++) {
         SWITCH_ENUM_TYPES(result->tensor_type, ABS_VOID_POINTER, result->data, tensor->data, i, i);
     }
+    return result;
+}
+
+tensor_t *rml_softmax_tensor(tensor_t *tensor) {
+    void *max = rml_max_tensor(tensor);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, SCALE_VOID_POINTER_VAL, max, 0, -1);
+    tensor_t *decremented = rml_increment_tensor(tensor, max);
+    tensor_t *exp = rml_exp_tensor(decremented);
+    void *exp_sum = rml_sum_tensor(exp);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, INV_VOID_POINTER, exp_sum, 0);
+    tensor_t *result = rml_scale_tensor(exp, exp_sum);
+    free(max);
+    free(decremented);
+    free(exp);
+    free(exp_sum);
     return result;
 }
 
@@ -597,6 +612,15 @@ void *rml_min_tensor(tensor_t *tensor) {
     void *result;
     SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, result, 1);
     SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result, tensor->data, 0, min_pos);
+    return result;
+}
+
+void *rml_sum_tensor(tensor_t *tensor) {
+    void *result;
+    SWITCH_ENUM_TYPES(tensor->tensor_type, CALLOC_VOID_POINTER, result, 1);
+    for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+        SWITCH_ENUM_TYPES(tensor->tensor_type, INCREMENT_VOID_POINTER_PTR, result, 0, tensor->data, i);
+    }
     return result;
 }
 
