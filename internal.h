@@ -343,4 +343,78 @@
             break; \
     }
 
+#define FPRINT_VOID_POINTER(type, ptr, index, fp) \
+    switch (type) { \
+        case TENSOR_TYPE_BYTE: \
+            fprintf(fp, "%d", *((char *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_UBYTE: \
+            fprintf(fp, "%u", *((unsigned char *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_SHORT: \
+            fprintf(fp, "%d", *((short *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_USHORT: \
+            fprintf(fp, "%u", *((unsigned short *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_INT: \
+            fprintf(fp, "%d", *((int *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_UINT: \
+            fprintf(fp, "%u", *((unsigned int *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_LONG: \
+            fprintf(fp, "%ld", *((long *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_ULONG: \
+            fprintf(fp, "%lu", *((unsigned long *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_FLOAT: \
+            fprintf(fp, "%f", *((float *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_DOUBLE: \
+            fprintf(fp, "%f", *((double *) ptr + index)); \
+            break; \
+        case TENSOR_TYPE_LDOUBLE: \
+            fprintf(fp, "%Lf", *((long double *) ptr + index)); \
+            break; \
+    }
+
+#define FSCANF_VOID_POINTER(type, ptr, index, fp) \
+    switch (type) { \
+        case TENSOR_TYPE_BYTE: \
+            fscanf(fp, "%c", (char *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_UBYTE: \
+            fscanf(fp, "%c", (unsigned char *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_SHORT: \
+            fscanf(fp, "%hd", (short *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_USHORT: \
+            fscanf(fp, "%hu", (unsigned short *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_INT: \
+            fscanf(fp, "%d", (int *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_UINT: \
+            fscanf(fp, "%u", (unsigned int *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_LONG: \
+            fscanf(fp, "%ld", (long *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_ULONG: \
+            fscanf(fp, "%lu", (unsigned long *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_FLOAT: \
+            fscanf(fp, "%f", (float *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_DOUBLE: \
+            fscanf(fp, "%lf", (double *) ptr + index); \
+            break; \
+        case TENSOR_TYPE_LDOUBLE: \
+            fscanf(fp, "%Lf", (long double *) ptr + index); \
+            break; \
+    }
+
 #endif // INTERNAL_H_

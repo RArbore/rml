@@ -202,4 +202,16 @@ extern void *rml_min_tensor(tensor_t *tensor);
 // Find sum of all values of tensor
 extern void *rml_sum_tensor(tensor_t *tensor);
 
+// Read tensor to a csv file without metadata
+extern tensor_t *rml_read_tensor_csv_raw(char *filename, tensor_type_t tensor_type, dims_t *dims);
+
+// Read tensor to a csv file with metadata
+extern tensor_t *rml_read_tensor_csv_full(char *filename);
+
+// Write tensor to a csv file without metadata
+extern void rml_write_tensor_csv_raw(char *filename, tensor_t *tensor);
+
+// Write tensor to a csv file with metadata
+extern void rml_write_tensor_csv_full(char *filename, tensor_t *tensor);
+
 #endif // RML_H_

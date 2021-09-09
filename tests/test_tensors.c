@@ -25,4 +25,8 @@ int main() {
     rml_print_dims(softmax->dims);
     float *sum = rml_sum_tensor(softmax);
     printf("%f\n", *sum);
+    rml_write_tensor_csv_full("softmax.csv", softmax);
+    tensor_t *read_raw = rml_read_tensor_csv_full("softmax.csv");
+    rml_print_tensor(read_raw);
+    rml_print_dims(read_raw->dims);
 }
