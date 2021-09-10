@@ -51,5 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-*exec
+test_tensors
+test_mnist
 *.csv
