@@ -53,5 +53,24 @@ int main() {
         tensor_t *image_b3 = rml_add_tensor(b3, image_w3);
         tensor_t *softmax = rml_softmax_tensor(image_b3);
         rml_print_tensor(softmax);
+        free(image_flat);
+        free(image);
+        free(image_w1);
+        free(image_b1);
+        free(image_l1);
+        free(image_w2);
+        free(image_b2);
+        free(image_l2);
+        free(image_w3);
+        free(image_b3);
+        free(softmax);
     }
+    free(w1);
+    free(b1);
+    free(w2);
+    free(b2);
+    free(w3);
+    free(b3);
+    free(images_flat);
+    free(labels);
 }
