@@ -181,6 +181,33 @@
         } \
     }
 
+#define CLAMP_TENSOR(type, tensor_src, min, max, tensor_dest) { \
+        type *cast_src = (type *) tensor_src->data; \
+        type *cast_min = (type *) min; \
+        type *cast_max = (type *) max; \
+        type *cast_dest = (type *) tensor_dest->data; \
+        if (min != NULL && max != NULL) { \
+            for (size_t i = 0; i < tensor_src->dims->flat_size; i++) { \
+                cast_dest[i] = *cast_min > cast_src[i] ? *cast_min : (*cast_max < cast_src[i] ? *cast_max : cast_src[i]); \
+            } \
+        } \
+        else if (max != NULL) { \
+            for (size_t i = 0; i < tensor_src->dims->flat_size; i++) { \
+                cast_dest[i] = *cast_max < cast_src[i] ? *cast_max : cast_src[i]; \
+            } \
+        } \
+        else if (min != NULL) { \
+            for (size_t i = 0; i < tensor_src->dims->flat_size; i++) { \
+                cast_dest[i] = *cast_min > cast_src[i] ? *cast_min : cast_src[i]; \
+            } \
+        } \
+        else { \
+            for (size_t i = 0; i < tensor_src->dims->flat_size; i++) { \
+                cast_dest[i] = cast_src[i]; \
+            } \
+        } \
+    }
+
 #define SWITCH_ENUM_TYPES(type, macro, ...) \
     switch (type) { \
         case TENSOR_TYPE_BYTE: \

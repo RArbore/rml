@@ -574,18 +574,9 @@ tensor_t *rml_abs_tensor(tensor_t *tensor) {
     return result;
 }
 
-tensor_t *rml_softmax_tensor(tensor_t *tensor) {
-    void *max = rml_max_tensor(tensor);
-    SWITCH_ENUM_TYPES(tensor->tensor_type, SCALE_VOID_POINTER_VAL, max, 0, -1);
-    tensor_t *decremented = rml_increment_tensor(tensor, max);
-    tensor_t *exp = rml_exp_tensor(decremented);
-    void *exp_sum = rml_sum_tensor(exp);
-    SWITCH_ENUM_TYPES(tensor->tensor_type, INV_VOID_POINTER, exp_sum, 0);
-    tensor_t *result = rml_scale_tensor(exp, exp_sum);
-    free(max);
-    free(decremented);
-    free(exp);
-    free(exp_sum);
+tensor_t *rml_clamp_tensor(tensor_t *tensor, void *min, void *max) {
+    tensor_t *result = rml_clone_tensor(tensor);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, CLAMP_TENSOR, tensor, min, max, result);
     return result;
 }
 

@@ -5,9 +5,11 @@ L_FLAGS=-lcblas
 install: librml.so
 	cp librml.so /usr/lib/librml.so
 	cp rml.h /usr/include/rml.h
-librml.so: internal.o fileio.o tensor.o
+librml.so: internal.o fileio.o operations.o tensor.o
 	$(CC) -shared -Wl,-soname,$@ -o $@ $^ $(L_FLAGS)
 tensor.o: tensor.c rml.h internal.h tensor.h
+	$(CC) $< -c -o $@ $(OBJ_FLAGS)
+operations.o: operations.c rml.h internal.h operations.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
 fileio.o: fileio.c rml.h internal.h fileio.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)

@@ -190,8 +190,8 @@ extern tensor_t *rml_atanh_tensor(tensor_t *tensor);
 // Element-wise absolute value of tensor
 extern tensor_t *rml_abs_tensor(tensor_t *tensor);
 
-// Softmax of tensor
-extern tensor_t *rml_softmax_tensor(tensor_t *tensor);
+// Clamp values of a tensor
+extern tensor_t *rml_clamp_tensor(tensor_t *tensor, void *min, void *max);
 
 // Find maximum value of tensor
 extern void *rml_max_tensor(tensor_t *tensor);
@@ -213,5 +213,17 @@ extern void rml_write_tensor_csv_raw(char *filename, tensor_t *tensor);
 
 // Write tensor to a csv file with metadata
 extern void rml_write_tensor_csv_full(char *filename, tensor_t *tensor);
+
+// Softmax of tensor
+extern tensor_t *rml_softmax_tensor(tensor_t *tensor);
+
+// ReLU of tensor
+extern tensor_t *rml_relu_tensor(tensor_t *tensor);
+
+// LeakyReLU of tensor
+extern tensor_t *rml_leakyrelu_tensor(tensor_t *tensor, void *mult);
+
+// Cross entropy loss between prediction and label tensors
+extern tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label);
 
 #endif // RML_H_
