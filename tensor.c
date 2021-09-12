@@ -222,10 +222,10 @@ tensor_t *rml_matmul_blas_tensor(tensor_t *a, tensor_t *b){
 
     tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
     if (result->tensor_type == TENSOR_TYPE_FLOAT) {
-        BLAS_MATRIX_MULTIPLY_SINGLE(a, b, result);
+        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (float *) a->data, a->dims->dims[1], (float *) b->data, b->dims->dims[1], 0., (float *) result->data, b->dims->dims[1]); \
     }
     else {
-        BLAS_MATRIX_MULTIPLY_DOUBLE(a, b, result);
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (double *) a->data, a->dims->dims[1], (double *) b->data, b->dims->dims[1], 0., (double *) result->data, b->dims->dims[1]); \
     }
     CLEANUP_CAST_TENSORS_WIDEN;
 

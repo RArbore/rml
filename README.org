@@ -7,11 +7,11 @@ rml is a simple C library for machine learning. rml is currently under developme
   - *DONE* CSVs
   - *TODO* an .rml format (denser tensor serialization)
   - *TODO* serialize models
-- *TODO* POSIX threading
 - *TODO* Python & Golang bindings
 - *TODO* Basic deep learning layers (inference)
 - *TODO* Graph generation of operations conducted in series
 - *TODO* Backprop gradients over generated graph
 - *TODO* Gradient descent optimization
 - *TODO* More complex layers (convolutional, recurrent, etc.)
+- *TODO* Proper POSIX threading
 rml is free / libre software licensed under the LGPL v3.0.

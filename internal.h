@@ -47,14 +47,6 @@
         else res = 0; \
     }
 
-#define BLAS_MATRIX_MULTIPLY_SINGLE(a, b, result) { \
-        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (float *) a->data, a->dims->dims[1], (float *) b->data, b->dims->dims[1], 0., (float *) result->data, b->dims->dims[1]); \
-    }
-
-#define BLAS_MATRIX_MULTIPLY_DOUBLE(a, b, result) { \
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (double *) a->data, a->dims->dims[1], (double *) b->data, b->dims->dims[1], 0., (double *) result->data, b->dims->dims[1]); \
-    }
-
 #define FAST_MATRIX_MULTIPLY(type, a, b_clone, result) { \
         type *a_data = (type *) a->data; \
         type *b_clone_data = (type *) b_clone->data; \
