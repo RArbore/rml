@@ -24,4 +24,15 @@
 #include "internal.h"
 #include "rml.h"
 
+
+extern tensor_t *rml_blas_clone_tensor(tensor_t *tensor);
+
+extern tensor_t *rml_blas_matmul_tensor(tensor_t *a, tensor_t *b);
+
+extern tensor_t *rml_blas_add_tensor(tensor_t *a, tensor_t *b);
+
+extern tensor_t *rml_blas_sub_tensor(tensor_t *a, tensor_t *b);
+
+extern tensor_t *rml_blas_scale_tensor(tensor_t *a, void *scalar);
+
 #endif // TENSOR_BLAS_H_

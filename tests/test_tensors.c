@@ -25,13 +25,16 @@ int main() {
     tensor_t *b = rml_scale_tensor(a, &f);
     rml_print_tensor(b);
     rml_print_dims(b->dims);
-    tensor_t *c = rml_blas_scale_tensor(b, &f);
+    tensor_t *c = rml_scale_tensor(b, &f);
     rml_print_tensor(c);
     rml_print_dims(c->dims);
-    tensor_t *d = rml_blas_clone_tensor(c);
+    tensor_t *d = rml_clone_tensor(c);
     rml_print_tensor(d);
     rml_print_dims(d->dims);
-    tensor_t *e = rml_blas_sub_tensor(d, b);
+    tensor_t *e = rml_sub_tensor(d, b);
     rml_print_tensor(e);
     rml_print_dims(e->dims);
+    tensor_t *g = rml_sum_tensor(e);
+    rml_print_tensor(g);
+    rml_print_dims(g->dims);
 }

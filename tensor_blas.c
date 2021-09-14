@@ -29,7 +29,7 @@ tensor_t *rml_blas_clone_tensor(tensor_t *tensor) {
     return clone;
 }
 
-tensor_t *rml_blas_matmul_tensor(tensor_t *a, tensor_t *b){
+tensor_t *rml_blas_matmul_tensor(tensor_t *a, tensor_t *b) {
     assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
     assert(a->dims->dims[1] == b->dims->dims[0]);
     CAST_TENSORS_WIDEN(a, b);
@@ -48,6 +48,7 @@ tensor_t *rml_blas_matmul_tensor(tensor_t *a, tensor_t *b){
 }
 
 tensor_t *rml_blas_add_tensor(tensor_t *a, tensor_t *b) {
+    CAST_TENSORS_WIDEN(a, b)
     assert(rml_dims_equiv(a->dims, b->dims));
     assert(a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE);
 
@@ -58,11 +59,13 @@ tensor_t *rml_blas_add_tensor(tensor_t *a, tensor_t *b) {
     else {
         cblas_daxpy(result->dims->flat_size, 1., (double *) b->data, 1, (double *) result->data, 1);
     }
+    CLEANUP_CAST_TENSORS_WIDEN;
 
     return result;
 }
 
 tensor_t *rml_blas_sub_tensor(tensor_t *a, tensor_t *b) {
+    CAST_TENSORS_WIDEN(a, b)
     assert(rml_dims_equiv(a->dims, b->dims));
     assert(a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE);
 
@@ -73,6 +76,7 @@ tensor_t *rml_blas_sub_tensor(tensor_t *a, tensor_t *b) {
     else {
         cblas_daxpy(result->dims->flat_size, -1., (double *) b->data, 1, (double *) result->data, 1);
     }
+    CLEANUP_CAST_TENSORS_WIDEN;
 
     return result;
 }

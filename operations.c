@@ -21,9 +21,9 @@ tensor_t *rml_softmax_tensor(tensor_t *tensor) {
 
     tensor_t *decremented = rml_increment_tensor(tensor, max);
     tensor_t *exp = rml_exp_tensor(decremented);
-    void *exp_sum = rml_sum_tensor(exp);
-    SWITCH_ENUM_TYPES(tensor->tensor_type, INV_VOID_POINTER, exp_sum, 0);
-    tensor_t *result = rml_scale_tensor(exp, exp_sum);
+    tensor_t *exp_sum = rml_sum_tensor(exp);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, INV_VOID_POINTER, exp_sum->data, 0);
+    tensor_t *result = rml_scale_tensor(exp, exp_sum->data);
 
     free(max);
     free(decremented);

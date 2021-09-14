@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #include <assert.h>
 
+#include "tensor_blas.h"
 #include "internal.h"
 #include "rml.h"
 
