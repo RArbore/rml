@@ -214,24 +214,6 @@ tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b){
     return result;
 }
 
-tensor_t *rml_matmul_blas_tensor(tensor_t *a, tensor_t *b){
-    assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
-    assert(a->dims->dims[1] == b->dims->dims[0]);
-    CAST_TENSORS_WIDEN(a, b);
-    assert(a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE);
-
-    tensor_t *result = rml_zeros_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]));
-    if (result->tensor_type == TENSOR_TYPE_FLOAT) {
-        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (float *) a->data, a->dims->dims[1], (float *) b->data, b->dims->dims[1], 0., (float *) result->data, b->dims->dims[1]); \
-    }
-    else {
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->dims->dims[0], b->dims->dims[1], a->dims->dims[1], 1., (double *) a->data, a->dims->dims[1], (double *) b->data, b->dims->dims[1], 0., (double *) result->data, b->dims->dims[1]); \
-    }
-    CLEANUP_CAST_TENSORS_WIDEN;
-
-    return result;
-}
-
 tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim) {
     assert(a->dims->num_dims == b->dims->num_dims);
     assert(dim < a->dims->num_dims);

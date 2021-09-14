@@ -13,12 +13,15 @@
     You should have received a copy of the GNU Lesser General Public License
     along with rml. If not, see <https://www.gnu.org/licenses/>.  */
 
-#ifndef FILEIO_H_
-#define FILEIO_H_
+#ifndef TENSOR_BLAS_H_
+#define TENSOR_BLAS_H_
 
-#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <assert.h>
 
 #include "internal.h"
 #include "rml.h"
 
-#endif // FILEIO_H_
+#endif // TENSOR_BLAS_H_

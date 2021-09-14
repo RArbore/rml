@@ -1,3 +1,18 @@
+/*  This file is part of rml.
+
+    rml is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    rml is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with rml. If not, see <https://www.gnu.org/licenses/>.  */
+
 #include <rml.h>
 
 int main() {
@@ -43,13 +58,13 @@ int main() {
         size_t end = (i + 1) * 784;
         tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
         tensor_t *image = rml_reshape_tensor(image_flat, image_shape, 2);
-        tensor_t *image_w1 = rml_matmul_tensor(w1, image);
+        tensor_t *image_w1 = rml_matmul_blas_tensor(w1, image);
         tensor_t *image_b1 = rml_add_tensor(b1, image_w1);
         tensor_t *image_l1 = rml_leakyrelu_tensor(image_b1, &point_two);
-        tensor_t *image_w2 = rml_matmul_tensor(w2, image_l1);
+        tensor_t *image_w2 = rml_matmul_blas_tensor(w2, image_l1);
         tensor_t *image_b2 = rml_add_tensor(b2, image_w2);
         tensor_t *image_l2 = rml_leakyrelu_tensor(image_b2, &point_two);
-        tensor_t *image_w3 = rml_matmul_tensor(w3, image_l2);
+        tensor_t *image_w3 = rml_matmul_blas_tensor(w3, image_l2);
         tensor_t *image_b3 = rml_add_tensor(b3, image_w3);
         tensor_t *softmax = rml_softmax_tensor(image_b3);
         rml_print_tensor(softmax);
