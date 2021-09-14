@@ -85,6 +85,9 @@ extern tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims);
 // Clone a tensor
 extern tensor_t *rml_clone_tensor(tensor_t *tensor);
 
+// Clone a tensor
+extern tensor_t *rml_blas_clone_tensor(tensor_t *tensor);
+
 // Free a tensor
 extern void rml_free_tensor(tensor_t *tensor);
 
@@ -101,7 +104,7 @@ extern tensor_t *rml_matmul_naive_tensor(tensor_t *a, tensor_t *b);
 extern tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, use BLAS)
-extern tensor_t *rml_matmul_blas_tensor(tensor_t *a, tensor_t *b);
+extern tensor_t *rml_blas_matmul_tensor(tensor_t *a, tensor_t *b);
 
 // Concatenate tensor b to tensor a
 extern tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim);
@@ -127,8 +130,14 @@ extern tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type);
 // Element-wise add tensor b to tensor a
 extern tensor_t *rml_add_tensor(tensor_t *a, tensor_t *b);
 
+// Element-wise add tensor b to tensor a
+extern tensor_t *rml_blas_add_tensor(tensor_t *a, tensor_t *b);
+
 // Element-wise subtract tensor b to tensor a
 extern tensor_t *rml_sub_tensor(tensor_t *a, tensor_t *b);
+
+// Element-wise subtract tensor b to tensor a
+extern tensor_t *rml_blas_sub_tensor(tensor_t *a, tensor_t *b);
 
 // Element-wise multiply tensor a by tensor b
 extern tensor_t *rml_mul_tensor(tensor_t *a, tensor_t *b);
@@ -141,6 +150,9 @@ extern tensor_t *rml_increment_tensor(tensor_t *a, void *scalar);
 
 // Element-wise multiply tensor by a scalar
 extern tensor_t *rml_scale_tensor(tensor_t *a, void *scalar);
+
+// Element-wise multiply tensor by a scalar
+extern tensor_t *rml_blas_scale_tensor(tensor_t *a, void *scalar);
 
 // Element-wise exponentiation of tensor
 extern tensor_t *rml_exp_tensor(tensor_t *tensor);
