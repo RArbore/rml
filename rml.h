@@ -35,6 +35,7 @@ typedef enum {
 
 typedef enum {
     OP_CODE_CREATE = 0x00,
+    OP_CODE_PARAM,
     OP_CODE_CLONE,
     OP_CODE_MATMUL,
     OP_CODE_CONCAT,
@@ -258,5 +259,14 @@ extern tensor_t *rml_leakyrelu_tensor(tensor_t *tensor, void *mult);
 
 // Cross entropy loss between prediction and label tensors
 extern tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label);
+
+// Set tensor as start of graph
+extern void rml_set_initial_tensor(tensor_t *init);
+
+// Make a tensor a trainable parameter
+extern void rml_set_param_tensor(tensor_t *tensor);
+
+// Free all tensors in graph from root node
+extern void rml_free_graph(tensor_t *root);
 
 #endif // RML_H_
