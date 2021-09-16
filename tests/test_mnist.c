@@ -1,8 +1,8 @@
 /*  This file is part of rml.
 
-    rml is free software: you can redistribute it and/or modify
+    rml is rml_free_tensor software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    the Rml_Free_Tensor Software Foundation, either version 3 of the License, or
     any later version.
 
     rml is distributed in the hope that it will be useful,
@@ -30,7 +30,7 @@ int main() {
     tensor_t *b2_flat = rml_slice_tensor(model_flat, &w2_s, &b2_s);
     tensor_t *w3_flat = rml_slice_tensor(model_flat, &b2_s, &w3_s);
     tensor_t *b3_flat = rml_slice_tensor(model_flat, &w3_s, &b3_s);
-    free(model_flat);
+    rml_free_tensor(model_flat);
     size_t w1_sh[] = {16, 784};
     size_t b1_sh[] = {16, 1};
     size_t w2_sh[] = {16, 16};
@@ -43,12 +43,12 @@ int main() {
     tensor_t *b2 = rml_reshape_tensor(b2_flat, b2_sh, 2);
     tensor_t *w3 = rml_reshape_tensor(w3_flat, w3_sh, 2);
     tensor_t *b3 = rml_reshape_tensor(b3_flat, b3_sh, 2);
-    free(w1_flat);
-    free(b1_flat);
-    free(w2_flat);
-    free(b2_flat);
-    free(w3_flat);
-    free(b3_flat);
+    rml_free_tensor(w1_flat);
+    rml_free_tensor(b1_flat);
+    rml_free_tensor(w2_flat);
+    rml_free_tensor(b2_flat);
+    rml_free_tensor(w3_flat);
+    rml_free_tensor(b3_flat);
     tensor_t *images_flat = rml_read_tensor_csv_raw("images.csv", TENSOR_TYPE_FLOAT, rml_create_dims(1, 784 * 100));
     tensor_t *labels = rml_read_tensor_csv_raw("labels.csv", TENSOR_TYPE_USHORT, rml_create_dims(1, 100));
     float point_two = 0.2;
@@ -69,24 +69,24 @@ int main() {
         rml_print_tensor(image_b3);
         tensor_t *softmax = rml_softmax_tensor(image_b3);
         rml_print_tensor(softmax);
-        free(image_flat);
-        free(image);
-        free(image_w1);
-        free(image_b1);
-        free(image_l1);
-        free(image_w2);
-        free(image_b2);
-        free(image_l2);
-        free(image_w3);
-        free(image_b3);
-        free(softmax);
+        rml_free_tensor(image_flat);
+        rml_free_tensor(image);
+        rml_free_tensor(image_w1);
+        rml_free_tensor(image_b1);
+        rml_free_tensor(image_l1);
+        rml_free_tensor(image_w2);
+        rml_free_tensor(image_b2);
+        rml_free_tensor(image_l2);
+        rml_free_tensor(image_w3);
+        rml_free_tensor(image_b3);
+        rml_free_tensor(softmax);
     }
-    free(w1);
-    free(b1);
-    free(w2);
-    free(b2);
-    free(w3);
-    free(b3);
-    free(images_flat);
-    free(labels);
+    rml_free_tensor(w1);
+    rml_free_tensor(b1);
+    rml_free_tensor(w2);
+    rml_free_tensor(b2);
+    rml_free_tensor(w3);
+    rml_free_tensor(b3);
+    rml_free_tensor(images_flat);
+    rml_free_tensor(labels);
 }

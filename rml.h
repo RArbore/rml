@@ -18,10 +18,6 @@
 
 #include <stdlib.h>
 
-/////////////
-// TENSORS //
-/////////////
-
 // Definition of different types of tensors (tensors can have any of the C primitive types as elements, enum used to store internally which primitive type is currently used by tensor)
 typedef enum {
     TENSOR_TYPE_BYTE = 0x00,
@@ -34,8 +30,49 @@ typedef enum {
     TENSOR_TYPE_ULONG,
     TENSOR_TYPE_FLOAT,
     TENSOR_TYPE_DOUBLE,
-    TENSOR_TYPE_LDOUBLE
+    TENSOR_TYPE_LDOUBLE,
 } tensor_type_t;
+
+typedef enum {
+    OP_CODE_CREATE = 0x00,
+    OP_CODE_CLONE,
+    OP_CODE_MATMUL,
+    OP_CODE_CONCAT,
+    OP_CODE_SLICE,
+    OP_CODE_ASSIGN_SLICE,
+    OP_CODE_TRANSPOSE,
+    OP_CODE_PERMUTE,
+    OP_CODE_RESHAPE,
+    OP_CODE_CAST,
+    OP_CODE_ADD,
+    OP_CODE_SUB,
+    OP_CODE_MUL,
+    OP_CODE_DIV,
+    OP_CODE_INCREMENT,
+    OP_CODE_SCALE,
+    OP_CODE_EXP,
+    OP_CODE_LOG,
+    OP_CODE_POW,
+    OP_CODE_SIN,
+    OP_CODE_COS,
+    OP_CODE_TAN,
+    OP_CODE_SINH,
+    OP_CODE_COSH,
+    OP_CODE_TANH,
+    OP_CODE_ASIN,
+    OP_CODE_ACOS,
+    OP_CODE_ATAN,
+    OP_CODE_ASINH,
+    OP_CODE_ACOSH,
+    OP_CODE_ATANH,
+    OP_CODE_ABS,
+    OP_CODE_CLAMP,
+    OP_CODE_SUM,
+    OP_CODE_SOFTMAX,
+    OP_CODE_RELU,
+    OP_CODE_LEAKYRELU,
+    OP_CODE_CROSSENTROPY,
+} op_code_t;
 
 typedef struct {
     size_t num_dims;
@@ -44,12 +81,14 @@ typedef struct {
 } dims_t;
 
 // Tensor struct - direct access to any of a tensor's elements should be avoided in favor of using library methods
-typedef struct {
+typedef struct tensor_t {
     tensor_type_t tensor_type;
-    size_t grad_graph;
-    size_t tensor_id;
     dims_t *dims;
     void *data;
+    op_code_t op_code;
+    void *op_data;
+    struct tensor_t *source_a;
+    struct tensor_t *source_b;
 } tensor_t;
 
 // Create a dimensions struct (variadic)
@@ -93,9 +132,6 @@ extern void rml_print_tensor(tensor_t *tensor);
 
 // Access a single tensor element - this WILL break gradient graph, rml_tensor_access should be used to preserve gradient graph
 extern void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos);
-
-// Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation)
-extern tensor_t *rml_matmul_naive_tensor(tensor_t *a, tensor_t *b);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation w/ some memory optimizations)
 extern tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b);

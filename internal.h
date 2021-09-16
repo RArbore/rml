@@ -20,7 +20,6 @@
 #include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <cblas.h>
 #include <math.h>
 
 #include "rml.h"

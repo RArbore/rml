@@ -20,10 +20,11 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <cblas.h>
 
 #include "internal.h"
+#include "tensor.h"
 #include "rml.h"
-
 
 extern tensor_t *rml_blas_clone_tensor(tensor_t *tensor);
 

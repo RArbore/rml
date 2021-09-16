@@ -17,6 +17,7 @@
 #define OPERATIONS_H_
 
 #include "internal.h"
+#include "tensor.h"
 #include "rml.h"
 
 #endif // OPERATIONS_H_

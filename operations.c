@@ -30,6 +30,9 @@ tensor_t *rml_softmax_tensor(tensor_t *tensor) {
     free(exp);
     free(exp_sum);
 
+    result->op_code = OP_CODE_SOFTMAX;
+    result->source_a = tensor;
+
     return result;
 }
 
@@ -38,6 +41,10 @@ tensor_t *rml_relu_tensor(tensor_t *tensor) {
     SWITCH_ENUM_TYPES(tensor->tensor_type, CALLOC_VOID_POINTER, zero, 1);
     tensor_t *result = rml_clamp_tensor(tensor, zero, NULL);
     free(zero);
+
+    result->op_code = OP_CODE_RELU;
+    result->source_a = tensor;
+
     return result;
 }
 
@@ -54,6 +61,11 @@ tensor_t *rml_leakyrelu_tensor(tensor_t *tensor, void *mult) {
     free(above);
     free(below);
     free(below_scaled);
+
+    result->op_code = OP_CODE_LEAKYRELU;
+    result->source_a = tensor;
+    result->op_data = malloc(rml_sizeof_type(tensor->tensor_type));
+    SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->op_data, mult, 0, 0);
 
     return result;
 }
@@ -84,6 +96,10 @@ tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label) {
     free(term_two);
     free(added);
     CLEANUP_CAST_TENSORS_WIDEN;
+
+    result->op_code = OP_CODE_CROSSENTROPY;
+    result->source_a = pred;
+    result->source_b = label;
 
     return result;
 }
