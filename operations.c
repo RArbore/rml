@@ -64,8 +64,8 @@ tensor_t *rml_leakyrelu_tensor(tensor_t *tensor, void *mult) {
 
     result->op_code = OP_CODE_LEAKYRELU;
     result->source_a = tensor;
-    result->op_data = malloc(rml_sizeof_type(tensor->tensor_type));
-    SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->op_data, mult, 0, 0);
+    //result->op_data = malloc(rml_sizeof_type(tensor->tensor_type));
+    //SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->op_data, mult, 0, 0);
 
     return result;
 }

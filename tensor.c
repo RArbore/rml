@@ -703,9 +703,16 @@ tensor_t *rml_clamp_tensor(tensor_t *tensor, void *min, void *max) {
     SWITCH_ENUM_TYPES(tensor->tensor_type, CLAMP_TENSOR, tensor, min, max, result);
     result->op_code = OP_CODE_CLAMP;
     result->source_a = tensor;
-    result->op_data = malloc(2 * rml_sizeof_type(tensor->tensor_type));
-    SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->op_data, min, 0, 0);
-    SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->op_data, max, 1, 0);
+    result->op_data = malloc(sizeof(char) + 2 * rml_sizeof_type(tensor->tensor_type));
+    *((char *) result->op_data) = 0;
+    if (min != NULL) {
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, (void *) (((char *) result->op_data) + 1), min, 0, 0);
+        *((char *) result->op_data) += 1;
+    }
+    if (max != NULL) {
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, (void *) (((char *) result->op_data) + 1), max, 1, 0);
+        *((char *) result->op_data) += 2;
+    }
 
     return result;
 }

@@ -13,6 +13,7 @@
     You should have received a copy of the GNU Lesser General Public License
     along with rml. If not, see <https://www.gnu.org/licenses/>.  */
 
+#include <stdio.h>
 #include <rml.h>
 
 int main() {
