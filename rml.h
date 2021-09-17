@@ -69,10 +69,11 @@ typedef enum {
     OP_CODE_ABS,
     OP_CODE_CLAMP,
     OP_CODE_SUM,
+    OP_CODE_ONE_HOT,
     OP_CODE_SOFTMAX,
     OP_CODE_RELU,
     OP_CODE_LEAKYRELU,
-    OP_CODE_CROSSENTROPY,
+    OP_CODE_CROSS_ENTROPY,
 } op_code_t;
 
 typedef struct {
@@ -90,6 +91,7 @@ typedef struct tensor_t {
     void *op_data;
     struct tensor_t *source_a;
     struct tensor_t *source_b;
+    char cl_device;
 } tensor_t;
 
 // Create a dimensions struct (variadic)
@@ -131,7 +133,7 @@ extern void rml_free_tensor(tensor_t *tensor);
 // Print a tensor to stdout
 extern void rml_print_tensor(tensor_t *tensor);
 
-// Access a single tensor element - this WILL break gradient graph, rml_tensor_access should be used to preserve gradient graph
+// Access a single tensor element - this WILL break gradient graph
 extern void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos);
 
 // Matrix multiply 2 tensors (asserted that both tensors are 2d and dimensions work for matrix multiplication, O(n^3) implementation w/ some memory optimizations)
@@ -236,6 +238,9 @@ extern void *rml_min_tensor(tensor_t *tensor);
 // Find sum of all values of tensor
 extern tensor_t *rml_sum_tensor(tensor_t *tensor);
 
+// Convert labels to one-hot representation
+extern tensor_t *rml_one_hot_tensor(tensor_t *tensor, void *range);
+
 // Read tensor to a csv file without metadata
 extern tensor_t *rml_read_tensor_csv_raw(char *filename, tensor_type_t tensor_type, dims_t *dims);
 
@@ -259,6 +264,9 @@ extern tensor_t *rml_leakyrelu_tensor(tensor_t *tensor, void *mult);
 
 // Cross entropy loss between prediction and label tensors
 extern tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label);
+
+// Cross entropy loss between prediction and label tensors (pred = 0.9999998 * pred + 0.0000001 to prevent log(0))
+extern tensor_t *rml_cross_entropy_loss_safe_tensor(tensor_t *pred, tensor_t *label);
 
 // Set tensor as start of graph
 extern void rml_set_initial_tensor(tensor_t *init);

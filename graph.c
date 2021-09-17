@@ -26,9 +26,31 @@ void rml_set_param_tensor(tensor_t *tensor) {
     tensor->source_a = NULL;
     tensor->source_b = NULL;
 }
-void rml_free_graph(tensor_t *root) {
+
+#define INIT_FREED_SIZE 16
+
+void rml_free_graph_internal(tensor_t *root, tensor_t ***freed, size_t *num_freed, size_t *freed_size) {
+    for (size_t i = 0; i < *num_freed; i++) {
+        if (root == (*freed)[i]) return;
+    }
     if (root == NULL || root->op_code == OP_CODE_PARAM) return;
     rml_free_graph(root->source_a);
     rml_free_graph(root->source_b);
     rml_free_tensor(root);
+    if (&num_freed < &freed_size) {
+        (*freed)[(*num_freed)++] = root;
+    }
+    else {
+        *freed_size *= 2;
+        *freed = realloc(*freed, *freed_size * sizeof(tensor_t *));
+        (*freed)[(*num_freed)++] = root;
+    }
+}
+
+void rml_free_graph(tensor_t *root) {
+    tensor_t **freed = malloc(INIT_FREED_SIZE * sizeof(tensor_t *));
+    size_t num_freed = 0;
+    size_t freed_size = INIT_FREED_SIZE;
+    rml_free_graph_internal(root, &freed, &num_freed, &freed_size);
+    free(freed);
 }

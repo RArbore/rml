@@ -16,10 +16,13 @@
 #ifndef TENSOR_H_
 #define TENSOR_H_
 
+#define CL_TARGET_OPENCL_VERSION 300
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <assert.h>
+#include <CL/cl.h>
 
 #include "tensor_blas.h"
 #include "internal.h"

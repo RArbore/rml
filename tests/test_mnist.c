@@ -14,6 +14,7 @@
     along with rml. If not, see <https://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
+#include <time.h>
 #include <rml.h>
 
 int main() {
@@ -56,27 +57,41 @@ int main() {
     rml_set_param_tensor(b2);
     rml_set_param_tensor(w3);
     rml_set_param_tensor(b3);
-    tensor_t *images_flat = rml_read_tensor_csv_raw("images.csv", TENSOR_TYPE_FLOAT, rml_create_dims(1, 784 * 100));
-    tensor_t *labels = rml_read_tensor_csv_raw("labels.csv", TENSOR_TYPE_USHORT, rml_create_dims(1, 100));
+    tensor_t *images_flat = rml_read_tensor_csv_raw("images.csv", TENSOR_TYPE_FLOAT, rml_create_dims(1, 784 * 60000));
+    tensor_t *labels = rml_read_tensor_csv_raw("labels.csv", TENSOR_TYPE_USHORT, rml_create_dims(1, 60000));
     float point_two = 0.2;
     size_t image_shape[] = {784, 1};
-    for (size_t i = 0; i < 10; i++) {
-        size_t begin = i * 784;
-        size_t end = (i + 1) * 784;
-        tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
-        rml_set_initial_tensor(image_flat);
-        tensor_t *image = rml_reshape_tensor(image_flat, image_shape, 2);
-        tensor_t *image_w1 = rml_matmul_tensor(w1, image);
-        tensor_t *image_b1 = rml_add_tensor(b1, image_w1);
-        tensor_t *image_l1 = rml_leakyrelu_tensor(image_b1, &point_two);
-        tensor_t *image_w2 = rml_matmul_tensor(w2, image_l1);
-        tensor_t *image_b2 = rml_add_tensor(b2, image_w2);
-        tensor_t *image_l2 = rml_leakyrelu_tensor(image_b2, &point_two);
-        tensor_t *image_w3 = rml_matmul_tensor(w3, image_l2);
-        tensor_t *image_b3 = rml_add_tensor(b3, image_w3);
-        tensor_t *softmax = rml_softmax_tensor(image_b3);
-        rml_print_tensor(softmax);
-        rml_free_graph(softmax);
+    printf("Loaded data\n");
+    for (;;) {
+        clock_t t = clock();
+        for (size_t i = 0; i < 60000; i++) {
+            size_t begin = i * 784;
+            size_t end = (i + 1) * 784;
+            tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
+            rml_set_initial_tensor(image_flat);
+            tensor_t *image = rml_reshape_tensor(image_flat, image_shape, 2);
+            tensor_t *image_w1 = rml_matmul_tensor(w1, image);
+            tensor_t *image_b1 = rml_add_tensor(b1, image_w1);
+            tensor_t *image_l1 = rml_leakyrelu_tensor(image_b1, &point_two);
+            tensor_t *image_w2 = rml_matmul_tensor(w2, image_l1);
+            tensor_t *image_b2 = rml_add_tensor(b2, image_w2);
+            tensor_t *image_l2 = rml_leakyrelu_tensor(image_b2, &point_two);
+            tensor_t *image_w3 = rml_matmul_tensor(w3, image_l2);
+            tensor_t *image_b3 = rml_add_tensor(b3, image_w3);
+            tensor_t *softmax = rml_softmax_tensor(image_b3);
+            size_t label_begin = i;
+            size_t label_end = i + 1;
+            unsigned short label_range = 10;
+            tensor_t *label = rml_slice_tensor(labels, &label_begin, &label_end);
+            rml_set_initial_tensor(label);
+            tensor_t *one_hot = rml_one_hot_tensor(label, &label_range);
+            tensor_t *one_hot_reshaped = rml_reshape_tensor(one_hot, softmax->dims->dims, softmax->dims->num_dims);
+            tensor_t *cross_entropy = rml_cross_entropy_loss_safe_tensor(softmax, one_hot_reshaped);
+            rml_free_graph(cross_entropy);
+        }
+        t = clock() - t;
+        double seconds = ((double) t) / CLOCKS_PER_SEC;
+        printf("Ms taken per iter: %f\n", seconds / 60.);
     }
     rml_free_tensor(w1);
     rml_free_tensor(b1);

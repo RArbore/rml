@@ -15,13 +15,14 @@
 
 CC=gcc
 OBJ_FLAGS=-fPIC
-L_FLAGS=-lcblas
+L_FLAGS=-lcblas -lOpenCL
+W_FLAGS=-Wall
 
 install: librml.so
 	cp librml.so /usr/lib/librml.so
 	cp rml.h /usr/include/rml.h
 librml.so: internal.o fileio.o graph.o operations.o tensor.o tensor_blas.o
-	$(CC) -shared -Wl,-soname,$@ -o $@ $^ $(L_FLAGS)
+	$(CC) -shared -Wl,-soname,$@ -o $@ $^ $(L_FLAGS) $(W_FLAGS)
 tensor_blas.o: tensor_blas.c rml.h internal.h tensor_blas.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
 tensor.o: tensor.c rml.h internal.h tensor.h

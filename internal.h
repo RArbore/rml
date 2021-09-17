@@ -32,10 +32,11 @@
 #define SCALE_VOID_POINTER_PTR(type, ptr, i, ptr_val, i_val) {*((type *) ptr + i) *= *((type *) ptr_val + i_val);}
 #define INV_VOID_POINTER(type, ptr, i) {*((type *) ptr + i) = 1 / *((type *) ptr + i);}
 
-#define ASSIGN_VOID_POINTER(type, dest, value, index) {*((type *) dest + index) = value;}
+#define ASSIGN_VOID_POINTER(type, dest, value, index) {*((type *) dest + index) = (type) value;}
 #define MALLOC_VOID_POINTER(type, ptr, size) {ptr = malloc(size * sizeof(type));}
 #define CALLOC_VOID_POINTER(type, ptr, size) {ptr = calloc(size, sizeof(type));}
 #define CAST_VOID_POINTER(type_new, type_old, dest, src, i1, i2) {*((type_new *) dest + i1) = *((type_old *) src + i2);}
+#define CAST_VOID_POINTER_SWAPPED_TYPES(type_old, type_new, dest, src, i1, i2) {*((type_new *) dest + i1) = *((type_old *) src + i2);}
 #define COPY_VOID_POINTER(type, dest, src, i1, i2) CAST_VOID_POINTER(type, type, dest, src, i1, i2);
 #define STORE_VOID_FROM_VA(type_dest, type_va, ap, dest, index) {*((type_dest *) dest + index) = va_arg(ap, type_va);}
 #define ABS_VOID_POINTER(type, dest, src, i1, i2) {*((type *) dest + i1) = *((type *) src + i2) >= 0 ? *((type *) src + i2) : -*((type *) src + i2);}
@@ -114,8 +115,8 @@
     }
 
 #define CLEANUP_CAST_TENSORS_WIDEN { \
-        free(A_CASTED); \
-        free(B_CASTED); \
+        rml_free_tensor(A_CASTED); \
+        rml_free_tensor(B_CASTED); \
     }
 
 #define ADD_TENSORS(type, tensor_a, tensor_b, tensor_c) { \
