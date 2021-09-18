@@ -18,4 +18,6 @@ void rml_cl_set_kernel_arg(op_code_t op_code, tensor_type_t tensor_type, size_t 
 
 void rml_cl_enqueue_range_kernel(op_code_t op_code, tensor_type_t tensor_type, size_t op_size);
 
+void rml_cl_free_buffer(cl_mem buffer);
+
 #endif // CL_KERNELS_H_

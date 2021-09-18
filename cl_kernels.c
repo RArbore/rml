@@ -7,7 +7,7 @@ const char *rml_cl_program =
 "__kernel void addf(__global float *a, __global float *b, __global float *c)\n"\
 "{\n"\
 "  size_t id = get_global_id(0);\n"\
-"  c[id] = a[id] * b[id];\n"\
+"  c[id] = a[id] + b[id];\n"\
 "}\n"\
 "\n";
 
@@ -70,4 +70,8 @@ void rml_cl_set_kernel_arg(op_code_t op_code, tensor_type_t tensor_type, size_t 
 void rml_cl_enqueue_range_kernel(op_code_t op_code, tensor_type_t tensor_type, size_t op_size) {
     clEnqueueNDRangeKernel(command_queue, kernels[op_code][tensor_type], 1, NULL, &op_size, NULL, 0, NULL, NULL);
     clFinish(command_queue);
+}
+
+void rml_cl_free_buffer(cl_mem buffer) {
+    clReleaseMemObject(buffer);
 }
