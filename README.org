@@ -10,7 +10,9 @@ rml is a simple C library for machine learning. rml is currently under developme
 - Graph generation of operations conducted in series
   - *DONE* Dynamic graph generation
   - *DONE* Graph management
-- *TODO* Test OpenCL viability
+- Test OpenCL viability
+  - *DONE* Minimal working CL example
+  - *IN-PROGRESS* CL optimizations
 - *TODO* Python & Golang bindings
 - *TODO* Backprop gradients over generated graph
 - *TODO* Gradient descent optimization
