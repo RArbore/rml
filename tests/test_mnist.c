@@ -18,6 +18,8 @@
 #include <rml.h>
 
 int main() {
+    rml_cl_init();
+
     tensor_t *model_flat = rml_read_tensor_csv_raw("model.csv", TENSOR_TYPE_FLOAT, rml_create_dims(1, 13002));
     size_t start = 0;
     size_t w1_s = start + 784 * 16;

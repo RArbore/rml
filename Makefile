@@ -21,7 +21,7 @@ W_FLAGS=-Wall
 install: librml.so
 	cp librml.so /usr/lib/librml.so
 	cp rml.h /usr/include/rml.h
-librml.so: internal.o fileio.o graph.o operations.o tensor.o tensor_blas.o
+librml.so: internal.o cl_kernels.o fileio.o graph.o operations.o tensor.o tensor_blas.o
 	$(CC) -shared -Wl,-soname,$@ -o $@ $^ $(L_FLAGS) $(W_FLAGS)
 tensor_blas.o: tensor_blas.c rml.h internal.h tensor_blas.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
@@ -32,6 +32,8 @@ operations.o: operations.c rml.h internal.h operations.h
 graph.o: graph.c rml.h graph.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
 fileio.o: fileio.c rml.h internal.h fileio.h
+	$(CC) $< -c -o $@ $(OBJ_FLAGS)
+cl_kernels.o: cl_kernels.c rml.h cl_kernels.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
 internal.o: internal.c rml.h internal.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)

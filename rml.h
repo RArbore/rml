@@ -33,6 +33,8 @@ typedef enum {
     TENSOR_TYPE_LDOUBLE,
 } tensor_type_t;
 
+#define NUM_TYPES 11
+
 typedef enum {
     OP_CODE_CREATE = 0x00,
     OP_CODE_PARAM,
@@ -75,6 +77,8 @@ typedef enum {
     OP_CODE_LEAKYRELU,
     OP_CODE_CROSS_ENTROPY,
 } op_code_t;
+
+#define NUM_OP_CODES 40
 
 typedef struct {
     size_t num_dims;
@@ -276,5 +280,8 @@ extern void rml_set_param_tensor(tensor_t *tensor);
 
 // Free all tensors in graph from root node
 extern void rml_free_graph(tensor_t *root);
+
+// Initialize OpenCL
+extern void rml_cl_init();
 
 #endif // RML_H_
