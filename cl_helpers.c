@@ -4,11 +4,16 @@ cl_context context;
 cl_command_queue command_queue;
 cl_kernel kernels[NUM_OP_CODES][NUM_TYPES];
 
-void rml_cl_kernel_init() {
+void rml_cl_kernel_init(cl_device_id device_id) {
     cl_int err;
     cl_program program = clCreateProgramWithSource(context, 1, (const char **) &rml_cl_program, NULL, &err);
     if (clBuildProgram(program, 0, NULL, NULL, NULL, NULL) != CL_SUCCESS) {
         printf("Error building cl program\n");
+        char buffer[4096];
+        size_t length;
+        clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &length);
+        printf("%s\n", buffer);
+        return;
     }
 
     kernels[OP_CODE_ADD][TENSOR_TYPE_FLOAT] = clCreateKernel(program, "addf", &err);
@@ -39,7 +44,7 @@ void rml_cl_init() {
     context = clCreateContext(properties, 1, &device_id, NULL, NULL, &err);
     command_queue = clCreateCommandQueueWithProperties(context, device_id, NULL, &err);
 
-    rml_cl_kernel_init();
+    rml_cl_kernel_init(device_id);
 }
 
 cl_mem rml_cl_create_buffer(int mem_properties, size_t size) {
