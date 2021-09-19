@@ -438,28 +438,6 @@ tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type) {
 tensor_t *rml_add_tensor(tensor_t *a, tensor_t *b) {
     tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b);
-    if (a->tensor_type == TENSOR_TYPE_FLOAT) {
-        assert(rml_dims_equiv(a->dims, b->dims));
-        tensor_t *result = rml_init_tensor(a->tensor_type, rml_clone_dims(a->dims), NULL);
-        cl_mem a_buf = rml_cl_create_buffer(CL_MEM_READ_ONLY, result->dims->flat_size * sizeof(float));
-        cl_mem b_buf = rml_cl_create_buffer(CL_MEM_READ_ONLY, result->dims->flat_size * sizeof(float));
-        cl_mem c_buf = rml_cl_create_buffer(CL_MEM_WRITE_ONLY, result->dims->flat_size * sizeof(float));
-        rml_cl_enqueue_write_buffer(a_buf, result->dims->flat_size * sizeof(float), a->data);
-        rml_cl_enqueue_write_buffer(b_buf, result->dims->flat_size * sizeof(float), b->data);
-        rml_cl_set_kernel_arg(OP_CODE_ADD, TENSOR_TYPE_FLOAT, 0, &a_buf);
-        rml_cl_set_kernel_arg(OP_CODE_ADD, TENSOR_TYPE_FLOAT, 1, &b_buf);
-        rml_cl_set_kernel_arg(OP_CODE_ADD, TENSOR_TYPE_FLOAT, 2, &c_buf);
-        rml_cl_enqueue_range_kernel(OP_CODE_ADD, TENSOR_TYPE_FLOAT, result->dims->flat_size);
-        rml_cl_enqueue_read_buffer(c_buf, result->dims->flat_size * sizeof(float), result->data);
-        rml_cl_free_buffer(a_buf);
-        rml_cl_free_buffer(b_buf);
-        rml_cl_free_buffer(c_buf);
-        CLEANUP_CAST_TENSORS_WIDEN;
-        result->op_code = OP_CODE_ADD;
-        result->source_a = a_orig;
-        result->source_b = b_orig;
-        return result;
-    }
     if (a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE) {
         tensor_t *result = rml_blas_add_tensor(a, b);
         CLEANUP_CAST_TENSORS_WIDEN;

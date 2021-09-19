@@ -24,7 +24,7 @@
 #include <assert.h>
 
 #include "tensor_blas.h"
-#include "cl_kernels.h"
+#include "cl_helpers.h"
 #include "internal.h"
 #include "rml.h"
 
