@@ -96,6 +96,7 @@ typedef struct tensor_t {
     struct tensor_t *source_a;
     struct tensor_t *source_b;
     char cl_device;
+    void *cl_mem;
 } tensor_t;
 
 // Create a dimensions struct (variadic)
