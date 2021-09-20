@@ -257,4 +257,12 @@ const char *rml_cl_program =
 "    else result[id] += tensor[id * pool_size + i];\n"\
 "  }\n"\
 "}\n"\
+"\n"\
+"__kernel void one_hot(__global TYPE *tensor, __global TYPE *result, const TYPE range)\n"\
+"{\n"\
+"  unsigned int id = get_global_id(0);\n"\
+"  TYPE index = id / range;\n"\
+"  result[id] = tensor[index] == id % range ? 1 : 0;\n"\
+"  \n"\
+"}\n"\
 "\n";
