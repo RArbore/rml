@@ -231,4 +231,30 @@ const char *rml_cl_program =
 "  if (code % 2 == 0 && a[id] < min) a[id] = min;\n"\
 "  if (code > 0 && a[id] > max) a[id] = max;\n"\
 "}\n"\
+"\n"\
+"__kernel void max(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
+"{\n"\
+"  unsigned int id = get_global_id(0);\n"\
+"  for (unsigned int i = 0; i < pool_size, id * pool_size + i < in_size; i++) {\n"\
+"    if (i == 0 || result[id] < tensor[id * pool_size + i]) result[id] = tensor[id * pool_size + i];\n"\
+"  }\n"\
+"  \n"\
+"}\n"\
+"\n"\
+"__kernel void min(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
+"{\n"\
+"  unsigned int id = get_global_id(0);\n"\
+"  for (unsigned int i = 0; i < pool_size, id * pool_size + i < in_size; i++) {\n"\
+"    if (i == 0 || result[id] > tensor[id * pool_size + i]) result[id] = tensor[id * pool_size + i];\n"\
+"  }\n"\
+"}\n"\
+"\n"\
+"__kernel void sum(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
+"{\n"\
+"  unsigned int id = get_global_id(0);\n"\
+"  for (unsigned int i = 0; i < pool_size, id * pool_size + i < in_size; i++) {\n"\
+"    if (i == 0) result[id] = tensor[id * pool_size + i];\n"\
+"    else result[id] += tensor[id * pool_size + i];\n"\
+"  }\n"\
+"}\n"\
 "\n";
