@@ -19,7 +19,56 @@ cl_context context;
 cl_command_queue command_queue;
 cl_kernel kernels[NUM_OP_CODES][NUM_TYPES];
 
-void rml_cl_kernel_init(cl_device_id device_id) {
+const char *type_names[] = {
+    "byte",
+    "unsigned byte",
+    "short",
+    "unsigned short",
+    "int",
+    "unsigned int",
+    "long",
+    "unsigned long",
+    "float",
+    "double",
+    "long double",
+};
+
+const char *cl_max_arr_size = "1024";
+
+static void rml_cl_kernel_init(cl_device_id device_id) {
+    char *program_processed[NUM_TYPES];
+    int max_arr_size_len = strlen(cl_max_arr_size);
+    for (size_t t = 0; t < NUM_TYPES; t++) {
+        int type_len = strlen(type_names[t]);
+        program_processed[t] = malloc(2 * strlen(rml_cl_program) * sizeof(char));
+        char *pos_type = strstr(rml_cl_program, "TYPE");
+        char *pos_arr_size = strstr(rml_cl_program, "MAX_ARR_SIZE");
+        size_t read_index = 0, write_index = 0;
+        char read = rml_cl_program[read_index];
+        while (read != '\0') {
+            if (&rml_cl_program[read_index] == pos_type) {
+                for (int c = 0; c < type_len; c++) {
+                    program_processed[t][write_index++] = type_names[t][c];
+                }
+                read_index += 4;
+                pos_type = strstr(pos_type + 4, "TYPE");
+            }
+            else if (&rml_cl_program[read_index] == pos_arr_size) {
+                for (int c = 0; c < max_arr_size_len; c++) {
+                    program_processed[t][write_index++] = cl_max_arr_size[c];
+                }
+                read_index += 12;
+                pos_arr_size = strstr(pos_arr_size + 12, "MAX_ARR_SIZE");
+            }
+            else {
+                program_processed[t][write_index++] = read;
+                read_index++;
+            }
+            read = rml_cl_program[read_index];
+        }
+        *(program_processed[t] + write_index) = '\0';
+    }
+
     cl_int err;
     cl_program program = clCreateProgramWithSource(context, 1, (const char **) &rml_cl_program, NULL, &err);
     if (clBuildProgram(program, 0, NULL, NULL, NULL, NULL) != CL_SUCCESS) {
@@ -31,7 +80,7 @@ void rml_cl_kernel_init(cl_device_id device_id) {
         return;
     }
 
-    kernels[OP_CODE_ADD][TENSOR_TYPE_FLOAT] = clCreateKernel(program, "addf", &err);
+    kernels[OP_CODE_ADD][TENSOR_TYPE_FLOAT] = clCreateKernel(program, "add", &err);
 }
 
 void rml_cl_init() {

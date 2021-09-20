@@ -29,7 +29,7 @@ void rml_set_param_tensor(tensor_t *tensor) {
 
 #define INIT_FREED_SIZE 16
 
-void rml_free_graph_internal(tensor_t *root, tensor_t ***freed, size_t *num_freed, size_t *freed_size) {
+static void rml_free_graph_internal(tensor_t *root, tensor_t ***freed, size_t *num_freed, size_t *freed_size) {
     for (size_t i = 0; i < *num_freed; i++) {
         if (root == (*freed)[i]) return;
     }
