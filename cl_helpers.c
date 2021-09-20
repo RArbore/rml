@@ -15,25 +15,64 @@
 
 #include "cl_helpers.h"
 
+#define NUM_TYPES 2
+#define NUM_OP_CODES 42
+
 cl_context context;
 cl_command_queue command_queue;
 cl_kernel kernels[NUM_OP_CODES][NUM_TYPES];
 
 const char *type_names[] = {
-    "byte",
-    "unsigned byte",
-    "short",
-    "unsigned short",
-    "int",
-    "unsigned int",
-    "long",
-    "unsigned long",
     "float",
     "double",
-    "long double",
 };
 
 const char *cl_max_arr_size = "1024";
+
+const char *kernel_names[] = {
+    "",
+    "",
+    "rml_clone",
+    "rml_matmul",
+    "rml_concat",
+    "rml_slice",
+    "rml_assign_slice",
+    "rml_transpose",
+    "rml_permute",
+    "",
+    "",
+    "rml_add",
+    "rml_sub",
+    "rml_mul",
+    "rml_div",
+    "rml_increment",
+    "rml_scale",
+    "rml_exp",
+    "rml_log",
+    "rml_pow",
+    "rml_sin",
+    "rml_cos",
+    "rml_tan",
+    "rml_sinh",
+    "rml_cosh",
+    "rml_tanh",
+    "rml_asin",
+    "rml_acos",
+    "rml_atan",
+    "rml_asinh",
+    "rml_acosh",
+    "rml_atanh",
+    "rml_abs",
+    "rml_clamp",
+    "rml_sum",
+    "rml_one_hot",
+    "rml_max",
+    "rml_min",
+    "",
+    "",
+    "",
+    "",
+};
 
 static void rml_cl_kernel_init(cl_device_id device_id) {
     char *program_processed[NUM_TYPES];
@@ -66,21 +105,23 @@ static void rml_cl_kernel_init(cl_device_id device_id) {
             }
             read = rml_cl_program[read_index];
         }
-        *(program_processed[t] + write_index) = '\0';
-    }
+        program_processed[t][write_index] = '\0';
 
-    cl_int err;
-    cl_program program = clCreateProgramWithSource(context, 1, (const char **) &rml_cl_program, NULL, &err);
-    if (clBuildProgram(program, 0, NULL, NULL, NULL, NULL) != CL_SUCCESS) {
-        printf("Error building cl program\n");
-        char buffer[4096];
-        size_t length;
-        clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &length);
-        printf("%s\n", buffer);
-        return;
-    }
+        cl_int err;
+        cl_program program = clCreateProgramWithSource(context, 1, (const char **) &program_processed[t], NULL, &err);
+        if (clBuildProgram(program, 0, NULL, NULL, NULL, NULL) != CL_SUCCESS) {
+            printf("Error building %s cl program\n", type_names[t]);
+            char buffer[65536];
+            size_t length;
+            clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &length);
+            printf("%s\n", buffer);
+            return;
+        }
 
-    kernels[OP_CODE_ADD][TENSOR_TYPE_FLOAT] = clCreateKernel(program, "add", &err);
+        for (size_t op = 0; op < NUM_OP_CODES; op++) {
+            if (kernel_names[op][0] != '\0') kernels[op][t] = clCreateKernel(program, kernel_names[op], &err);
+        }
+    }
 }
 
 void rml_cl_init() {

@@ -16,13 +16,13 @@
 #include "cl_kernels.h"
 
 const char *rml_cl_program =
-"__kernel void clone(__global TYPE *a, __global TYPE *b)\n"\
+"__kernel void rml_clone(__global TYPE *a, __global TYPE *b)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  b[id] = a[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void matmul(__global TYPE *a, __global TYPE *b, __global TYPE *c, const unsigned int d1, const unsigned int d2, const unsigned int d3)\n"\
+"__kernel void rml_matmul(__global TYPE *a, __global TYPE *b, __global TYPE *c, const unsigned int d1, const unsigned int d2, const unsigned int d3)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  c[id] = 0;\n"\
@@ -33,7 +33,7 @@ const char *rml_cl_program =
 "  }\n"\
 "}\n"\
 "\n"\
-"__kernel void concat(__global TYPE *a, __global TYPE *b, __global TYPE *c, const unsigned int pitch_a, const unsigned int pitch_b)\n"\
+"__kernel void rml_concat(__global TYPE *a, __global TYPE *b, __global TYPE *c, const unsigned int pitch_a, const unsigned int pitch_b)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  unsigned int total_pitch = pitch_a + pitch_b;\n"\
@@ -41,7 +41,7 @@ const char *rml_cl_program =
 "  else c[id] = b[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void slice(__global TYPE *tensor, __global TYPE *result, __global unsigned int *lower_bound, __global unsigned int *upper_bound, __global unsigned int *dims, const unsigned int num_dims)\n"\
+"__kernel void rml_slice(__global TYPE *tensor, __global TYPE *result, __global unsigned int *lower_bound, __global unsigned int *upper_bound, __global unsigned int *dims, const unsigned int num_dims)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  unsigned int pos_workspace[MAX_ARR_SIZE];\n"\
@@ -61,7 +61,7 @@ const char *rml_cl_program =
 "  result[id] = tensor[old_pos];\n"\
 "}\n"\
 "\n"\
-"__kernel void assign_slice(__global TYPE *tensor, __global TYPE *result, __global unsigned int *lower_bound, __global unsigned int *dims, const unsigned int num_dims)\n"\
+"__kernel void rml_assign_slice(__global TYPE *tensor, __global TYPE *result, __global unsigned int *lower_bound, __global unsigned int *dims, const unsigned int num_dims)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  unsigned int pos_workspace[MAX_ARR_SIZE];\n"\
@@ -81,15 +81,15 @@ const char *rml_cl_program =
 "  result[new_pos] = tensor[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void transpose(__global TYPE *tensor, __global TYPE *result, const unsigned int in_r, const unsigned int in_c)\n"\
+"__kernel void rml_transpose(__global TYPE *tensor, __global TYPE *result, const unsigned int in_r, const unsigned int in_c)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
-"  unsigned int new_r = id / in_r\n"\
-"  unsigned int new_c = id % in_r\n"\
+"  unsigned int new_r = id / in_r;\n"\
+"  unsigned int new_c = id % in_r;\n"\
 "  result[id] = tensor[new_c * in_c + new_r];\n"\
 "}\n"\
 "\n"\
-"__kernel void permute(__global TYPE *tensor, __global TYPE *result, __global unsigned int *perms, __global unsigned int *dims, const unsigned int num_dims)\n"\
+"__kernel void rml_permute(__global TYPE *tensor, __global TYPE *result, __global unsigned int *perms, __global unsigned int *dims, const unsigned int num_dims)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  unsigned int pos_workspace[MAX_ARR_SIZE];\n"\
@@ -109,145 +109,145 @@ const char *rml_cl_program =
 "  result[new_pos] = tensor[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void add(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
+"__kernel void rml_add(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  c[id] = a[id] + b[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void sub(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
+"__kernel void rml_sub(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  c[id] = a[id] - b[id];\n"\
 "}\n"\
-"__kernel void mul(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
+"__kernel void rml_mul(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  c[id] = a[id] * b[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void div(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
+"__kernel void rml_div(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  c[id] = a[id] / b[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void increment(__global TYPE *a, const TYPE scalar)\n"\
+"__kernel void rml_increment(__global TYPE *a, const TYPE scalar)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] += scalar;\n"\
 "}\n"\
 "\n"\
-"__kernel void scale(__global TYPE *a, const TYPE scalar)\n"\
+"__kernel void rml_scale(__global TYPE *a, const TYPE scalar)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] *= scalar;\n"\
 "}\n"\
 "\n"\
-"__kernel void exp(__global TYPE *a)\n"\
+"__kernel void rml_exp(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = exp(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void log(__global TYPE *a)\n"\
+"__kernel void rml_log(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = log(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void pow(__global TYPE *a, const TYPE scalar)\n"\
+"__kernel void rml_pow(__global TYPE *a, const TYPE scalar)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = pow(a[id], scalar);\n"\
 "}\n"\
 "\n"\
-"__kernel void sin(__global TYPE *a)\n"\
+"__kernel void rml_sin(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = sin(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void cos(__global TYPE *a)\n"\
+"__kernel void rml_cos(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = cos(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void tan(__global TYPE *a)\n"\
+"__kernel void rml_tan(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = tan(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void sinh(__global TYPE *a)\n"\
+"__kernel void rml_sinh(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = sinh(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void cosh(__global TYPE *a)\n"\
+"__kernel void rml_cosh(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = cosh(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void tanh(__global TYPE *a)\n"\
+"__kernel void rml_tanh(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = tanh(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void asin(__global TYPE *a)\n"\
+"__kernel void rml_asin(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = asin(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void acos(__global TYPE *a)\n"\
+"__kernel void rml_acos(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = acos(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void atan(__global TYPE *a)\n"\
+"__kernel void rml_atan(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = atan(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void asinh(__global TYPE *a)\n"\
+"__kernel void rml_asinh(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = asinh(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void acosh(__global TYPE *a)\n"\
+"__kernel void rml_acosh(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = acosh(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void atanh(__global TYPE *a)\n"\
+"__kernel void rml_atanh(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  a[id] = atanh(a[id]);\n"\
 "}\n"\
 "\n"\
-"__kernel void abs(__global TYPE *a)\n"\
+"__kernel void rml_abs(__global TYPE *a)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
-"  a[id] = abs(a[id]);\n"\
+"  a[id] = a[id] >= 0 ? a[id] : -a[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void clamp(__global TYPE *a, const TYPE min, const TYPE max, const int code)\n"\
+"__kernel void rml_clamp(__global TYPE *a, const TYPE min, const TYPE max, const int code)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  if (code % 2 == 0 && a[id] < min) a[id] = min;\n"\
 "  if (code > 0 && a[id] > max) a[id] = max;\n"\
 "}\n"\
 "\n"\
-"__kernel void max(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
+"__kernel void rml_max(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  for (unsigned int i = 0; i < pool_size, id * pool_size + i < in_size; i++) {\n"\
@@ -256,7 +256,7 @@ const char *rml_cl_program =
 "  \n"\
 "}\n"\
 "\n"\
-"__kernel void min(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
+"__kernel void rml_min(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  for (unsigned int i = 0; i < pool_size, id * pool_size + i < in_size; i++) {\n"\
@@ -264,7 +264,7 @@ const char *rml_cl_program =
 "  }\n"\
 "}\n"\
 "\n"\
-"__kernel void sum(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
+"__kernel void rml_sum(__global TYPE *tensor, __global TYPE *result, const unsigned int pool_size, const unsigned int in_size)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  for (unsigned int i = 0; i < pool_size, id * pool_size + i < in_size; i++) {\n"\
@@ -273,11 +273,11 @@ const char *rml_cl_program =
 "  }\n"\
 "}\n"\
 "\n"\
-"__kernel void one_hot(__global TYPE *tensor, __global TYPE *result, const TYPE range)\n"\
+"__kernel void rml_one_hot(__global TYPE *tensor, __global TYPE *result, const unsigned int range)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
-"  TYPE index = id / range;\n"\
-"  result[id] = tensor[index] == id % range ? 1 : 0;\n"\
+"  unsigned int index = id / range;\n"\
+"  result[id] = ((unsigned int) tensor[index]) == id % range ? 1 : 0;\n"\
 "  \n"\
 "}\n"\
 "\n";

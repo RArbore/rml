@@ -33,8 +33,6 @@ typedef enum {
     TENSOR_TYPE_LDOUBLE,
 } tensor_type_t;
 
-#define NUM_TYPES 11
-
 typedef enum {
     OP_CODE_CREATE = 0x00,
     OP_CODE_PARAM,
@@ -72,13 +70,13 @@ typedef enum {
     OP_CODE_CLAMP,
     OP_CODE_SUM,
     OP_CODE_ONE_HOT,
+    OP_CODE_MAX,
+    OP_CODE_MIN,
     OP_CODE_SOFTMAX,
     OP_CODE_RELU,
     OP_CODE_LEAKYRELU,
     OP_CODE_CROSS_ENTROPY,
 } op_code_t;
-
-#define NUM_OP_CODES 40
 
 typedef struct {
     size_t num_dims;
