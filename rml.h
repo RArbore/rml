@@ -93,7 +93,6 @@ typedef struct tensor_t {
     void *op_data;
     struct tensor_t *source_a;
     struct tensor_t *source_b;
-    char cl_device;
     void *cl_mem;
 } tensor_t;
 

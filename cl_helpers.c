@@ -119,7 +119,12 @@ static void rml_cl_kernel_init(cl_device_id device_id) {
         }
 
         for (size_t op = 0; op < NUM_OP_CODES; op++) {
-            if (kernel_names[op][0] != '\0') kernels[op][t] = clCreateKernel(program, kernel_names[op], &err);
+            if (kernel_names[op][0] != '\0') {
+                kernels[op][t] = clCreateKernel(program, kernel_names[op], &err);
+                if (err != CL_SUCCESS) {
+                    printf("Couldn't create kernel %s\n", kernel_names[op]);
+                }
+            }
         }
     }
 }
@@ -152,6 +157,20 @@ void rml_cl_init() {
     rml_cl_kernel_init(device_id);
 }
 
+void rml_cpu_to_cl_tensor(tensor_t *tensor) {
+    if (tensor->cl_mem != NULL) return;
+    tensor->cl_mem = malloc(sizeof(cl_mem));
+    *((cl_mem *) tensor->cl_mem) = rml_cl_create_buffer(CL_MEM_READ_WRITE, tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type));
+    rml_cl_enqueue_write_buffer(*((cl_mem *) tensor->cl_mem), tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type), tensor->data);
+}
+
+void rml_cl_to_cpu_tensor(tensor_t *tensor) {
+    if (tensor->cl_mem == NULL) return;
+    rml_cl_enqueue_read_buffer(*((cl_mem *) tensor->cl_mem), tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type), tensor->data);
+    free(tensor->cl_mem);
+    tensor->cl_mem = NULL;
+}
+
 cl_mem rml_cl_create_buffer(int mem_properties, size_t size) {
     return clCreateBuffer(context, mem_properties, size, NULL, NULL);
 }
@@ -170,6 +189,9 @@ void rml_cl_set_kernel_arg(op_code_t op_code, tensor_type_t tensor_type, size_t 
 
 void rml_cl_enqueue_range_kernel(op_code_t op_code, tensor_type_t tensor_type, size_t op_size) {
     clEnqueueNDRangeKernel(command_queue, kernels[op_code][tensor_type], 1, NULL, &op_size, NULL, 0, NULL, NULL);
+}
+
+void rml_cl_finish() {
     clFinish(command_queue);
 }
 

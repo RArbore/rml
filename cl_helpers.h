@@ -23,7 +23,12 @@
 #include <stdio.h>
 
 #include "cl_kernels.h"
+#include "tensor.h"
 #include "rml.h"
+
+void rml_cpu_to_cl_tensor(tensor_t *tensor);
+
+void rml_cl_to_cpu_tensor(tensor_t *tensor);
 
 cl_mem rml_cl_create_buffer(int mem_properties, size_t size);
 
@@ -34,6 +39,8 @@ void rml_cl_enqueue_write_buffer(cl_mem buffer, size_t size, void *data);
 void rml_cl_set_kernel_arg(op_code_t op_code, tensor_type_t tensor_type, size_t arg_index, cl_mem *buffer);
 
 void rml_cl_enqueue_range_kernel(op_code_t op_code, tensor_type_t tensor_type, size_t op_size);
+
+void rml_cl_finish();
 
 void rml_cl_free_buffer(cl_mem buffer);
 

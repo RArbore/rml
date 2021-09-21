@@ -91,7 +91,6 @@ tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims, void *data){
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
-    tensor->cl_device = -1;
 
     return tensor;
 }
@@ -114,7 +113,6 @@ tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...)
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
-    tensor->cl_device = -1;
 
     return tensor;
 }
@@ -129,7 +127,6 @@ tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims){
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
-    tensor->cl_device = -1;
 
     return tensor;
 }
@@ -147,7 +144,6 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
-    tensor->cl_device = -1;
 
     return tensor;
 }
@@ -166,7 +162,6 @@ tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims) {
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
-    tensor->cl_device = -1;
 
     return tensor;
 }
@@ -187,6 +182,7 @@ void rml_free_tensor(tensor_t *tensor) {
     rml_free_dims(tensor->dims);
     free(tensor->data);
     free(tensor->op_data);
+    free(tensor->cl_mem);
     free(tensor);
 }
 
