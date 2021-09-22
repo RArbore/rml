@@ -91,6 +91,7 @@ tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims, void *data){
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
+    tensor->cl_mem = NULL;
 
     return tensor;
 }
@@ -113,6 +114,7 @@ tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...)
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
+    tensor->cl_mem = NULL;
 
     return tensor;
 }
@@ -127,6 +129,7 @@ tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims){
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
+    tensor->cl_mem = NULL;
 
     return tensor;
 }
@@ -144,6 +147,7 @@ tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
+    tensor->cl_mem = NULL;
 
     return tensor;
 }
@@ -162,6 +166,7 @@ tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims) {
     tensor->source_a = NULL;
     tensor->source_b = NULL;
     tensor->op_data = NULL;
+    tensor->cl_mem = NULL;
 
     return tensor;
 }

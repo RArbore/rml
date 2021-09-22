@@ -158,6 +158,7 @@ void rml_cl_init() {
 }
 
 void rml_cpu_to_cl_tensor(tensor_t *tensor) {
+    assert(tensor->tensor_type == TENSOR_TYPE_FLOAT || tensor->tensor_type == TENSOR_TYPE_DOUBLE);
     if (tensor->cl_mem != NULL) return;
     tensor->cl_mem = malloc(sizeof(cl_mem));
     *((cl_mem *) tensor->cl_mem) = rml_cl_create_buffer(CL_MEM_READ_WRITE, tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type));
@@ -169,6 +170,10 @@ void rml_cl_to_cpu_tensor(tensor_t *tensor) {
     rml_cl_enqueue_read_buffer(*((cl_mem *) tensor->cl_mem), tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type), tensor->data);
     free(tensor->cl_mem);
     tensor->cl_mem = NULL;
+}
+
+int rml_cl_tensor_on_gpu(tensor_t *tensor) {
+    return tensor->cl_mem != NULL;
 }
 
 cl_mem rml_cl_create_buffer(int mem_properties, size_t size) {
