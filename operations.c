@@ -74,6 +74,7 @@ tensor_t *rml_leakyrelu_tensor(tensor_t *tensor, void *mult) {
 }
 
 tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label) {
+    assert(rml_cl_same_device(2, pred, label));
     assert(rml_dims_equiv(pred->dims, label->dims));
     tensor_t *pred_orig = pred, *label_orig = label;
     CAST_TENSORS_WIDEN(pred, label);
@@ -84,6 +85,7 @@ tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label) {
 
     tensor_t *log_p = rml_log_tensor(pred);
     tensor_t *one = rml_ones_tensor(pred->tensor_type, rml_clone_dims(pred->dims));
+    rml_cl_make_same_device(one, pred);
     tensor_t *one_minus_p = rml_sub_tensor(one, pred);
     tensor_t *log_one_minus_p = rml_log_tensor(one_minus_p);
     tensor_t *one_minus_label = rml_sub_tensor(one, label);
@@ -111,6 +113,7 @@ tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label) {
 }
 
 tensor_t *rml_cross_entropy_loss_safe_tensor(tensor_t* pred, tensor_t *label) {
+    assert(rml_cl_same_device(2, pred, label));
     assert(rml_dims_equiv(pred->dims, label->dims));
     tensor_t *pred_orig = pred, *label_orig = label;
     CAST_TENSORS_WIDEN(pred, label);

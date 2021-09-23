@@ -187,6 +187,10 @@ void rml_cl_enqueue_clone_buffer(cl_mem buffer_src, cl_mem buffer_dest, size_t s
     clEnqueueCopyBuffer(command_queue, buffer_src, buffer_dest, 0, 0, size, 0, NULL, NULL);
 }
 
+void rml_cl_enqueue_fill_buffer(cl_mem buffer, void *pattern, size_t pattern_size, size_t size) {
+    clEnqueueFillBuffer(command_queue, buffer, pattern, pattern_size, 0, size, 0, NULL, NULL);
+}
+
 void rml_cl_set_kernel_arg(unsigned short kernel, unsigned short tensor_type, size_t arg_index, cl_mem *buffer) {
     clSetKernelArg(kernels[kernel][tensor_type], arg_index, sizeof(cl_mem), buffer);
 }
@@ -201,4 +205,22 @@ void rml_cl_finish() {
 
 void rml_cl_free_buffer(cl_mem buffer) {
     clReleaseMemObject(buffer);
+}
+
+int rml_cl_same_device(size_t num, ...) {
+    size_t num_cl = 0;
+    va_list ap;
+    va_start(ap, num);
+    for (size_t i = 0; i < num; i++) {
+        tensor_t *tensor = va_arg(ap, tensor_t *);
+        num_cl += rml_cl_tensor_on_cl(tensor);
+    }
+    va_end(ap);
+    return num_cl == num || num_cl == 0;
+}
+
+void rml_cl_make_same_device(tensor_t *tensor, tensor_t *dest) {
+    if (rml_cl_same_device(2, tensor, dest)) return;
+    if (rml_cl_tensor_on_cl(dest)) rml_cpu_to_cl_tensor(tensor);
+    rml_cl_to_cpu_tensor(tensor);
 }

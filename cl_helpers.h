@@ -34,6 +34,8 @@ void rml_cl_enqueue_write_buffer(cl_mem buffer, size_t size, void *data);
 
 void rml_cl_enqueue_clone_buffer(cl_mem buffer_src, cl_mem buffer_dest, size_t size);
 
+void rml_cl_enqueue_fill_buffer(cl_mem buffer, void *pattern, size_t pattern_size, size_t size);
+
 void rml_cl_set_kernel_arg(unsigned short kernel, unsigned short tensor_type, size_t arg_index, cl_mem *buffer);
 
 void rml_cl_enqueue_range_kernel(unsigned short kernel, unsigned short tensor_type, size_t op_size);
@@ -41,5 +43,7 @@ void rml_cl_enqueue_range_kernel(unsigned short kernel, unsigned short tensor_ty
 void rml_cl_finish();
 
 void rml_cl_free_buffer(cl_mem buffer);
+
+int rml_cl_same_device(size_t num, ...);
 
 #endif // CL_HELPERS_H_

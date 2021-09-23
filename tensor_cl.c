@@ -28,7 +28,26 @@ tensor_t *rml_cl_init_tensor(tensor_type_t type, dims_t *dims, void *data) {
 
     tensor->cl_mem = malloc(sizeof(cl_mem));
     *((cl_mem *) tensor->cl_mem) = rml_cl_create_buffer(CL_MEM_READ_WRITE, dims->flat_size * rml_sizeof_type(type));
-    rml_cl_enqueue_write_buffer(*((cl_mem *) tensor->cl_mem), dims->flat_size * rml_sizeof_type(type), data);
+    if (data != NULL) rml_cl_enqueue_write_buffer(*((cl_mem *) tensor->cl_mem), dims->flat_size * rml_sizeof_type(type), data);
+
+    return tensor;
+}
+
+tensor_t *rml_cl_zeros_tensor(tensor_type_t type, dims_t *dims) {
+    tensor_t *tensor = rml_cl_init_tensor(type, dims, NULL);
+    void *zero;
+    SWITCH_ENUM_TYPES(tensor->tensor_type, CALLOC_VOID_POINTER, zero, 1);
+    rml_cl_enqueue_fill_buffer(*((cl_mem *) tensor->cl_mem), zero, rml_sizeof_type(type), dims->flat_size * rml_sizeof_type(type));
+
+    return tensor;
+}
+
+tensor_t *rml_cl_ones_tensor(tensor_type_t type, dims_t *dims) {
+    tensor_t *tensor = rml_cl_init_tensor(type, dims, NULL);
+    void *one;
+    SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, one, 1);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, one, 1, 0);
+    rml_cl_enqueue_fill_buffer(*((cl_mem *) tensor->cl_mem), one, rml_sizeof_type(type), dims->flat_size * rml_sizeof_type(type));
 
     return tensor;
 }

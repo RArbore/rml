@@ -17,11 +17,16 @@
 #define TENSOR_CL_H_
 
 #include "cl_helpers.h"
+#include "internal.h"
 #include "tensor.h"
 #include "rml.h"
 
-tensor_t *rml_cl_clone_tensor(tensor_t *tensor);
-
 tensor_t *rml_cl_init_tensor(tensor_type_t type, dims_t *dims, void *data);
+
+tensor_t *rml_cl_zeros_tensor(tensor_type_t type, dims_t *dims);
+
+tensor_t *rml_cl_ones_tensor(tensor_type_t type, dims_t *dims);
+
+tensor_t *rml_cl_clone_tensor(tensor_t *tensor);
 
 #endif // TENSOR_CL_H_

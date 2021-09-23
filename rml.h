@@ -288,6 +288,9 @@ extern void rml_cpu_to_cl_tensor(tensor_t *tensor);
 // Move tensor from CL device to CPU
 extern void rml_cl_to_cpu_tensor(tensor_t *tensor);
 
+// Move tensor to same device as other tensor
+extern void rml_cl_make_same_device(tensor_t *tensor, tensor_t *dest);
+
 // Check if tensor is on a CL device
 extern int rml_cl_tensor_on_cl(tensor_t *tensor);
 
