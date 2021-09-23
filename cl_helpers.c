@@ -16,11 +16,11 @@
 #include "cl_helpers.h"
 
 #define NUM_TYPES 2
-#define NUM_OP_CODES 42
+#define NUM_KERNELS 34
 
 cl_context context;
 cl_command_queue command_queue;
-cl_kernel kernels[NUM_OP_CODES][NUM_TYPES];
+cl_kernel kernels[NUM_KERNELS][NUM_TYPES];
 
 const char *type_names[] = {
     "float",
@@ -30,8 +30,6 @@ const char *type_names[] = {
 const char *cl_max_arr_size = "1024";
 
 const char *kernel_names[] = {
-    "",
-    "",
     "rml_clone",
     "rml_matmul",
     "rml_concat",
@@ -39,8 +37,6 @@ const char *kernel_names[] = {
     "rml_assign_slice",
     "rml_transpose",
     "rml_permute",
-    "",
-    "",
     "rml_add",
     "rml_sub",
     "rml_mul",
@@ -68,10 +64,6 @@ const char *kernel_names[] = {
     "rml_one_hot",
     "rml_max",
     "rml_min",
-    "",
-    "",
-    "",
-    "",
 };
 
 static void rml_cl_kernel_init(cl_device_id device_id) {
@@ -118,7 +110,7 @@ static void rml_cl_kernel_init(cl_device_id device_id) {
             return;
         }
 
-        for (size_t op = 0; op < NUM_OP_CODES; op++) {
+        for (size_t op = 0; op < NUM_KERNELS; op++) {
             if (kernel_names[op][0] != '\0') {
                 kernels[op][t] = clCreateKernel(program, kernel_names[op], &err);
                 if (err != CL_SUCCESS) {
@@ -195,12 +187,12 @@ void rml_cl_enqueue_clone_buffer(cl_mem buffer_src, cl_mem buffer_dest, size_t s
     clEnqueueCopyBuffer(command_queue, buffer_src, buffer_dest, 0, 0, size, 0, NULL, NULL);
 }
 
-void rml_cl_set_kernel_arg(op_code_t op_code, tensor_type_t tensor_type, size_t arg_index, cl_mem *buffer) {
-    clSetKernelArg(kernels[op_code][tensor_type], arg_index, sizeof(cl_mem), buffer);
+void rml_cl_set_kernel_arg(unsigned short kernel, unsigned short tensor_type, size_t arg_index, cl_mem *buffer) {
+    clSetKernelArg(kernels[kernel][tensor_type], arg_index, sizeof(cl_mem), buffer);
 }
 
-void rml_cl_enqueue_range_kernel(op_code_t op_code, tensor_type_t tensor_type, size_t op_size) {
-    clEnqueueNDRangeKernel(command_queue, kernels[op_code][tensor_type], 1, NULL, &op_size, NULL, 0, NULL, NULL);
+void rml_cl_enqueue_range_kernel(unsigned short kernel, unsigned short tensor_type, size_t op_size) {
+    clEnqueueNDRangeKernel(command_queue, kernels[kernel][tensor_type], 1, NULL, &op_size, NULL, 0, NULL, NULL);
 }
 
 void rml_cl_finish() {

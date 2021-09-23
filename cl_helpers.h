@@ -34,9 +34,9 @@ void rml_cl_enqueue_write_buffer(cl_mem buffer, size_t size, void *data);
 
 void rml_cl_enqueue_clone_buffer(cl_mem buffer_src, cl_mem buffer_dest, size_t size);
 
-void rml_cl_set_kernel_arg(op_code_t op_code, tensor_type_t tensor_type, size_t arg_index, cl_mem *buffer);
+void rml_cl_set_kernel_arg(unsigned short kernel, unsigned short tensor_type, size_t arg_index, cl_mem *buffer);
 
-void rml_cl_enqueue_range_kernel(op_code_t op_code, tensor_type_t tensor_type, size_t op_size);
+void rml_cl_enqueue_range_kernel(unsigned short kernel, unsigned short tensor_type, size_t op_size);
 
 void rml_cl_finish();
 
