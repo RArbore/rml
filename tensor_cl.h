@@ -13,24 +13,15 @@
     You should have received a copy of the GNU Lesser General Public License
     along with rml. If not, see <https://www.gnu.org/licenses/>.  */
 
-#ifndef TENSOR_H_
-#define TENSOR_H_
+#ifndef TENSOR_CL_H_
+#define TENSOR_CL_H_
 
-#define CL_TARGET_OPENCL_VERSION 300
-
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdarg.h>
-#include <assert.h>
-
-#include "tensor_blas.h"
 #include "cl_helpers.h"
-#include "tensor_cl.h"
-#include "internal.h"
+#include "tensor.h"
 #include "rml.h"
 
-tensor_t *rml_floating_point_op_tensor(tensor_t *tensor, float (*f)(float), double (*d)(double), long double (*ld)(long double));
+tensor_t *rml_cl_clone_tensor(tensor_t *tensor);
 
-size_t rml_sizeof_type(tensor_type_t tensor_type);
+tensor_t *rml_cl_init_tensor(tensor_type_t type, dims_t *dims, void *data);
 
-#endif // TENSOR_H_
+#endif // TENSOR_CL_H_

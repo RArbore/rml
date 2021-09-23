@@ -26,17 +26,13 @@
 #include "tensor.h"
 #include "rml.h"
 
-void rml_cpu_to_cl_tensor(tensor_t *tensor);
-
-void rml_cl_to_cpu_tensor(tensor_t *tensor);
-
-int rml_cl_tensor_on_gpu(tensor_t *tensor);
-
 cl_mem rml_cl_create_buffer(int mem_properties, size_t size);
 
 void rml_cl_enqueue_read_buffer(cl_mem buffer, size_t size, void *data);
 
 void rml_cl_enqueue_write_buffer(cl_mem buffer, size_t size, void *data);
+
+void rml_cl_enqueue_clone_buffer(cl_mem buffer_src, cl_mem buffer_dest, size_t size);
 
 void rml_cl_set_kernel_arg(op_code_t op_code, tensor_type_t tensor_type, size_t arg_index, cl_mem *buffer);
 

@@ -23,5 +23,9 @@ test_mnist: test_mnist.o
 	$(CC) -o $@ $^ -lrml
 test_mnist.o: test_mnist.c
 	$(CC) -c -o $@ $^
+test_cl: test_cl.o
+	$(CC) -o $@ $^ -lrml
+test_cl.o: test_cl.c
+	$(CC) -c -o $@ $^
 clean:
 	rm *.o test_tensors test_mnist

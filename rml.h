@@ -282,4 +282,13 @@ extern void rml_free_graph(tensor_t *root);
 // Initialize OpenCL
 extern void rml_cl_init();
 
+// Move tensor from CPU to CL device
+extern void rml_cpu_to_cl_tensor(tensor_t *tensor);
+
+// Move tensor from CL device to CPU
+extern void rml_cl_to_cpu_tensor(tensor_t *tensor);
+
+// Check if tensor is on a CL device
+extern int rml_cl_tensor_on_cl(tensor_t *tensor);
+
 #endif // RML_H_

@@ -172,6 +172,7 @@ tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims) {
 }
 
 tensor_t *rml_clone_tensor(tensor_t *tensor){
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_clone_tensor(tensor);
     if (tensor->tensor_type == TENSOR_TYPE_FLOAT || tensor->tensor_type == TENSOR_TYPE_DOUBLE) return rml_blas_clone_tensor(tensor);
     tensor_t *clone = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
     clone->op_code = OP_CODE_CLONE;
@@ -187,11 +188,13 @@ void rml_free_tensor(tensor_t *tensor) {
     rml_free_dims(tensor->dims);
     free(tensor->data);
     free(tensor->op_data);
+    if (tensor->cl_mem != NULL) rml_cl_free_buffer(*((cl_mem *) tensor->cl_mem));
     free(tensor->cl_mem);
     free(tensor);
 }
 
 void rml_print_tensor(tensor_t *tensor) {
+    assert(!rml_cl_tensor_on_cl(tensor));
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         PRINT_VOID_POINTER(tensor->tensor_type, tensor->data, i);
         if (i + 1 < tensor->dims->flat_size) printf(" ");
