@@ -163,6 +163,7 @@ void rml_cl_to_cpu_tensor(tensor_t *tensor) {
     if (tensor->cl_mem == NULL) return;
     tensor->data = malloc(tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type));
     rml_cl_enqueue_read_buffer(*((cl_mem *) tensor->cl_mem), tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type), tensor->data);
+    rml_cl_free_buffer(*((cl_mem *) tensor->cl_mem));
     free(tensor->cl_mem);
     tensor->cl_mem = NULL;
 }

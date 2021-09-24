@@ -22,10 +22,14 @@ int main() {
 
     float data[] = {1., 2., 3., 4., 5., 6.};
 
-    tensor_t *tensor = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), data);
-    rml_print_tensor(tensor);
-    rml_cpu_to_cl_tensor(tensor);
-    tensor_t *clone = rml_clone_tensor(tensor);
-    rml_cl_to_cpu_tensor(clone);
-    rml_print_tensor(clone);
+    for (;;) {
+        tensor_t *tensor = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), data);
+        rml_print_tensor(tensor);
+        rml_cpu_to_cl_tensor(tensor);
+        tensor_t *clone = rml_clone_tensor(tensor);
+        rml_cl_to_cpu_tensor(clone);
+        rml_print_tensor(clone);
+        rml_free_tensor(tensor);
+        rml_free_tensor(clone);
+    }
 }
