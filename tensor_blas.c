@@ -34,6 +34,7 @@ tensor_t *rml_blas_clone_tensor(tensor_t *tensor) {
 tensor_t *rml_blas_matmul_tensor(tensor_t *a, tensor_t *b) {
     assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
     assert(a->dims->dims[1] == b->dims->dims[0]);
+    tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b);
     assert(a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE);
 
@@ -46,13 +47,14 @@ tensor_t *rml_blas_matmul_tensor(tensor_t *a, tensor_t *b) {
     }
     CLEANUP_CAST_TENSORS_WIDEN;
     result->op_code = OP_CODE_MATMUL;
-    result->source_a = a;
-    result->source_b = b;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
 
     return result;
 }
 
 tensor_t *rml_blas_add_tensor(tensor_t *a, tensor_t *b) {
+    tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b)
     assert(rml_dims_equiv(a->dims, b->dims));
     assert(a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE);
@@ -66,13 +68,14 @@ tensor_t *rml_blas_add_tensor(tensor_t *a, tensor_t *b) {
     }
     CLEANUP_CAST_TENSORS_WIDEN;
     result->op_code = OP_CODE_ADD;
-    result->source_a = a;
-    result->source_b = b;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
 
     return result;
 }
 
 tensor_t *rml_blas_sub_tensor(tensor_t *a, tensor_t *b) {
+    tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b)
     assert(rml_dims_equiv(a->dims, b->dims));
     assert(a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE);
@@ -86,8 +89,8 @@ tensor_t *rml_blas_sub_tensor(tensor_t *a, tensor_t *b) {
     }
     CLEANUP_CAST_TENSORS_WIDEN;
     result->op_code = OP_CODE_SUB;
-    result->source_a = a;
-    result->source_b = b;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
 
     return result;
 }

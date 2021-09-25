@@ -30,13 +30,14 @@ const char *type_names[] = {
 const char *cl_max_arr_size = "1024";
 
 const char *kernel_names[] = {
-    "rml_clone",
     "rml_matmul",
     "rml_concat",
     "rml_slice",
     "rml_assign_slice",
     "rml_transpose",
     "rml_permute",
+    "rml_cast_float",
+    "rml_cast_double",
     "rml_add",
     "rml_sub",
     "rml_mul",
@@ -161,6 +162,7 @@ void rml_cpu_to_cl_tensor(tensor_t *tensor) {
 
 void rml_cl_to_cpu_tensor(tensor_t *tensor) {
     if (tensor->cl_mem == NULL) return;
+    rml_cl_finish();
     tensor->data = malloc(tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type));
     rml_cl_enqueue_read_buffer(*((cl_mem *) tensor->cl_mem), tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type), tensor->data);
     rml_cl_free_buffer(*((cl_mem *) tensor->cl_mem));
@@ -192,12 +194,12 @@ void rml_cl_enqueue_fill_buffer(cl_mem buffer, void *pattern, size_t pattern_siz
     clEnqueueFillBuffer(command_queue, buffer, pattern, pattern_size, 0, size, 0, NULL, NULL);
 }
 
-void rml_cl_set_kernel_arg(unsigned short kernel, unsigned short tensor_type, size_t arg_index, cl_mem *buffer) {
-    clSetKernelArg(kernels[kernel][tensor_type], arg_index, sizeof(cl_mem), buffer);
+void rml_cl_set_kernel_arg(cl_op_t kernel, cl_type_t tensor_type, size_t arg_index, void *arg, size_t size_of_arg) {
+    clSetKernelArg(kernels[kernel][tensor_type], arg_index, size_of_arg, arg);
 }
 
-void rml_cl_enqueue_range_kernel(unsigned short kernel, unsigned short tensor_type, size_t op_size) {
-    clEnqueueNDRangeKernel(command_queue, kernels[kernel][tensor_type], 1, NULL, &op_size, NULL, 0, NULL, NULL);
+void rml_cl_enqueue_range_kernel(cl_op_t kernel, cl_type_t tensor_type, size_t *op_size) {
+    clEnqueueNDRangeKernel(command_queue, kernels[kernel][tensor_type], 1, NULL, op_size, NULL, 0, NULL, NULL);
 }
 
 void rml_cl_finish() {
@@ -224,4 +226,10 @@ void rml_cl_make_same_device(tensor_t *tensor, tensor_t *dest) {
     if (rml_cl_same_device(2, tensor, dest)) return;
     if (rml_cl_tensor_on_cl(dest)) rml_cpu_to_cl_tensor(tensor);
     rml_cl_to_cpu_tensor(tensor);
+}
+
+cl_type_t rml_cl_typeof_tensor(tensor_t *tensor) {
+    assert(rml_cl_tensor_on_cl(tensor));
+    if (tensor->tensor_type == TENSOR_TYPE_FLOAT) return CL_TYPE_FLOAT;
+    return CL_TYPE_DOUBLE;
 }

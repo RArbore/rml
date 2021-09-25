@@ -76,7 +76,7 @@ void rml_print_dims(dims_t *dims) {
     printf("\n");
 }
 
-tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims, void *data){
+tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims, void *data) {
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
@@ -96,7 +96,7 @@ tensor_t *rml_init_tensor(tensor_type_t type, dims_t *dims, void *data){
     return tensor;
 }
 
-tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...){
+tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...) {
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
@@ -119,7 +119,7 @@ tensor_t *rml_create_tensor(tensor_type_t type, dims_t *dims, size_t count, ...)
     return tensor;
 }
 
-tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims){
+tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims) {
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
@@ -134,7 +134,7 @@ tensor_t *rml_zeros_tensor(tensor_type_t type, dims_t *dims){
     return tensor;
 }
 
-tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims){
+tensor_t *rml_ones_tensor(tensor_type_t type, dims_t *dims) {
     tensor_t *tensor = malloc(sizeof(tensor_t));
 
     tensor->tensor_type = type;
@@ -171,7 +171,7 @@ tensor_t *rml_rand_tensor(tensor_type_t type, dims_t *dims) {
     return tensor;
 }
 
-tensor_t *rml_clone_tensor(tensor_t *tensor){
+tensor_t *rml_clone_tensor(tensor_t *tensor) {
     if (rml_cl_tensor_on_cl(tensor)) return rml_cl_clone_tensor(tensor);
     if (tensor->tensor_type == TENSOR_TYPE_FLOAT || tensor->tensor_type == TENSOR_TYPE_DOUBLE) return rml_blas_clone_tensor(tensor);
     tensor_t *clone = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
@@ -202,7 +202,7 @@ void rml_print_tensor(tensor_t *tensor) {
     printf("\n");
 }
 
-void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos){
+void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos) {
     size_t index = 0;
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
         index = index * tensor->dims->dims[i] + pos[i];
@@ -213,9 +213,11 @@ void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos){
     return ret;
 }
 
-tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b){
+tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b) {
+    assert(rml_cl_same_device(2, a, b));
     assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
     assert(a->dims->dims[1] == b->dims->dims[0]);
+    if (rml_cl_tensor_on_cl(a)) return rml_cl_matmul_tensor(a, b);
     tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b);
     if (a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE) {
@@ -430,6 +432,13 @@ tensor_t *rml_reshape_tensor(tensor_t *tensor, size_t *new_dims, size_t count) {
 }
 
 tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type) {
+    if (rml_cl_tensor_on_cl(tensor)) {
+        assert(type == TENSOR_TYPE_FLOAT || type == TENSOR_TYPE_DOUBLE);
+        if (type == TENSOR_TYPE_FLOAT) {
+            return rml_cl_cast_float_tensor(tensor);
+        }
+        return rml_cl_cast_double_tensor(tensor);
+    }
     tensor_t *result = rml_init_tensor(type, rml_clone_dims(tensor->dims), NULL);
     result->op_code = OP_CODE_CAST;
     result->source_a = tensor;

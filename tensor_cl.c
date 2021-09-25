@@ -61,3 +61,53 @@ tensor_t *rml_cl_clone_tensor(tensor_t *tensor) {
 
     return clone;
 }
+
+tensor_t *rml_cl_matmul_tensor(tensor_t *a, tensor_t *b) {
+    tensor_t *a_orig = a, *b_orig = b;
+    CAST_TENSORS_WIDEN(a, b);
+    tensor_t *result = rml_cl_init_tensor(a->tensor_type, rml_create_dims(2, a->dims->dims[0], b->dims->dims[1]), NULL);
+    unsigned int d1 = a->dims->dims[0];
+    unsigned int d2 = a->dims->dims[1];
+    unsigned int d3 = b->dims->dims[1];
+
+    rml_cl_set_kernel_arg(CL_OP_MATMUL, rml_cl_typeof_tensor(a), 0, a->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_MATMUL, rml_cl_typeof_tensor(a), 1, b->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_MATMUL, rml_cl_typeof_tensor(a), 2, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_MATMUL, rml_cl_typeof_tensor(a), 3, &d1, sizeof(unsigned int));
+    rml_cl_set_kernel_arg(CL_OP_MATMUL, rml_cl_typeof_tensor(a), 4, &d2, sizeof(unsigned int));
+    rml_cl_set_kernel_arg(CL_OP_MATMUL, rml_cl_typeof_tensor(a), 5, &d3, sizeof(unsigned int));
+    rml_cl_enqueue_range_kernel(CL_OP_MATMUL, rml_cl_typeof_tensor(a), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_MATMUL;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
+    CLEANUP_CAST_TENSORS_WIDEN;
+
+    return result;
+}
+
+tensor_t *rml_cl_cast_float_tensor(tensor_t *tensor) {
+    tensor_t *result = rml_cl_init_tensor(TENSOR_TYPE_FLOAT, rml_clone_dims(tensor->dims), NULL);
+
+    rml_cl_set_kernel_arg(CL_OP_CAST_FLOAT, rml_cl_typeof_tensor(tensor), 0, tensor->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_CAST_FLOAT, rml_cl_typeof_tensor(tensor), 1, result->cl_mem, sizeof(cl_mem));
+    rml_cl_enqueue_range_kernel(CL_OP_CAST_FLOAT, rml_cl_typeof_tensor(tensor), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_CAST;
+    result->source_a = tensor;
+
+    return result;
+}
+
+tensor_t *rml_cl_cast_double_tensor(tensor_t *tensor) {
+    tensor_t *result = rml_cl_init_tensor(TENSOR_TYPE_DOUBLE, rml_clone_dims(tensor->dims), NULL);
+
+    rml_cl_set_kernel_arg(CL_OP_CAST_DOUBLE, rml_cl_typeof_tensor(tensor), 0, tensor->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_CAST_DOUBLE, rml_cl_typeof_tensor(tensor), 1, result->cl_mem, sizeof(cl_mem));
+    rml_cl_enqueue_range_kernel(CL_OP_CAST_DOUBLE, rml_cl_typeof_tensor(tensor), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_CAST;
+    result->source_a = tensor;
+
+    return result;
+}

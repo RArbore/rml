@@ -16,12 +16,6 @@
 #include "cl_kernels.h"
 
 const char *rml_cl_program =
-"__kernel void rml_clone(__global TYPE *a, __global TYPE *b)\n"\
-"{\n"\
-"  unsigned int id = get_global_id(0);\n"\
-"  b[id] = a[id];\n"\
-"}\n"\
-"\n"\
 "__kernel void rml_matmul(__global TYPE *a, __global TYPE *b, __global TYPE *c, const unsigned int d1, const unsigned int d2, const unsigned int d3)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
@@ -29,7 +23,7 @@ const char *rml_cl_program =
 "  unsigned int row = id / d3;\n"\
 "  unsigned int col = id % d3;\n"\
 "  for (unsigned int i = 0; i < d2; i++) {;\n"\
-"    c[id] += a[row * d1 + i] * b[i * d2 + col];\n"\
+"    c[id] += a[row * d3 + i] * b[i * d2 + col];\n"\
 "  }\n"\
 "}\n"\
 "\n"\
@@ -107,6 +101,18 @@ const char *rml_cl_program =
 "    new_pos = new_pos * prev_mult + pos_workspace[perms[d]];\n"\
 "  }\n"\
 "  result[new_pos] = tensor[id];\n"\
+"}\n"\
+"\n"\
+"__kernel void rml_cast_float(__global TYPE *a, __global float *b)\n"\
+"{\n"\
+"  unsigned int id = get_global_id(0);\n"\
+"  b[id] = (float) a[id];\n"\
+"}\n"\
+"\n"\
+"__kernel void rml_cast_double(__global TYPE *a, __global double *b)\n"\
+"{\n"\
+"  unsigned int id = get_global_id(0);\n"\
+"  b[id] = (double) a[id];\n"\
 "}\n"\
 "\n"\
 "__kernel void rml_add(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
