@@ -214,9 +214,9 @@ void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos) {
 }
 
 tensor_t *rml_matmul_tensor(tensor_t *a, tensor_t *b) {
-    assert(rml_cl_same_device(2, a, b));
     assert(a->dims->num_dims == 2 && b->dims->num_dims == 2);
     assert(a->dims->dims[1] == b->dims->dims[0]);
+    assert(rml_cl_same_device(2, a, b));
     if (rml_cl_tensor_on_cl(a)) return rml_cl_matmul_tensor(a, b);
     tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b);
@@ -244,6 +244,8 @@ tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim) {
     for (size_t i = 0; i < a->dims->num_dims; i++) {
         if (i != dim) assert(a->dims->dims[i] == b->dims->dims[i]);
     }
+    assert(rml_cl_same_device(2, a, b));
+    if (rml_cl_tensor_on_cl(a)) return rml_cl_concat_tensor(a, b, dim);
     tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b);
     dims_t *dims = rml_clone_dims(a->dims);

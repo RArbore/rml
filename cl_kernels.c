@@ -27,49 +27,73 @@ const char *rml_cl_program =
 "  }\n"\
 "}\n"\
 "\n"\
-"__kernel void rml_concat(__global TYPE *a, __global TYPE *b, __global TYPE *c, const unsigned int pitch_a, const unsigned int pitch_b)\n"\
-"{\n"\
-"  unsigned int id = get_global_id(0);\n"\
-"  unsigned int total_pitch = pitch_a + pitch_b;\n"\
-"  if (id % total_pitch < pitch_a) c[id] = a[id];\n"\
-"  else c[id] = b[id];\n"\
-"}\n"\
-"\n"\
-"__kernel void rml_slice(__global TYPE *tensor, __global TYPE *result, __global unsigned int *lower_bound, __global unsigned int *upper_bound, __global unsigned int *dims, const unsigned int num_dims)\n"\
+"__kernel void rml_concat(__global TYPE *a, __global TYPE *b, __global TYPE *c, __constant const unsigned int *dims_a, __constant const unsigned int *dims_b, __constant const unsigned int *dims_c, const unsigned int num_dims, const unsigned int cdim)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  unsigned int pos_workspace[MAX_ARR_SIZE];\n"\
 "  unsigned int i_divided = id;\n"\
 "  int reached_zero = 0;\n"\
 "  for (unsigned int d = num_dims - 1; !reached_zero; d--) {\n"\
-"    if (d < num_dims - 1) i_divided /= dims[d + 1];\n"\
-"    pos_workspace[d] = i_divided % dims[d] + lower_bound[d];\n"\
+"    if (d < num_dims - 1) i_divided /= dims_c[d + 1];\n"\
+"    pos_workspace[d] = i_divided % dims_c[d];\n"\
+"    if (d == 0) reached_zero = 1;\n"\
+"  }\n"\
+"  unsigned int old_pos = 0;\n"\
+"  if (pos_workspace[cdim] < dims_a[cdim]) {\n"\
+"    for (unsigned int d = 0; d < num_dims; d++) {\n"\
+"      unsigned int prev_mult = 0;\n"\
+"      if (d > 0) prev_mult = dims_a[d];\n"\
+"      old_pos = old_pos * prev_mult + pos_workspace[d];\n"\
+"    }\n"\
+"    c[id] = a[old_pos];\n"\
+"  }\n"\
+"  else {\n"\
+"    pos_workspace[cdim] -= dims_a[cdim];\n"\
+"    for (unsigned int d = 0; d < num_dims; d++) {\n"\
+"      unsigned int prev_mult = 0;\n"\
+"      if (d > 0) prev_mult = dims_b[d];\n"\
+"      old_pos = old_pos * prev_mult + pos_workspace[d];\n"\
+"    }\n"\
+"    c[id] = b[old_pos];\n"\
+"  }\n"\
+"  \n"\
+"}\n"\
+"\n"\
+"__kernel void rml_slice(__global TYPE *tensor, __global TYPE *result, __constant const unsigned int *lower_bound, __constant const unsigned int *upper_bound, __constant const unsigned int *tensor_dims, __constant const unsigned int *result_dims, const unsigned int num_dims)\n"\
+"{\n"\
+"  unsigned int id = get_global_id(0);\n"\
+"  unsigned int pos_workspace[MAX_ARR_SIZE];\n"\
+"  unsigned int i_divided = id;\n"\
+"  int reached_zero = 0;\n"\
+"  for (unsigned int d = num_dims - 1; !reached_zero; d--) {\n"\
+"    if (d < num_dims - 1) i_divided /= result_dims[d + 1];\n"\
+"    pos_workspace[d] = i_divided % result_dims[d] + lower_bound[d];\n"\
 "    if (d == 0) reached_zero = 1;\n"\
 "  }\n"\
 "  unsigned int old_pos = 0;\n"\
 "  for (unsigned int d = 0; d < num_dims; d++) {\n"\
 "    unsigned int prev_mult = 0;\n"\
-"    if (d > 0) prev_mult = dims[d];\n"\
+"    if (d > 0) prev_mult = tensor_dims[d];\n"\
 "    old_pos = old_pos * prev_mult + pos_workspace[d];\n"\
 "  }\n"\
 "  result[id] = tensor[old_pos];\n"\
 "}\n"\
 "\n"\
-"__kernel void rml_assign_slice(__global TYPE *tensor, __global TYPE *result, __global unsigned int *lower_bound, __global unsigned int *dims, const unsigned int num_dims)\n"\
+"__kernel void rml_assign_slice(__global TYPE *tensor, __global TYPE *result, __global unsigned int *lower_bound, __global unsigned int *tensor_dims, __global unsigned int *result_dims, const unsigned int num_dims)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  unsigned int pos_workspace[MAX_ARR_SIZE];\n"\
 "  unsigned int i_divided = id;\n"\
 "  int reached_zero = 0;\n"\
 "  for (unsigned int d = num_dims - 1; !reached_zero; d--) {\n"\
-"    if (d < num_dims - 1) i_divided /= dims[d + 1];\n"\
-"    pos_workspace[d] = i_divided % dims[d] + lower_bound[d];\n"\
+"    if (d < num_dims - 1) i_divided /= tensor_dims[d + 1];\n"\
+"    pos_workspace[d] = i_divided % tensor_dims[d] + lower_bound[d];\n"\
 "    if (d == 0) reached_zero = 1;\n"\
 "  }\n"\
 "  unsigned int new_pos = 0;\n"\
 "  for (unsigned int d = 0; d < num_dims; d++) {\n"\
 "    unsigned int prev_mult = 0;\n"\
-"    if (d > 0) prev_mult = dims[d];\n"\
+"    if (d > 0) prev_mult = result_dims[d];\n"\
 "    new_pos = new_pos * prev_mult + pos_workspace[d];\n"\
 "  }\n"\
 "  result[new_pos] = tensor[id];\n"\
