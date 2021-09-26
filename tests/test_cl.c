@@ -30,7 +30,7 @@ int main() {
         rml_print_tensor(b);
         rml_cpu_to_cl_tensor(a);
         rml_cpu_to_cl_tensor(b);
-        tensor_t *c = rml_add_tensor(a, b);
+        tensor_t *c = rml_sub_tensor(a, b);
         rml_cl_to_cpu_tensor(c);
         rml_print_tensor(c);
         rml_free_tensor(a);
