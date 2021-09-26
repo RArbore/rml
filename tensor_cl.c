@@ -261,6 +261,45 @@ tensor_t *rml_cl_transpose_tensor(tensor_t *tensor) {
     return result;
 }
 
+tensor_t *rml_cl_permute_tensor(tensor_t *tensor, size_t *perms) {
+    size_t *new_dims = malloc(tensor->dims->num_dims * sizeof(size_t));
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        new_dims[i] = tensor->dims->dims[perms[i]];
+    }
+    dims_t *new_dims_struct = rml_clone_dims(tensor->dims);
+    free(new_dims_struct->dims);
+    new_dims_struct->dims = new_dims;
+    tensor_t *result = rml_cl_init_tensor(tensor->tensor_type, new_dims_struct, NULL);
+
+    unsigned int *perms_u = malloc(tensor->dims->num_dims * sizeof(unsigned int));
+    unsigned int *dims_u = malloc(tensor->dims->num_dims * sizeof(unsigned int));
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        perms_u[i] = (unsigned int) perms[i];
+        dims_u[i] = (unsigned int) tensor->dims->dims[i];
+    }
+    unsigned int num_dims = tensor->dims->num_dims;
+    cl_mem perms_u_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, tensor->dims->num_dims * sizeof(unsigned int));
+    cl_mem dims_u_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, tensor->dims->num_dims * sizeof(unsigned int));
+    rml_cl_enqueue_write_buffer(perms_u_cl, tensor->dims->num_dims * sizeof(unsigned int), perms_u);
+    rml_cl_enqueue_write_buffer(dims_u_cl, tensor->dims->num_dims * sizeof(unsigned int), dims_u);
+
+    rml_cl_set_kernel_arg(CL_OP_PERMUTE, rml_cl_typeof_tensor(tensor), 0, tensor->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_PERMUTE, rml_cl_typeof_tensor(tensor), 1, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_PERMUTE, rml_cl_typeof_tensor(tensor), 2, &perms_u_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_PERMUTE, rml_cl_typeof_tensor(tensor), 3, &dims_u_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_PERMUTE, rml_cl_typeof_tensor(tensor), 4, &num_dims, sizeof(unsigned int));
+    rml_cl_enqueue_range_kernel(CL_OP_PERMUTE, rml_cl_typeof_tensor(tensor), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_PERMUTE;
+    result->source_a = tensor;
+    result->op_data = malloc(tensor->dims->num_dims * sizeof(size_t));
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        *((size_t *) result->op_data) = perms[i];
+    }
+
+    return result;
+}
+
 tensor_t *rml_cl_cast_float_tensor(tensor_t *tensor) {
     tensor_t *result = rml_cl_init_tensor(TENSOR_TYPE_FLOAT, rml_clone_dims(tensor->dims), NULL);
 

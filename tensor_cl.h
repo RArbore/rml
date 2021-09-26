@@ -39,6 +39,8 @@ tensor_t *rml_cl_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bou
 
 tensor_t *rml_cl_transpose_tensor(tensor_t *tensor);
 
+tensor_t *rml_cl_permute_tensor(tensor_t *tensor, size_t *perms);
+
 tensor_t *rml_cl_cast_float_tensor(tensor_t *tensor);
 
 tensor_t *rml_cl_cast_double_tensor(tensor_t *tensor);

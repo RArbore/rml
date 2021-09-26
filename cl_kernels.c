@@ -79,7 +79,7 @@ const char *rml_cl_program =
 "  result[id] = tensor[old_pos];\n"\
 "}\n"\
 "\n"\
-"__kernel void rml_assign_slice(__global TYPE *tensor, __global TYPE *result, __global unsigned int *lower_bound, __global unsigned int *tensor_dims, __global unsigned int *result_dims, const unsigned int num_dims)\n"\
+"__kernel void rml_assign_slice(__global TYPE *tensor, __global TYPE *result, __constant unsigned int *lower_bound, __constant unsigned int *tensor_dims, __constant unsigned int *result_dims, const unsigned int num_dims)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  unsigned int pos_workspace[MAX_ARR_SIZE];\n"\
@@ -107,7 +107,7 @@ const char *rml_cl_program =
 "  result[id] = tensor[new_c * in_c + new_r];\n"\
 "}\n"\
 "\n"\
-"__kernel void rml_permute(__global TYPE *tensor, __global TYPE *result, __global unsigned int *perms, __global unsigned int *dims, const unsigned int num_dims)\n"\
+"__kernel void rml_permute(__global TYPE *tensor, __global TYPE *result, __constant unsigned int *perms, __constant unsigned int *dims, const unsigned int num_dims)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  unsigned int pos_workspace[MAX_ARR_SIZE];\n"\

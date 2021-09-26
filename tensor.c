@@ -378,6 +378,7 @@ tensor_t *rml_transpose_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_permute_tensor(tensor_t *tensor, size_t *perms) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_permute_tensor(tensor, perms);
     size_t *new_dims = malloc(tensor->dims->num_dims * sizeof(size_t));
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
         new_dims[i] = tensor->dims->dims[perms[i]];

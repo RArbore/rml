@@ -23,11 +23,12 @@ int main() {
     double af[] = {1., 2., 3., 4., 5., 6.};
 
     for (;;) {
-        tensor_t *a = rml_init_tensor(TENSOR_TYPE_DOUBLE, rml_create_dims(2, 2, 3), af);
+        tensor_t *a = rml_init_tensor(TENSOR_TYPE_DOUBLE, rml_create_dims(3, 2, 1, 3), af);
         rml_print_dims(a->dims);
         rml_print_tensor(a);
         rml_cpu_to_cl_tensor(a);
-        tensor_t *b = rml_transpose_tensor(a);
+        size_t perms[] = {1, 2, 0};
+        tensor_t *b = rml_permute_tensor(a, perms);
         rml_cl_to_cpu_tensor(b);
         rml_print_dims(b->dims);
         rml_print_tensor(b);
