@@ -360,6 +360,7 @@ tensor_t *rml_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound)
 
 tensor_t *rml_transpose_tensor(tensor_t *tensor) {
     assert(tensor->dims->num_dims == 2);
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_transpose_tensor(tensor);
     tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
 
     for (size_t r = 0; r < tensor->dims->dims[0]; r++) {

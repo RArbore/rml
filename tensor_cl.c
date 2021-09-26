@@ -240,6 +240,27 @@ tensor_t *rml_cl_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bou
     return result;
 }
 
+tensor_t *rml_cl_transpose_tensor(tensor_t *tensor) {
+    tensor_t *result = rml_cl_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
+
+    unsigned int in_r = (size_t) tensor->dims->dims[0];
+    unsigned int in_c = (size_t) tensor->dims->dims[1];
+
+    rml_cl_set_kernel_arg(CL_OP_TRANSPOSE, rml_cl_typeof_tensor(tensor), 0, tensor->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_TRANSPOSE, rml_cl_typeof_tensor(tensor), 1, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_TRANSPOSE, rml_cl_typeof_tensor(tensor), 2, &in_r, sizeof(unsigned int));
+    rml_cl_set_kernel_arg(CL_OP_TRANSPOSE, rml_cl_typeof_tensor(tensor), 3, &in_c, sizeof(unsigned int));
+    rml_cl_enqueue_range_kernel(CL_OP_TRANSPOSE, rml_cl_typeof_tensor(tensor), &result->dims->flat_size);
+
+    size_t swap = result->dims->dims[0];
+    result->dims->dims[0] = result->dims->dims[1];
+    result->dims->dims[1] = swap;
+    result->op_code = OP_CODE_TRANSPOSE;
+    result->source_a = tensor;
+
+    return result;
+}
+
 tensor_t *rml_cl_cast_float_tensor(tensor_t *tensor) {
     tensor_t *result = rml_cl_init_tensor(TENSOR_TYPE_FLOAT, rml_clone_dims(tensor->dims), NULL);
 

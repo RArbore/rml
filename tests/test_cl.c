@@ -21,21 +21,17 @@ int main() {
     rml_cl_init();
 
     double af[] = {1., 2., 3., 4., 5., 6.};
-    double bf[] = {1., 2., 3., 4., 5., 6., 7., 8., 9.};
 
     for (;;) {
         tensor_t *a = rml_init_tensor(TENSOR_TYPE_DOUBLE, rml_create_dims(2, 2, 3), af);
-        tensor_t *b = rml_init_tensor(TENSOR_TYPE_DOUBLE, rml_create_dims(2, 3, 3), bf);
+        rml_print_dims(a->dims);
+        rml_print_tensor(a);
         rml_cpu_to_cl_tensor(a);
-        rml_cpu_to_cl_tensor(b);
-        tensor_t *c = rml_concat_tensor(a, b, 0);
-        size_t lower[] = {1, 0};
-        tensor_t *d = rml_assign_slice_tensor(c, a, lower);
-        rml_cl_to_cpu_tensor(d);
-        rml_print_tensor(d);
+        tensor_t *b = rml_transpose_tensor(a);
+        rml_cl_to_cpu_tensor(b);
+        rml_print_dims(b->dims);
+        rml_print_tensor(b);
         rml_free_tensor(a);
         rml_free_tensor(b);
-        rml_free_tensor(c);
-        rml_free_tensor(d);
     }
 }
