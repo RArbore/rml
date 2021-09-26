@@ -325,6 +325,8 @@ tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_
 
 tensor_t *rml_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound) {
     assert(a->dims->num_dims == b->dims->num_dims);
+    assert(rml_cl_same_device(2, a, b));
+    if (rml_cl_tensor_on_cl(a)) return rml_cl_assign_slice_tensor(a, b, lower_bound);
     tensor_t *result = rml_clone_tensor(a);
     size_t pos_workspace[b->dims->num_dims], i_divided;
     for (size_t i = 0; i < b->dims->flat_size; i++) {

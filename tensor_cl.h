@@ -35,6 +35,8 @@ tensor_t *rml_cl_concat_tensor(tensor_t *a, tensor_t *b, size_t dim);
 
 tensor_t *rml_cl_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_bound);
 
+tensor_t *rml_cl_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound);
+
 tensor_t *rml_cl_cast_float_tensor(tensor_t *tensor);
 
 tensor_t *rml_cl_cast_double_tensor(tensor_t *tensor);

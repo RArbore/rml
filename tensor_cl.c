@@ -174,7 +174,7 @@ tensor_t *rml_cl_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upp
     rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 3, &upper_bound_u_cl, sizeof(cl_mem));
     rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 4, &tensor_dims_cl, sizeof(cl_mem));
     rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 5, &result_dims_cl, sizeof(cl_mem));
-    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 5, &num_dims, sizeof(unsigned int));
+    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 6, &num_dims, sizeof(unsigned int));
     rml_cl_enqueue_range_kernel(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), &result->dims->flat_size);
 
     rml_cl_free_buffer(lower_bound_u_cl);
@@ -191,6 +191,50 @@ tensor_t *rml_cl_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upp
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
         *((size_t *) result->op_data + i) = lower_bound[i];
         *((size_t *) result->op_data + i + tensor->dims->num_dims) = upper_bound[i + tensor->dims->num_dims];
+    }
+
+    return result;
+}
+
+tensor_t *rml_cl_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound) {
+    tensor_t *result = rml_clone_tensor(a);
+
+    unsigned int *lower_bound_u = malloc(result->dims->num_dims * sizeof(unsigned int));
+    unsigned int *assign_dims = malloc(result->dims->num_dims * sizeof(unsigned int));
+    unsigned int *result_dims = malloc(result->dims->num_dims * sizeof(unsigned int));
+    for (size_t i = 0; i < result->dims->num_dims; i++) {
+        lower_bound_u[i] = (unsigned int) lower_bound[i];
+        assign_dims[i] = (unsigned int) b->dims->dims[i];
+        result_dims[i] = (unsigned int) result->dims->dims[i];
+    }
+    unsigned int num_dims = (unsigned int) result->dims->num_dims;
+    cl_mem lower_bound_u_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, result->dims->num_dims * sizeof(unsigned int));
+    cl_mem assign_dims_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, result->dims->num_dims * sizeof(unsigned int));
+    cl_mem result_dims_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, result->dims->num_dims * sizeof(unsigned int));
+    rml_cl_enqueue_write_buffer(lower_bound_u_cl, result->dims->num_dims * sizeof(unsigned int), lower_bound_u);
+    rml_cl_enqueue_write_buffer(assign_dims_cl, result->dims->num_dims * sizeof(unsigned int), assign_dims);
+    rml_cl_enqueue_write_buffer(result_dims_cl, result->dims->num_dims * sizeof(unsigned int), result_dims);
+
+    rml_cl_set_kernel_arg(CL_OP_ASSIGN_SLICE, rml_cl_typeof_tensor(result), 0, b->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_ASSIGN_SLICE, rml_cl_typeof_tensor(result), 1, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_ASSIGN_SLICE, rml_cl_typeof_tensor(result), 2, &lower_bound_u_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_ASSIGN_SLICE, rml_cl_typeof_tensor(result), 3, &assign_dims_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_ASSIGN_SLICE, rml_cl_typeof_tensor(result), 4, &result_dims_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_ASSIGN_SLICE, rml_cl_typeof_tensor(result), 5, &num_dims, sizeof(unsigned int));
+    rml_cl_enqueue_range_kernel(CL_OP_ASSIGN_SLICE, rml_cl_typeof_tensor(result), &b->dims->flat_size);
+
+    rml_cl_free_buffer(lower_bound_u_cl);
+    rml_cl_free_buffer(assign_dims_cl);
+    rml_cl_free_buffer(result_dims_cl);
+    free(lower_bound_u);
+    free(assign_dims);
+    free(result_dims);
+    result->op_code = OP_CODE_ASSIGN_SLICE;
+    result->source_a = a;
+    result->source_b = b;
+    result->op_data = malloc(b->dims->num_dims * sizeof(size_t));
+    for (size_t i = 0; i < b->dims->num_dims; i++) {
+        *((size_t *) result->op_data) = lower_bound[i];
     }
 
     return result;

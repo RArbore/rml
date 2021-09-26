@@ -29,11 +29,9 @@ int main() {
         rml_cpu_to_cl_tensor(a);
         rml_cpu_to_cl_tensor(b);
         tensor_t *c = rml_concat_tensor(a, b, 0);
-        rml_cl_to_cpu_tensor(c);
         size_t lower[] = {1, 0};
-        size_t upper[] = {4, 1};
-        tensor_t *d = rml_slice_tensor(c, lower, upper);
-        rml_print_tensor(c);
+        tensor_t *d = rml_assign_slice_tensor(c, a, lower);
+        rml_cl_to_cpu_tensor(d);
         rml_print_tensor(d);
         rml_free_tensor(a);
         rml_free_tensor(b);
