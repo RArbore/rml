@@ -327,6 +327,8 @@ tensor_t *rml_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound)
     assert(a->dims->num_dims == b->dims->num_dims);
     assert(rml_cl_same_device(2, a, b));
     if (rml_cl_tensor_on_cl(a)) return rml_cl_assign_slice_tensor(a, b, lower_bound);
+    tensor_t *a_orig = a, *b_orig = b;
+    CAST_TENSORS_WIDEN(a, b);
     tensor_t *result = rml_clone_tensor(a);
     size_t pos_workspace[b->dims->num_dims], i_divided;
     for (size_t i = 0; i < b->dims->flat_size; i++) {
@@ -347,9 +349,10 @@ tensor_t *rml_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound)
         }
         SWITCH_2_ENUM_TYPES(result->tensor_type, b->tensor_type, CAST_VOID_POINTER, result->data, b->data, new_pos, i);
     }
+    CLEANUP_CAST_TENSORS_WIDEN;
     result->op_code = OP_CODE_ASSIGN_SLICE;
-    result->source_a = a;
-    result->source_b = b;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
     result->op_data = malloc(b->dims->num_dims * sizeof(size_t));
     for (size_t i = 0; i < b->dims->num_dims; i++) {
         *((size_t *) result->op_data) = lower_bound[i];
@@ -456,6 +459,9 @@ tensor_t *rml_cast_tensor(tensor_t *tensor, tensor_type_t type) {
 }
 
 tensor_t *rml_add_tensor(tensor_t *a, tensor_t *b) {
+    assert(rml_cl_same_device(2, a, b));
+    assert(rml_dims_equiv(a->dims, b->dims));
+    if (rml_cl_tensor_on_cl(a)) return rml_cl_add_tensor(a, b);
     tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b);
     if (a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE) {

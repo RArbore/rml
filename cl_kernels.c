@@ -23,7 +23,7 @@ const char *rml_cl_program =
 "  unsigned int row = id / d3;\n"\
 "  unsigned int col = id % d3;\n"\
 "  for (unsigned int i = 0; i < d2; i++) {;\n"\
-"    c[id] += a[row * d3 + i] * b[i * d2 + col];\n"\
+"    c[id] += a[row * d2 + i] * b[i * d3 + col];\n"\
 "  }\n"\
 "}\n"\
 "\n"\

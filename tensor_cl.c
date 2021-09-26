@@ -197,6 +197,8 @@ tensor_t *rml_cl_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upp
 }
 
 tensor_t *rml_cl_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound) {
+    tensor_t *a_orig = a, *b_orig = b;
+    CAST_TENSORS_WIDEN(a, b);
     tensor_t *result = rml_clone_tensor(a);
 
     unsigned int *lower_bound_u = malloc(result->dims->num_dims * sizeof(unsigned int));
@@ -229,9 +231,10 @@ tensor_t *rml_cl_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bou
     free(lower_bound_u);
     free(assign_dims);
     free(result_dims);
+    CLEANUP_CAST_TENSORS_WIDEN;
     result->op_code = OP_CODE_ASSIGN_SLICE;
-    result->source_a = a;
-    result->source_b = b;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
     result->op_data = malloc(b->dims->num_dims * sizeof(size_t));
     for (size_t i = 0; i < b->dims->num_dims; i++) {
         *((size_t *) result->op_data) = lower_bound[i];
@@ -322,6 +325,24 @@ tensor_t *rml_cl_cast_double_tensor(tensor_t *tensor) {
 
     result->op_code = OP_CODE_CAST;
     result->source_a = tensor;
+
+    return result;
+}
+
+tensor_t *rml_cl_add_tensor(tensor_t *a, tensor_t *b) {
+    tensor_t *a_orig = a, *b_orig = b;
+    CAST_TENSORS_WIDEN(a, b);
+    tensor_t *result = rml_cl_zeros_tensor(a->tensor_type, rml_clone_dims(a->dims));
+
+    rml_cl_set_kernel_arg(CL_OP_ADD, rml_cl_typeof_tensor(a), 0, a->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_ADD, rml_cl_typeof_tensor(a), 1, b->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_ADD, rml_cl_typeof_tensor(a), 2, result->cl_mem, sizeof(cl_mem));
+    rml_cl_enqueue_range_kernel(CL_OP_ADD, rml_cl_typeof_tensor(a), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_ADD;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
+    CLEANUP_CAST_TENSORS_WIDEN;
 
     return result;
 }
