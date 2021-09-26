@@ -127,10 +127,71 @@ tensor_t *rml_cl_concat_tensor(tensor_t *a, tensor_t *b, size_t dim) {
     rml_cl_free_buffer(dims_c_cl);
     free(dims_a);
     free(dims_b);
+    free(dims_c);
     result->op_code = OP_CODE_CONCAT;
     result->source_a = a_orig;
     result->source_b = b_orig;
     CLEANUP_CAST_TENSORS_WIDEN;
+
+    return result;
+}
+
+tensor_t *rml_cl_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_bound) {
+    dims_t *dims = malloc(sizeof(dims_t));
+    dims->num_dims = tensor->dims->num_dims;
+    dims->dims = malloc(dims->num_dims * sizeof(size_t));
+    dims->flat_size = 1;
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        assert(lower_bound[i] < upper_bound[i]);
+        dims->dims[i] = upper_bound[i] - lower_bound[i];
+        dims->flat_size *= dims->dims[i];
+    }
+    tensor_t *result = rml_cl_init_tensor(tensor->tensor_type, dims, NULL);
+
+    unsigned int *lower_bound_u = malloc(tensor->dims->num_dims * sizeof(unsigned int));
+    unsigned int *upper_bound_u = malloc(tensor->dims->num_dims * sizeof(unsigned int));
+    unsigned int *tensor_dims = malloc(tensor->dims->num_dims * sizeof(unsigned int));
+    unsigned int *result_dims = malloc(tensor->dims->num_dims * sizeof(unsigned int));
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        lower_bound_u[i] = (unsigned int) lower_bound[i];
+        upper_bound_u[i] = (unsigned int) upper_bound[i];
+        tensor_dims[i] = (unsigned int) tensor->dims->dims[i];
+        result_dims[i] = (unsigned int) result->dims->dims[i];
+    }
+    unsigned int num_dims = (unsigned int) tensor->dims->num_dims;
+    cl_mem lower_bound_u_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, tensor->dims->num_dims * sizeof(unsigned int));
+    cl_mem upper_bound_u_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, tensor->dims->num_dims * sizeof(unsigned int));
+    cl_mem tensor_dims_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, tensor->dims->num_dims * sizeof(unsigned int));
+    cl_mem result_dims_cl = rml_cl_create_buffer(CL_MEM_READ_ONLY, tensor->dims->num_dims * sizeof(unsigned int));
+    rml_cl_enqueue_write_buffer(lower_bound_u_cl, tensor->dims->num_dims * sizeof(unsigned int), lower_bound_u);
+    rml_cl_enqueue_write_buffer(upper_bound_u_cl, tensor->dims->num_dims * sizeof(unsigned int), upper_bound_u);
+    rml_cl_enqueue_write_buffer(tensor_dims_cl, tensor->dims->num_dims * sizeof(unsigned int), tensor_dims_cl);
+    rml_cl_enqueue_write_buffer(result_dims_cl, tensor->dims->num_dims * sizeof(unsigned int), result_dims_cl);
+
+    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 0, tensor->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 1, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 2, &lower_bound_u_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 3, &upper_bound_u_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 4, &tensor_dims_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 5, &result_dims_cl, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), 5, &num_dims, sizeof(unsigned int));
+    rml_cl_enqueue_range_kernel(CL_OP_SLICE, rml_cl_typeof_tensor(tensor), &result->dims->flat_size);
+
+    rml_cl_free_buffer(lower_bound_u_cl);
+    rml_cl_free_buffer(upper_bound_u_cl);
+    rml_cl_free_buffer(tensor_dims_cl);
+    rml_cl_free_buffer(result_dims_cl);
+    free(lower_bound_u);
+    free(upper_bound_u);
+    free(tensor_dims);
+    free(result_dims);
+    result->op_code = OP_CODE_SLICE;
+    result->source_a = tensor;
+    result->op_data = malloc(2 * tensor->dims->num_dims * sizeof(size_t));
+    for (size_t i = 0; i < tensor->dims->num_dims; i++) {
+        *((size_t *) result->op_data + i) = lower_bound[i];
+        *((size_t *) result->op_data + i + tensor->dims->num_dims) = upper_bound[i + tensor->dims->num_dims];
+    }
 
     return result;
 }

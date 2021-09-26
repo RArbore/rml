@@ -282,6 +282,7 @@ tensor_t *rml_concat_tensor(tensor_t *a, tensor_t *b, size_t dim) {
 }
 
 tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_bound) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_slice_tensor(tensor, lower_bound, upper_bound);
     dims_t *dims = malloc(sizeof(dims_t));
     dims->num_dims = tensor->dims->num_dims;
     dims->dims = malloc(dims->num_dims * sizeof(size_t));
@@ -315,8 +316,8 @@ tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_
     result->source_a = tensor;
     result->op_data = malloc(2 * tensor->dims->num_dims * sizeof(size_t));
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
-        *((size_t *) result->op_data) = lower_bound[i];
-        *((size_t *) result->op_data) = upper_bound[i + tensor->dims->num_dims];
+        *((size_t *) result->op_data + i) = lower_bound[i];
+        *((size_t *) result->op_data + i + tensor->dims->num_dims) = upper_bound[i + tensor->dims->num_dims];
     }
 
     return result;
