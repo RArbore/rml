@@ -400,3 +400,33 @@ tensor_t *rml_cl_div_tensor(tensor_t *a, tensor_t *b) {
 
     return result;
 }
+
+tensor_t *rml_cl_increment_tensor(tensor_t *a, void *scalar) {
+    tensor_t *result = rml_cl_clone_tensor(a);
+
+    rml_cl_set_kernel_arg(CL_OP_INCREMENT, rml_cl_typeof_tensor(result), 0, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_INCREMENT, rml_cl_typeof_tensor(result), 1, scalar, rml_sizeof_type(result->tensor_type));
+    rml_cl_enqueue_range_kernel(CL_OP_INCREMENT, rml_cl_typeof_tensor(result), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_INCREMENT;
+    result->source_a = a;
+    result->op_data = malloc(rml_sizeof_type(a->tensor_type));
+    SWITCH_ENUM_TYPES(a->tensor_type, COPY_VOID_POINTER, result->op_data, scalar, 0, 0);
+
+    return result;
+}
+
+tensor_t *rml_cl_scale_tensor(tensor_t *a, void *scalar) {
+    tensor_t *result = rml_cl_clone_tensor(a);
+
+    rml_cl_set_kernel_arg(CL_OP_SCALE, rml_cl_typeof_tensor(result), 0, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SCALE, rml_cl_typeof_tensor(result), 1, scalar, rml_sizeof_type(result->tensor_type));
+    rml_cl_enqueue_range_kernel(CL_OP_SCALE, rml_cl_typeof_tensor(result), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_SCALE;
+    result->source_a = a;
+    result->op_data = malloc(rml_sizeof_type(a->tensor_type));
+    SWITCH_ENUM_TYPES(a->tensor_type, COPY_VOID_POINTER, result->op_data, scalar, 0, 0);
+
+    return result;
+}

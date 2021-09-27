@@ -30,11 +30,16 @@ int main() {
         rml_print_tensor(b);
         rml_cpu_to_cl_tensor(a);
         rml_cpu_to_cl_tensor(b);
-        tensor_t *c = rml_div_tensor(a, b);
+        float two = 2.;
+        tensor_t *c = rml_increment_tensor(a, &two);
+        tensor_t *d = rml_scale_tensor(a, &two);
         rml_cl_to_cpu_tensor(c);
+        rml_cl_to_cpu_tensor(d);
         rml_print_tensor(c);
+        rml_print_tensor(d);
         rml_free_tensor(a);
         rml_free_tensor(b);
         rml_free_tensor(c);
+        rml_free_tensor(d);
     }
 }

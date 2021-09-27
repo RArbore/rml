@@ -539,6 +539,7 @@ tensor_t *rml_div_tensor(tensor_t *a, tensor_t *b) {
 }
 
 tensor_t *rml_increment_tensor(tensor_t *a, void *scalar) {
+    if (rml_cl_tensor_on_cl(a)) return rml_cl_increment_tensor(a, scalar);
     tensor_t *result = rml_clone_tensor(a);
     SWITCH_ENUM_TYPES(a->tensor_type, INCREMENT_TENSOR, a, scalar, result);
     result->op_code = OP_CODE_INCREMENT;
@@ -550,6 +551,7 @@ tensor_t *rml_increment_tensor(tensor_t *a, void *scalar) {
 }
 
 tensor_t *rml_scale_tensor(tensor_t *a, void *scalar) {
+    if (rml_cl_tensor_on_cl(a)) return rml_cl_scale_tensor(a, scalar);
     if (a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE) return rml_blas_scale_tensor(a, scalar);
     tensor_t *result = rml_clone_tensor(a);
     SWITCH_ENUM_TYPES(a->tensor_type, SCALE_TENSOR, a, scalar, result);
