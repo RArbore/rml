@@ -364,3 +364,39 @@ tensor_t *rml_cl_sub_tensor(tensor_t *a, tensor_t *b) {
 
     return result;
 }
+
+tensor_t *rml_cl_mul_tensor(tensor_t *a, tensor_t *b) {
+    tensor_t *a_orig = a, *b_orig = b;
+    CAST_TENSORS_WIDEN(a, b);
+    tensor_t *result = rml_cl_zeros_tensor(a->tensor_type, rml_clone_dims(a->dims));
+
+    rml_cl_set_kernel_arg(CL_OP_MUL, rml_cl_typeof_tensor(a), 0, a->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_MUL, rml_cl_typeof_tensor(a), 1, b->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_MUL, rml_cl_typeof_tensor(a), 2, result->cl_mem, sizeof(cl_mem));
+    rml_cl_enqueue_range_kernel(CL_OP_MUL, rml_cl_typeof_tensor(a), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_MUL;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
+    CLEANUP_CAST_TENSORS_WIDEN;
+
+    return result;
+}
+
+tensor_t *rml_cl_div_tensor(tensor_t *a, tensor_t *b) {
+    tensor_t *a_orig = a, *b_orig = b;
+    CAST_TENSORS_WIDEN(a, b);
+    tensor_t *result = rml_cl_zeros_tensor(a->tensor_type, rml_clone_dims(a->dims));
+
+    rml_cl_set_kernel_arg(CL_OP_DIV, rml_cl_typeof_tensor(a), 0, a->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_DIV, rml_cl_typeof_tensor(a), 1, b->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_DIV, rml_cl_typeof_tensor(a), 2, result->cl_mem, sizeof(cl_mem));
+    rml_cl_enqueue_range_kernel(CL_OP_DIV, rml_cl_typeof_tensor(a), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_DIV;
+    result->source_a = a_orig;
+    result->source_b = b_orig;
+    CLEANUP_CAST_TENSORS_WIDEN;
+
+    return result;
+}

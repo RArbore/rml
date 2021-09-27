@@ -505,6 +505,9 @@ tensor_t *rml_sub_tensor(tensor_t *a, tensor_t *b) {
 }
 
 tensor_t *rml_mul_tensor(tensor_t *a, tensor_t *b) {
+    assert(rml_cl_same_device(2, a, b));
+    assert(rml_dims_equiv(a->dims, b->dims));
+    if (rml_cl_tensor_on_cl(a)) return rml_cl_mul_tensor(a, b);
     tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b);
     assert(rml_dims_equiv(a->dims, b->dims));
@@ -519,6 +522,9 @@ tensor_t *rml_mul_tensor(tensor_t *a, tensor_t *b) {
 }
 
 tensor_t *rml_div_tensor(tensor_t *a, tensor_t *b) {
+    assert(rml_cl_same_device(2, a, b));
+    assert(rml_dims_equiv(a->dims, b->dims));
+    if (rml_cl_tensor_on_cl(a)) return rml_cl_div_tensor(a, b);
     tensor_t *a_orig = a, *b_orig = b;
     CAST_TENSORS_WIDEN(a, b);
     assert(rml_dims_equiv(a->dims, b->dims));

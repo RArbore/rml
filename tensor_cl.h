@@ -49,4 +49,8 @@ tensor_t *rml_cl_add_tensor(tensor_t *a, tensor_t *b);
 
 tensor_t *rml_cl_sub_tensor(tensor_t *a, tensor_t *b);
 
+tensor_t *rml_cl_mul_tensor(tensor_t *a, tensor_t *b);
+
+tensor_t *rml_cl_div_tensor(tensor_t *a, tensor_t *b);
+
 #endif // TENSOR_CL_H_
