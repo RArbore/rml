@@ -459,6 +459,7 @@ tensor_t *rml_cl_clamp_tensor(tensor_t *tensor, void *min, void *max) {
     rml_cl_set_kernel_arg(CL_OP_CLAMP, rml_cl_typeof_tensor(result), 3, &code, sizeof(unsigned int));
     rml_cl_enqueue_range_kernel(CL_OP_CLAMP, rml_cl_typeof_tensor(result), &result->dims->flat_size);
 
+    free(zero);
     result->op_code = OP_CODE_CLAMP;
     result->source_a = tensor;
     result->op_data = malloc(sizeof(char) + 2 * rml_sizeof_type(tensor->tensor_type));
