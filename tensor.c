@@ -592,6 +592,7 @@ tensor_t *rml_floating_point_op_tensor(tensor_t *tensor, float (*f)(float), doub
 }
 
 tensor_t *rml_exp_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_EXP, OP_CODE_EXP);
     tensor_t *result = rml_floating_point_op_tensor(tensor, expf, exp, expl);
     result->source_a = tensor;
     result->op_code = OP_CODE_EXP;
@@ -600,6 +601,7 @@ tensor_t *rml_exp_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_log_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_LOG, OP_CODE_LOG);
     tensor_t *result = rml_floating_point_op_tensor(tensor, logf, log, logl);
     result->source_a = tensor;
     result->op_code = OP_CODE_LOG;
@@ -640,6 +642,7 @@ tensor_t *rml_pow_tensor(tensor_t *tensor, void *scalar) {
 }
 
 tensor_t *rml_sin_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_SIN, OP_CODE_SIN);
     tensor_t *result = rml_floating_point_op_tensor(tensor, sinf, sin, sinl);
     result->op_code = OP_CODE_SIN;
     result->source_a = tensor;
@@ -648,6 +651,7 @@ tensor_t *rml_sin_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_cos_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_COS, OP_CODE_COS);
     tensor_t *result = rml_floating_point_op_tensor(tensor, cosf, cos, cosl);
     result->op_code = OP_CODE_COS;
     result->source_a = tensor;
@@ -656,6 +660,7 @@ tensor_t *rml_cos_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_tan_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_TAN, OP_CODE_TAN);
     tensor_t *result = rml_floating_point_op_tensor(tensor, tanf, tan, tanl);
     result->op_code = OP_CODE_TAN;
     result->source_a = tensor;
@@ -664,6 +669,7 @@ tensor_t *rml_tan_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_sinh_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_SINH, OP_CODE_SINH);
     tensor_t *result = rml_floating_point_op_tensor(tensor, sinhf, sinh, sinhl);
     result->op_code = OP_CODE_SINH;
     result->source_a = tensor;
@@ -672,6 +678,7 @@ tensor_t *rml_sinh_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_cosh_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_COSH, OP_CODE_COSH);
     tensor_t *result = rml_floating_point_op_tensor(tensor, coshf, cosh, coshl);
     result->op_code = OP_CODE_COSH;
     result->source_a = tensor;
@@ -680,6 +687,7 @@ tensor_t *rml_cosh_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_tanh_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_TANH, OP_CODE_TANH);
     tensor_t *result = rml_floating_point_op_tensor(tensor, tanhf, tanh, tanhl);
     result->op_code = OP_CODE_TANH;
     result->source_a = tensor;
@@ -688,6 +696,7 @@ tensor_t *rml_tanh_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_asin_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_ASIN, OP_CODE_ASIN);
     tensor_t *result = rml_floating_point_op_tensor(tensor, asinf, asin, asinl);
     result->op_code = OP_CODE_ASIN;
     result->source_a = tensor;
@@ -696,6 +705,7 @@ tensor_t *rml_asin_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_acos_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_ACOS, OP_CODE_ACOS);
     tensor_t *result = rml_floating_point_op_tensor(tensor, acosf, acos, acosl);
     result->op_code = OP_CODE_ACOS;
     result->source_a = tensor;
@@ -704,6 +714,7 @@ tensor_t *rml_acos_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_atan_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_ATAN, OP_CODE_ATAN);
     tensor_t *result = rml_floating_point_op_tensor(tensor, atanf, atan, atanl);
     result->op_code = OP_CODE_ATAN;
     result->source_a = tensor;
@@ -712,6 +723,7 @@ tensor_t *rml_atan_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_asinh_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_ASINH, OP_CODE_ASINH);
     tensor_t *result = rml_floating_point_op_tensor(tensor, asinhf, asinh, asinhl);
     result->op_code = OP_CODE_ASINH;
     result->source_a = tensor;
@@ -720,6 +732,7 @@ tensor_t *rml_asinh_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_acosh_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_ACOSH, OP_CODE_ACOSH);
     tensor_t *result = rml_floating_point_op_tensor(tensor, acoshf, acosh, acoshl);
     result->op_code = OP_CODE_ACOSH;
     result->source_a = tensor;
@@ -728,6 +741,7 @@ tensor_t *rml_acosh_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_atanh_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_ATANH, OP_CODE_ATANH);
     tensor_t *result = rml_floating_point_op_tensor(tensor, atanhf, atanh, atanhl);
     result->op_code = OP_CODE_ATANH;
     result->source_a = tensor;
@@ -736,6 +750,7 @@ tensor_t *rml_atanh_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_abs_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_floating_point_op_tensor(tensor, CL_OP_ABS, OP_CODE_ABS);
     tensor_t *result = rml_init_tensor(tensor->tensor_type, rml_clone_dims(tensor->dims), NULL);
     for (size_t i = 0; i< result->dims->flat_size; i++) {
         SWITCH_ENUM_TYPES(result->tensor_type, ABS_VOID_POINTER, result->data, tensor->data, i, i);

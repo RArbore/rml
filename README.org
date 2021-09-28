@@ -21,10 +21,22 @@ rml is a simple C library for machine learning. rml is currently under developme
 - *TODO* More complex layers (convolutional, recurrent, etc.)
 rml is free / libre software licensed under the LGPL v3.0.
 rml can be easily installed on most Linux distributions.
-1. Clone the repository, =$ git clone https://github.com/RArbore/rml.git=
-2. Navigate into the workspace, =$ cd rml=
-3. Install (requires root privileges to place =librml.so= inside =/usr/lib= and =rml.h= inside =/usr/include=), =# make install=
+1. Clone the repository,
+
+   =$ git clone https://github.com/RArbore/rml.git=
+
+2. Navigate into the workspace,
+
+   =$ cd rml=
+
+3. Install (requires root privileges to place =librml.so= inside =/usr/lib= and =rml.h= inside =/usr/include=),
+
+   =# make install=
+
 To use rml in your C program...
 1. Include =rml.h=, =#include <rml.h>=
-2. Compile with rml, =$ gcc ... -lrml ...=
+2. Compile with rml,
+
+   =$ gcc ... -lrml ...=
+
 Currently, rml is just a library for C. Once rml's core functionality is finished, bindings will be created for other languages.

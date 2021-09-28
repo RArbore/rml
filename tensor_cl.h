@@ -57,4 +57,6 @@ tensor_t *rml_cl_increment_tensor(tensor_t *a, void *scalar);
 
 tensor_t *rml_cl_scale_tensor(tensor_t *a, void *scalar);
 
+tensor_t *rml_cl_floating_point_op_tensor(tensor_t *tensor, cl_op_t cl_op, op_code_t op_code);
+
 #endif // TENSOR_CL_H_

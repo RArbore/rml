@@ -21,7 +21,7 @@ int main() {
     rml_cl_init();
 
     float af[] = {1., 2., 3., 4., 5., 6.};
-    float bf[] = {6., 5., 4., 3., 2., 1.};
+    float bf[] = {-6., -5., -4., 3., 2., 1.};
 
     for (;;) {
         tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), af);
@@ -30,13 +30,13 @@ int main() {
         rml_print_tensor(b);
         rml_cpu_to_cl_tensor(a);
         rml_cpu_to_cl_tensor(b);
-        float two = 2.;
-        tensor_t *c = rml_increment_tensor(a, &two);
-        tensor_t *d = rml_scale_tensor(a, &two);
+        tensor_t *c = rml_exp_tensor(a);
+        tensor_t *d = rml_abs_tensor(b);
         rml_cl_to_cpu_tensor(c);
         rml_cl_to_cpu_tensor(d);
         rml_print_tensor(c);
         rml_print_tensor(d);
+        printf("\n");
         rml_free_tensor(a);
         rml_free_tensor(b);
         rml_free_tensor(c);

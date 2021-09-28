@@ -430,3 +430,15 @@ tensor_t *rml_cl_scale_tensor(tensor_t *a, void *scalar) {
 
     return result;
 }
+
+tensor_t *rml_cl_floating_point_op_tensor(tensor_t *tensor, cl_op_t cl_op, op_code_t op_code) {
+    tensor_t *result = rml_cl_clone_tensor(tensor);
+
+    rml_cl_set_kernel_arg(cl_op, rml_cl_typeof_tensor(result), 0, result->cl_mem, sizeof(cl_mem));
+    rml_cl_enqueue_range_kernel(cl_op, rml_cl_typeof_tensor(result), &result->dims->flat_size);
+
+    result->op_code = op_code;
+    result->source_a = tensor;
+
+    return result;
+}
