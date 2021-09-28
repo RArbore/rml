@@ -21,6 +21,7 @@ int main() {
     rml_cl_init();
 
     tensor_t *model_flat = rml_read_tensor_csv_raw("model.csv", TENSOR_TYPE_FLOAT, rml_create_dims(1, 13002));
+    rml_cpu_to_cl_tensor(model_flat);
     size_t start = 0;
     size_t w1_s = start + 784 * 16;
     size_t b1_s = w1_s + 16;
@@ -70,6 +71,7 @@ int main() {
             size_t begin = i * 784;
             size_t end = (i + 1) * 784;
             tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
+            rml_cpu_to_cl_tensor(image_flat);
             rml_set_initial_tensor(image_flat);
             tensor_t *image = rml_reshape_tensor(image_flat, image_shape, 2);
             tensor_t *image_w1 = rml_matmul_tensor(w1, image);
@@ -86,7 +88,9 @@ int main() {
             unsigned short label_range = 10;
             tensor_t *label = rml_slice_tensor(labels, &label_begin, &label_end);
             rml_set_initial_tensor(label);
-            tensor_t *one_hot = rml_one_hot_tensor(label, &label_range);
+            tensor_t *one_hot_us = rml_one_hot_tensor(label, &label_range);
+            tensor_t *one_hot = rml_cast_tensor(one_hot_us, TENSOR_TYPE_FLOAT);
+            rml_cpu_to_cl_tensor(one_hot);
             tensor_t *one_hot_reshaped = rml_reshape_tensor(one_hot, softmax->dims->dims, softmax->dims->num_dims);
             tensor_t *cross_entropy = rml_cross_entropy_loss_safe_tensor(softmax, one_hot_reshaped);
             rml_free_graph(cross_entropy);

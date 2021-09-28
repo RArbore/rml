@@ -16,7 +16,7 @@
 #include "cl_helpers.h"
 
 #define NUM_TYPES 2
-#define NUM_KERNELS 35
+#define NUM_KERNELS 34
 
 cl_context context;
 cl_command_queue command_queue;
@@ -62,7 +62,6 @@ const char *kernel_names[] = {
     "rml_abs",
     "rml_clamp",
     "rml_sum",
-    "rml_one_hot",
     "rml_max",
     "rml_min",
 };
@@ -225,7 +224,7 @@ int rml_cl_same_device(size_t num, ...) {
 void rml_cl_make_same_device(tensor_t *tensor, tensor_t *dest) {
     if (rml_cl_same_device(2, tensor, dest)) return;
     if (rml_cl_tensor_on_cl(dest)) rml_cpu_to_cl_tensor(tensor);
-    rml_cl_to_cpu_tensor(tensor);
+    else rml_cl_to_cpu_tensor(tensor);
 }
 
 cl_type_t rml_cl_typeof_tensor(tensor_t *tensor) {
