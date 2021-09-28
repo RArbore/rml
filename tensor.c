@@ -762,6 +762,7 @@ tensor_t *rml_abs_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_clamp_tensor(tensor_t *tensor, void *min, void *max) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_clamp_tensor(tensor, min, max);
     tensor_t *result = rml_clone_tensor(tensor);
     SWITCH_ENUM_TYPES(tensor->tensor_type, CLAMP_TENSOR, tensor, min, max, result);
     result->op_code = OP_CODE_CLAMP;

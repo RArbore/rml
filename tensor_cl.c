@@ -442,3 +442,33 @@ tensor_t *rml_cl_floating_point_op_tensor(tensor_t *tensor, cl_op_t cl_op, op_co
 
     return result;
 }
+
+tensor_t *rml_cl_clamp_tensor(tensor_t *tensor, void *min, void *max) {
+    tensor_t *result = rml_clone_tensor(tensor);
+
+    unsigned int code = 0;
+    if (min != NULL && max != NULL) code = 2;
+    else if (max != NULL) code = 1;
+    void *zero = calloc(1, rml_sizeof_type(tensor->tensor_type));
+
+    rml_cl_set_kernel_arg(CL_OP_CLAMP, rml_cl_typeof_tensor(result), 0, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_CLAMP, rml_cl_typeof_tensor(result), 1, min == NULL ? zero : min, rml_sizeof_type(tensor->tensor_type));
+    rml_cl_set_kernel_arg(CL_OP_CLAMP, rml_cl_typeof_tensor(result), 2, max == NULL ? zero : max, rml_sizeof_type(tensor->tensor_type));
+    rml_cl_set_kernel_arg(CL_OP_CLAMP, rml_cl_typeof_tensor(result), 3, &code, sizeof(unsigned int));
+    rml_cl_enqueue_range_kernel(CL_OP_CLAMP, rml_cl_typeof_tensor(result), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_CLAMP;
+    result->source_a = tensor;
+    result->op_data = malloc(sizeof(char) + 2 * rml_sizeof_type(tensor->tensor_type));
+    *((char *) result->op_data) = 0;
+    if (min != NULL) {
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, (void *) (((char *) result->op_data) + 1), min, 0, 0);
+        *((char *) result->op_data) += 1;
+    }
+    if (max != NULL) {
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, (void *) (((char *) result->op_data) + 1), max, 1, 0);
+        *((char *) result->op_data) += 2;
+    }
+
+    return result;
+}

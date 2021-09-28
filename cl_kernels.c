@@ -270,7 +270,7 @@ const char *rml_cl_program =
 "  a[id] = a[id] >= 0 ? a[id] : -a[id];\n"\
 "}\n"\
 "\n"\
-"__kernel void rml_clamp(__global TYPE *a, const TYPE min, const TYPE max, const int code)\n"\
+"__kernel void rml_clamp(__global TYPE *a, const TYPE min, const TYPE max, const unsigned int code)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  if (code % 2 == 0 && a[id] < min) a[id] = min;\n"\
