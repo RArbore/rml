@@ -203,6 +203,7 @@ void rml_print_tensor(tensor_t *tensor) {
 }
 
 void *rml_primitive_access_tensor(tensor_t *tensor, size_t *pos) {
+    assert(!rml_cl_tensor_on_cl(tensor));
     size_t index = 0;
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
         index = index * tensor->dims->dims[i] + pos[i];
@@ -782,6 +783,7 @@ tensor_t *rml_clamp_tensor(tensor_t *tensor, void *min, void *max) {
 }
 
 void *rml_max_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_max_tensor(tensor);
     size_t max_pos = 0;
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         int comp;
@@ -796,6 +798,7 @@ void *rml_max_tensor(tensor_t *tensor) {
 }
 
 void *rml_min_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_min_tensor(tensor);
     size_t min_pos = 0;
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         int comp;

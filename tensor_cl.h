@@ -57,8 +57,12 @@ tensor_t *rml_cl_increment_tensor(tensor_t *a, void *scalar);
 
 tensor_t *rml_cl_scale_tensor(tensor_t *a, void *scalar);
 
-tensor_t *rml_cl_floating_point_op_tensor(tensor_t *tensor, cl_op_t cl_op, op_code_t op_code);
+tensor_t *rml_cl_floating_point_op_tensor(tensor_t *tensor, unsigned int cl_op, op_code_t op_code);
 
 tensor_t *rml_cl_clamp_tensor(tensor_t *tensor, void *min, void *max);
+
+void *rml_cl_max_tensor(tensor_t *tensor);
+
+void *rml_cl_min_tensor(tensor_t *tensor);
 
 #endif // TENSOR_CL_H_

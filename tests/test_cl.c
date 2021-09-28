@@ -20,18 +20,19 @@
 int main() {
     rml_cl_init();
 
-    float af[] = {1., 2., 3., 4., 5., 6.};
+    float *af = malloc(100 * sizeof(float));
+    for (size_t i = 0; i < 100; i++) {
+        af[i] = (float) ((i * 5) % 17 - 5.0);
+    }
 
+    int i = 0;
     for (;;) {
-        tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), af);
+        tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 50, 2), af);
         rml_print_tensor(a);
         rml_cpu_to_cl_tensor(a);
-        float min = 2., max = 4.;
-        tensor_t *b = rml_clamp_tensor(a, &min, &max);
-        rml_cl_to_cpu_tensor(b);
-        rml_print_tensor(b);
-        printf("\n");
+        float *min = rml_min_tensor(a);
+        printf("%f\n", *min);
         rml_free_tensor(a);
-        rml_free_tensor(b);
+        free(min);
     }
 }

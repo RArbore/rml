@@ -69,7 +69,6 @@ typedef enum {
     CL_OP_MIN,
 } cl_op_t;
 
-
 cl_mem rml_cl_create_buffer(int mem_properties, size_t size);
 
 void rml_cl_enqueue_read_buffer(cl_mem buffer, size_t size, void *data);

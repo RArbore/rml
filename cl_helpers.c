@@ -16,7 +16,7 @@
 #include "cl_helpers.h"
 
 #define NUM_TYPES 2
-#define NUM_KERNELS 34
+#define NUM_KERNELS 35
 
 cl_context context;
 cl_command_queue command_queue;
