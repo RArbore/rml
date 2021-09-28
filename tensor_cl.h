@@ -65,4 +65,6 @@ void *rml_cl_max_tensor(tensor_t *tensor);
 
 void *rml_cl_min_tensor(tensor_t *tensor);
 
+tensor_t *rml_cl_sum_tensor(tensor_t *tensor);
+
 #endif // TENSOR_CL_H_

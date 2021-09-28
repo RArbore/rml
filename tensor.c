@@ -813,6 +813,7 @@ void *rml_min_tensor(tensor_t *tensor) {
 }
 
 tensor_t *rml_sum_tensor(tensor_t *tensor) {
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_sum_tensor(tensor);
     tensor_t *result = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(1, 1));
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         SWITCH_ENUM_TYPES(tensor->tensor_type, INCREMENT_VOID_POINTER_PTR, result->data, 0, tensor->data, i);

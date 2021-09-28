@@ -21,8 +21,10 @@ int main() {
     rml_cl_init();
 
     float *af = malloc(100 * sizeof(float));
+    float sum = 0;
     for (size_t i = 0; i < 100; i++) {
         af[i] = (float) ((i * 5) % 17 - 5.0);
+        sum += af[i];
     }
 
     int i = 0;
@@ -30,9 +32,9 @@ int main() {
         tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 50, 2), af);
         rml_print_tensor(a);
         rml_cpu_to_cl_tensor(a);
-        float *min = rml_min_tensor(a);
-        printf("%f\n", *min);
+        tensor_t *sum = rml_sum_tensor(a);
+        rml_print_tensor(sum);
         rml_free_tensor(a);
-        free(min);
+        rml_free_tensor(sum);
     }
 }

@@ -541,3 +541,31 @@ void *rml_cl_min_tensor(tensor_t *tensor) {
     rml_cl_free_buffer(b);
     return min;
 }
+
+tensor_t *rml_cl_sum_tensor(tensor_t *tensor) {
+    if (tensor->dims->flat_size < 2) return tensor->data;
+    size_t cur_size = rml_next_pow2(tensor->dims->flat_size);
+    unsigned int in_size = (unsigned int) tensor->dims->flat_size;
+    unsigned int pool_size = POOL_SIZE;
+    cl_mem a = rml_cl_create_buffer(CL_MEM_READ_WRITE, cur_size * rml_sizeof_type(tensor->tensor_type));
+    cl_mem b = rml_cl_create_buffer(CL_MEM_READ_WRITE, cur_size * rml_sizeof_type(tensor->tensor_type));
+    rml_cl_enqueue_clone_buffer(*((cl_mem *) tensor->cl_mem), a, tensor->dims->flat_size * rml_sizeof_type(tensor->tensor_type));
+    while (cur_size > 1) {
+        rml_cl_set_kernel_arg(CL_OP_SUM, rml_cl_typeof_tensor(tensor), 0, &a, sizeof(cl_mem));
+        rml_cl_set_kernel_arg(CL_OP_SUM, rml_cl_typeof_tensor(tensor), 1, &b, sizeof(cl_mem));
+        rml_cl_set_kernel_arg(CL_OP_SUM, rml_cl_typeof_tensor(tensor), 2, &pool_size, sizeof(unsigned int));
+        rml_cl_set_kernel_arg(CL_OP_SUM, rml_cl_typeof_tensor(tensor), 3, &in_size, sizeof(unsigned int));
+        rml_cl_enqueue_range_kernel(CL_OP_SUM, rml_cl_typeof_tensor(tensor), &cur_size);
+        cl_mem temp = a;
+        a = b;
+        b = temp;
+        cur_size /= 2;
+    }
+
+    tensor_t *result = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(1, 1));
+    rml_cl_enqueue_read_buffer(a, rml_sizeof_type(tensor->tensor_type), result->data);
+
+    rml_cl_free_buffer(a);
+    rml_cl_free_buffer(b);
+    return result;
+}
