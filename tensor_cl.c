@@ -486,6 +486,7 @@ size_t rml_next_pow2(size_t i) {
     i |= i >> 4;
     i |= i >> 8;
     i |= i >> 16;
+    if (sizeof(size_t) == 8) i |= i >> 32;
     return ++i;
  }
 
