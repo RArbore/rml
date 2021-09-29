@@ -20,21 +20,19 @@
 int main() {
     rml_cl_init();
 
-    float *af = malloc(100 * sizeof(float));
-    float sum = 0;
-    for (size_t i = 0; i < 100; i++) {
-        af[i] = (float) ((i * 5) % 17 - 5.0);
-        sum += af[i];
-    }
+    tensor_t *a = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 100, 100));
+    tensor_t *b = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 100, 100));
+    rml_cpu_to_cl_tensor(a);
+    rml_cpu_to_cl_tensor(b);
 
-    int i = 0;
     for (;;) {
-        tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 50, 2), af);
-        rml_print_tensor(a);
-        rml_cpu_to_cl_tensor(a);
-        tensor_t *sum = rml_sum_tensor(a);
-        rml_print_tensor(sum);
-        rml_free_tensor(a);
-        rml_free_tensor(sum);
+        time_t seconds;
+        seconds = time(NULL);
+        for (size_t i = 0; i < 100000; i++) {
+            tensor_t *c = rml_matmul_tensor(a, b);
+            rml_free_tensor(c);
+        }
+        seconds = time(NULL) - seconds;
+        printf("Seconds taken: %ld\n", seconds);
     }
 }
