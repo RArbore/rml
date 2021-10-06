@@ -19,6 +19,7 @@ rml is a simple C library for machine learning. rml is currently under developme
 - *TODO* Python & Golang bindings
 - *TODO* Basic deep learning layers (inference)
 - *TODO* More complex layers (convolutional, recurrent, etc.)
+- *TODO* Compile models to Bluespec design
 rml is free / libre software licensed under the LGPL v3.0.
 rml can be easily installed on most Linux distributions.
 1. Clone the repository,
