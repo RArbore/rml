@@ -71,3 +71,17 @@ void rml_write_tensor_csv_full(char *filename, tensor_t *tensor){
     }
     fclose(fp);
 }
+
+tensor_t *rml_read_tensor_bin(char *filename, tensor_type_t tensor_type, dims_t *dims) {
+    tensor_t *tensor = rml_init_tensor(tensor_type, dims, NULL);
+    FILE *fp = fopen(filename, "rb");
+    fread(tensor->data, rml_sizeof_type(tensor_type), dims->flat_size, fp);
+    fclose(fp);
+    return tensor;
+}
+
+void rml_write_tensor_bin(char *filename, tensor_t *tensor) {
+    FILE *fp = fopen(filename, "wb");
+    fwrite(tensor->data, rml_sizeof_type(tensor->tensor_type), tensor->dims->flat_size, fp);
+    fclose(fp);
+}

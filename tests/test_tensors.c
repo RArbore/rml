@@ -20,21 +20,7 @@
 int main() {
     tensor_t *a = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 3, 3));
     rml_print_tensor(a);
-    rml_print_dims(a->dims);
-    float f = -2.;
-    tensor_t *b = rml_scale_tensor(a, &f);
+    rml_write_tensor_bin("rand.bin", a);
+    tensor_t *b = rml_read_tensor_bin("rand.bin", a->tensor_type, rml_clone_dims(a->dims));
     rml_print_tensor(b);
-    rml_print_dims(b->dims);
-    tensor_t *c = rml_scale_tensor(b, &f);
-    rml_print_tensor(c);
-    rml_print_dims(c->dims);
-    tensor_t *d = rml_clone_tensor(c);
-    rml_print_tensor(d);
-    rml_print_dims(d->dims);
-    tensor_t *e = rml_sub_tensor(d, b);
-    rml_print_tensor(e);
-    rml_print_dims(e->dims);
-    tensor_t *g = rml_sum_tensor(e);
-    rml_print_tensor(g);
-    rml_print_dims(g->dims);
 }

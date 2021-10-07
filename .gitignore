@@ -55,3 +55,4 @@ test_tensors
 test_mnist
 test_cl
 *.csv
+*.bin

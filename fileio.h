@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include "internal.h"
+#include "tensor.h"
 #include "rml.h"
 
 #endif // FILEIO_H_
