@@ -147,7 +147,7 @@ tensor_t *rml_read_tensor_hex(char *filename, tensor_type_t tensor_type, dims_t 
                 if (i == 0) reached_zero = 1;
             }
             for (size_t i = 0; i < rml_sizeof_type(tensor_type); i++) {
-                *(((char *) (tensor->data + cur_word_num)) + i) = *(((char *) &val) + i);
+                *(((char *) tensor->data) + cur_word_num * rml_sizeof_type(tensor_type) + i) = *(((char *) &val) + i);
             }
             cur_word_size = 0;
             cur_word_num++;
