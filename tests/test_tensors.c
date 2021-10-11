@@ -18,8 +18,10 @@
 #include <rml.h>
 
 int main() {
-    tensor_t *a = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 3, 3));
-    rml_print_tensor(a);
-    tensor_t *b = rml_read_tensor_hex("rand.hex", TENSOR_TYPE_FLOAT, rml_create_dims(1, 1));
-    rml_print_tensor(b);
+    tensor_t *a = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(3, 10, 10, 10));
+    rml_write_tensor_hex("rand.hex", a);
+    tensor_t *b = rml_read_tensor_hex("rand.hex", TENSOR_TYPE_FLOAT, rml_create_dims(3, 10, 10, 10));
+    tensor_t *c = rml_sub_tensor(a, b);
+    tensor_t *sum = rml_sum_tensor(c);
+    rml_print_tensor(sum);
 }

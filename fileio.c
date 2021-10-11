@@ -125,6 +125,45 @@ char rml_hex_to_char(char hex) {
     }
 }
 
+char rml_char_to_hex(char c) {
+    switch(c) {
+        case 0:
+            return '0';
+        case 1:
+            return '1';
+        case 2:
+            return '2';
+        case 3:
+            return '3';
+        case 4:
+            return '4';
+        case 5:
+            return '5';
+        case 6:
+            return '6';
+        case 7:
+            return '7';
+        case 8:
+            return '8';
+        case 9:
+            return '9';
+        case 10:
+            return 'a';
+        case 11:
+            return 'b';
+        case 12:
+            return 'c';
+        case 13:
+            return 'd';
+        case 14:
+            return 'e';
+        case 15:
+            return 'f';
+        default:
+            return '0';
+    }
+}
+
 tensor_t *rml_read_tensor_hex(char *filename, tensor_type_t tensor_type, dims_t *dims) {
     tensor_t *tensor = rml_init_tensor(tensor_type, dims, NULL);
     FILE *fp = fopen(filename, "r");
@@ -160,6 +199,17 @@ tensor_t *rml_read_tensor_hex(char *filename, tensor_type_t tensor_type, dims_t 
 
 void rml_write_tensor_hex(char *filename, tensor_t *tensor) {
     FILE *fp = fopen(filename, "w");
-    fwrite(tensor->data, rml_sizeof_type(tensor->tensor_type), tensor->dims->flat_size, fp);
+    for (size_t elem = 0; elem < tensor->dims->flat_size; elem++) {
+        int reached_zero = 0;
+        for (size_t i = rml_sizeof_type(tensor->tensor_type) - 1; !reached_zero; i--) {
+            unsigned char byte = *(((unsigned char *) tensor->data) + elem * rml_sizeof_type(tensor->tensor_type) + i);
+            unsigned char big = rml_char_to_hex(byte / 16);
+            unsigned char little = rml_char_to_hex(byte % 16);
+            fputc(big, fp);
+            fputc(little, fp);
+            if (i == 0) reached_zero = 1;
+        }
+        fputc('\n', fp);
+    }
     fclose(fp);
 }
