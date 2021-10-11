@@ -85,3 +85,81 @@ void rml_write_tensor_bin(char *filename, tensor_t *tensor) {
     fwrite(tensor->data, rml_sizeof_type(tensor->tensor_type), tensor->dims->flat_size, fp);
     fclose(fp);
 }
+
+char rml_hex_to_char(char hex) {
+    switch(hex) {
+        case '0':
+            return 0;
+        case '1':
+            return 1;
+        case '2':
+            return 2;
+        case '3':
+            return 3;
+        case '4':
+            return 4;
+        case '5':
+            return 5;
+        case '6':
+            return 6;
+        case '7':
+            return 7;
+        case '8':
+            return 8;
+        case '9':
+            return 9;
+        case 'a':
+            return 10;
+        case 'b':
+            return 11;
+        case 'c':
+            return 12;
+        case 'd':
+            return 13;
+        case 'e':
+            return 14;
+        case 'f':
+            return 15;
+        default:
+            return 0;
+    }
+}
+
+tensor_t *rml_read_tensor_hex(char *filename, tensor_type_t tensor_type, dims_t *dims) {
+    tensor_t *tensor = rml_init_tensor(tensor_type, dims, NULL);
+    FILE *fp = fopen(filename, "r");
+    int read;
+    char *cur_word = malloc(rml_sizeof_type(tensor_type) * 2);
+    unsigned int cur_word_size = 0;
+    unsigned int cur_word_num = 0;
+    while (cur_word_num < tensor->dims->flat_size) {
+        read = fgetc(fp);
+        if (read == EOF) break;
+        if (read == ' ' || read == '\n') continue;
+        cur_word[cur_word_size++] = (char) read;
+        if (cur_word_size >= 2 * rml_sizeof_type(tensor_type)) {
+            unsigned long val = 0;
+            unsigned long cur_multiplier = 1;
+            int reached_zero = 0;
+            for (size_t i = cur_word_size - 1; !reached_zero; i--) {
+                val += cur_multiplier * rml_hex_to_char(cur_word[i]);
+                cur_multiplier *= 16;
+                if (i == 0) reached_zero = 1;
+            }
+            for (size_t i = 0; i < rml_sizeof_type(tensor_type); i++) {
+                *(((char *) (tensor->data + cur_word_num)) + i) = *(((char *) &val) + i);
+            }
+            cur_word_size = 0;
+            cur_word_num++;
+        }
+    }
+    fclose(fp);
+    free(cur_word);
+    return tensor;
+}
+
+void rml_write_tensor_hex(char *filename, tensor_t *tensor) {
+    FILE *fp = fopen(filename, "w");
+    fwrite(tensor->data, rml_sizeof_type(tensor->tensor_type), tensor->dims->flat_size, fp);
+    fclose(fp);
+}

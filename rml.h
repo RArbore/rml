@@ -243,10 +243,10 @@ extern tensor_t *rml_sum_tensor(tensor_t *tensor);
 // Convert labels to one-hot representation
 extern tensor_t *rml_one_hot_tensor(tensor_t *tensor, void *range);
 
-// Read tensor to a csv file without metadata
+// Read tensor from a csv file without metadata
 extern tensor_t *rml_read_tensor_csv_raw(char *filename, tensor_type_t tensor_type, dims_t *dims);
 
-// Read tensor to a csv file with metadata
+// Read tensor from a csv file with metadata
 extern tensor_t *rml_read_tensor_csv_full(char *filename);
 
 // Write tensor to a csv file without metadata
@@ -255,11 +255,17 @@ extern void rml_write_tensor_csv_raw(char *filename, tensor_t *tensor);
 // Write tensor to a csv file with metadata
 extern void rml_write_tensor_csv_full(char *filename, tensor_t *tensor);
 
-// Read tensor to a csv file without metadata
+// Read tensor from a binary file
 extern tensor_t *rml_read_tensor_bin(char *filename, tensor_type_t tensor_type, dims_t *dims);
 
-// Write tensor to a csv file without metadata
+// Write tensor to a binary file
 extern void rml_write_tensor_bin(char *filename, tensor_t *tensor);
+
+// Read tensor from a hex file
+extern tensor_t *rml_read_tensor_hex(char *filename, tensor_type_t tensor_type, dims_t *dims);
+
+// Write tensor to a hex file
+extern void rml_write_tensor_hex(char *filename, tensor_t *tensor);
 
 // Softmax of tensor
 extern tensor_t *rml_softmax_tensor(tensor_t *tensor);

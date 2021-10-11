@@ -20,7 +20,6 @@
 int main() {
     tensor_t *a = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 3, 3));
     rml_print_tensor(a);
-    rml_write_tensor_bin("rand.bin", a);
-    tensor_t *b = rml_read_tensor_bin("rand.bin", a->tensor_type, rml_clone_dims(a->dims));
+    tensor_t *b = rml_read_tensor_hex("rand.hex", TENSOR_TYPE_FLOAT, rml_create_dims(1, 1));
     rml_print_tensor(b);
 }
