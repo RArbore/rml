@@ -4,7 +4,9 @@ rml is a simple C library for machine learning. rml is currently under developme
   - *DONE* Initialization, management, building block operations
   - *PERPETUAL IN-PROGRESS* More complex operations on tensors
 - Nice file I/O
-  - *DONE* CSVs
+  - *DONE* CSV
+  - *DONE* BIN
+  - *DONE* HEX
   - *TODO* an .rml format (denser tensor serialization)
   - *TODO* serialize models
 - Computational graph generation of conducted operations
