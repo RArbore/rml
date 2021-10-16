@@ -27,5 +27,9 @@ test_cl: test_cl.o
 	$(CC) -o $@ $^ -lrml
 test_cl.o: test_cl.c
 	$(CC) -c -o $@ $^
+test_grad: test_grad.o
+	$(CC) -o $@ $^ -lrml
+test_grad.o: test_grad.c
+	$(CC) -c -o $@ $^
 clean:
-	rm *.o test_tensors test_mnist
+	rm *.o test_tensors test_mnist test_cl test_grad

@@ -312,4 +312,7 @@ extern void rml_cl_make_same_device(tensor_t *tensor, tensor_t *dest);
 // Check if tensor is on a CL device
 extern int rml_cl_tensor_on_cl(tensor_t *tensor);
 
+// TEMPORARILY EXPOSING TO USER FOR TESTING PURPOSES
+extern void rml_calc_gradient(tensor_t *tensor);
+
 #endif // RML_H_
