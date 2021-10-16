@@ -446,7 +446,7 @@ tensor_t *rml_cl_floating_point_op_tensor(tensor_t *tensor, unsigned int cl_op, 
 }
 
 tensor_t *rml_cl_clamp_tensor(tensor_t *tensor, void *min, void *max) {
-    tensor_t *result = rml_clone_tensor(tensor);
+    tensor_t *result = rml_cl_clone_tensor(tensor);
 
     unsigned int code = 0;
     if (min != NULL && max != NULL) code = 2;
@@ -566,14 +566,26 @@ tensor_t *rml_cl_sum_tensor(tensor_t *tensor) {
         cur_size /= 2;
     }
 
-    tensor_t *result = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(1, 1));
-    rml_cl_enqueue_read_buffer(a, rml_sizeof_type(tensor->tensor_type), result->data);
+    tensor_t *result = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(1, 1));
+    rml_cl_enqueue_clone_buffer(a, *((cl_mem *) result->cl_mem), rml_sizeof_type(tensor->tensor_type));
 
     rml_cl_free_buffer(a);
     rml_cl_free_buffer(b);
+    result->op_code = OP_CODE_SUM;
+    result->source_a = tensor;
     return result;
 }
 
 tensor_t *rml_cl_diag_tensor(tensor_t *tensor, size_t num_dims) {
+    dims_t *dims = malloc(sizeof(dims_t));
+    dims->flat_size = 1;
+    dims->num_dims = num_dims;
+    size_t *dim_vals = malloc(num_dims * sizeof(size_t));
+    for (size_t i = 0; i < num_dims; i++) {
+        dim_vals[i] = tensor->dims->flat_size;
+        dims->flat_size *= tensor->dims->flat_size;
+    }
+    dims->dims = dim_vals;
 
+    tensor_t *result = rml_zeros_tensor(tensor->tensor_type, dims);
 }

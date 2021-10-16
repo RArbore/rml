@@ -302,4 +302,15 @@ const char *rml_cl_program =
 "    else result[id] += tensor[id * pool_size + i];\n"\
 "  }\n"\
 "}\n"\
+"\n"\
+"__kernel void rml_diag(__global TYPE *tensor, __global TYPE *result, const unsigned int inc_amount)\n"\
+"{\n"\
+"  unsigned int id = get_global_id(0);\n"\
+"  if (id % inc_amount == 0) {\n"\
+"    result[id] = tensor[id / inc_amount];\n"\
+"  }\n"\
+"  else {\n"\
+"    result[id] = 0;\n"\
+"  }\n"\
+"}\n"\
 "\n";
