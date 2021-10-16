@@ -20,10 +20,10 @@
 int main() {
     rml_cl_init();
 
-    tensor_t *a = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 100, 100));
+    tensor_t *a = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(1, 3));
     rml_print_tensor(a);
     rml_cpu_to_cl_tensor(a);
-    tensor_t *sum = rml_sum_tensor(a);
-    rml_cl_to_cpu_tensor(sum);
-    rml_print_tensor(sum);
+    tensor_t *b = rml_diag_tensor(a, 3);
+    rml_cl_to_cpu_tensor(b);
+    rml_print_tensor(b);
 }

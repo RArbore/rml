@@ -587,5 +587,16 @@ tensor_t *rml_cl_diag_tensor(tensor_t *tensor, size_t num_dims) {
     }
     dims->dims = dim_vals;
 
-    tensor_t *result = rml_zeros_tensor(tensor->tensor_type, dims);
+    tensor_t *result = rml_cl_zeros_tensor(tensor->tensor_type, dims);
+    unsigned int inc_amount = (dims->flat_size - 1) / (tensor->dims->flat_size - 1);
+
+    rml_cl_set_kernel_arg(CL_OP_DIAG, rml_cl_typeof_tensor(tensor), 0, tensor->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_DIAG, rml_cl_typeof_tensor(tensor), 1, result->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_DIAG, rml_cl_typeof_tensor(tensor), 2, &inc_amount, sizeof(unsigned int));
+    rml_cl_enqueue_range_kernel(CL_OP_DIAG, rml_cl_typeof_tensor(tensor), &result->dims->flat_size);
+
+    result->op_code = OP_CODE_DIAG;
+    result->source_a = tensor;
+
+    return result;
 }
