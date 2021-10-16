@@ -76,9 +76,22 @@ void rml_calc_gradient(tensor_t *tensor) {
                     rml_free_tensor(scalar_reshape);
                     rml_free_tensor(scalar_diag);
                 }
-                tensor->jacob_a = grad_a;
-                tensor->jacob_b = grad_b;
             }
+            tensor->jacob_a = grad_a;
+            tensor->jacob_b = grad_b;
+            break;
+        }
+        case OP_CODE_CONCAT: {
+            tensor_t *zeros_a = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+            tensor_t *zeros_b = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+            tensor_t *ones_a = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+            tensor_t *ones_b = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+            tensor->jacob_a = rml_concat_tensor(ones_a, zeros_a, *((size_t *) tensor->op_data));
+            tensor->jacob_b = rml_concat_tensor(zeros_b, ones_b, *((size_t *) tensor->op_data));
+            rml_free_tensor(zeros_a);
+            rml_free_tensor(zeros_b);
+            rml_free_tensor(ones_a);
+            rml_free_tensor(ones_b);
             break;
         }
         default:
