@@ -94,6 +94,8 @@ typedef struct tensor_t {
     void *op_data;
     struct tensor_t *source_a;
     struct tensor_t *source_b;
+    struct tensor_t *jacob_a;
+    struct tensor_t *jacob_b;
     void *cl_mem;
 } tensor_t;
 
