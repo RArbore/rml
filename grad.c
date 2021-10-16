@@ -86,12 +86,48 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *zeros_b = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
             tensor_t *ones_a = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
             tensor_t *ones_b = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
-            tensor->jacob_a = rml_concat_tensor(ones_a, zeros_a, *((size_t *) tensor->op_data));
-            tensor->jacob_b = rml_concat_tensor(zeros_b, ones_b, *((size_t *) tensor->op_data));
+            tensor_t *cat_a = rml_concat_tensor(ones_a, zeros_a, *((size_t *) tensor->op_data));
+            tensor_t *cat_b = rml_concat_tensor(zeros_b, ones_b, *((size_t *) tensor->op_data));
+            tensor_t *grad_a = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_a->dims->flat_size, tensor->source_a->dims->flat_size));
+            tensor_t *grad_b = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_b->dims->flat_size, tensor->source_b->dims->flat_size));
+            tensor_t *one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+            rml_print_tensor(cat_a);
+            rml_print_tensor(cat_b);
+            for (size_t r = 0, c = 0; r < cat_a->dims->flat_size; r++) {
+                int is_zero;
+                SWITCH_ENUM_TYPES(tensor->tensor_type, IS_ZERO_VOID_POINTER, cat_a->data, r, is_zero);
+                if (is_zero) continue;
+                size_t pos[2];
+                pos[0] = r;
+                pos[1] = c;
+                tensor_t *new_grad_a = rml_assign_slice_tensor(grad_a, one, pos);
+                rml_free_tensor(grad_a);
+                grad_a = new_grad_a;
+                new_grad_a->source_a = NULL;
+                c++;
+            }
+            for (size_t r = 0, c = 0; r < cat_b->dims->flat_size; r++) {
+                int is_zero;
+                SWITCH_ENUM_TYPES(tensor->tensor_type, IS_ZERO_VOID_POINTER, cat_b->data, r, is_zero);
+                if (is_zero) continue;
+                size_t pos[2];
+                pos[0] = r;
+                pos[1] = c;
+                tensor_t *new_grad_b = rml_assign_slice_tensor(grad_b, one, pos);
+                rml_free_tensor(grad_b);
+                grad_b = new_grad_b;
+                new_grad_b->source_a = NULL;
+                c++;
+            }
+            tensor->jacob_a = grad_a;
+            tensor->jacob_b = grad_b;
             rml_free_tensor(zeros_a);
             rml_free_tensor(zeros_b);
             rml_free_tensor(ones_a);
             rml_free_tensor(ones_b);
+            rml_free_tensor(cat_a);
+            rml_free_tensor(cat_b);
+            rml_free_tensor(one);
             break;
         }
         default:

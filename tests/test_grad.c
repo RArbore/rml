@@ -23,7 +23,7 @@ int main() {
 
     tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 2), af);
     tensor_t *b = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 2), bf);
-    tensor_t *c = rml_matmul_tensor(a, b);
+    tensor_t *c = rml_concat_tensor(a, b, 1);
     rml_print_tensor(c);
     rml_calc_gradient(c);
     rml_print_tensor(c->jacob_a);

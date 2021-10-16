@@ -46,6 +46,7 @@
         else if(*((type *) a + i1) < *((type *) b + i2)) res = -1; \
         else res = 0; \
     }
+#define IS_ZERO_VOID_POINTER(type, ptr, i, dest) {dest = *((type *) ptr + i) == 0;}
 
 #define FAST_MATRIX_MULTIPLY(type, a, b_clone, result) { \
         type *a_data = (type *) a->data; \
