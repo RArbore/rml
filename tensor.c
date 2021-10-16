@@ -824,6 +824,33 @@ tensor_t *rml_sum_tensor(tensor_t *tensor) {
     return result;
 }
 
+tensor_t *rml_diag_tensor(tensor_t *tensor,  size_t num_dims) {
+    assert(tensor->dims->num_dims == 1);
+    assert(num_dims > 1);
+    if (rml_cl_tensor_on_cl(tensor)) return rml_cl_diag_tensor(tensor, num_dims);
+    dims_t *dims = malloc(sizeof(dims_t));
+    dims->flat_size = 1;
+    dims->num_dims = num_dims;
+    size_t *dim_vals = malloc(num_dims * sizeof(size_t));
+    for (size_t i = 0; i < num_dims; i++) {
+        dim_vals[i] = tensor->dims->flat_size;
+        dims->flat_size *= tensor->dims->flat_size;
+    }
+    dims->dims = dim_vals;
+
+    tensor_t *result = rml_zeros_tensor(tensor->tensor_type, dims);
+    size_t new_index = 0;
+    size_t inc_amount = (dims->flat_size - 1) / (tensor->dims->flat_size - 1);
+    for (size_t i = 0; i < tensor->dims->flat_size; i++) {
+        SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->data, tensor->data, new_index, i);
+        new_index += inc_amount;
+    }
+    result->op_code = OP_CODE_DIAG;
+    result->source_a = tensor;
+
+    return result;
+}
+
 tensor_t *rml_one_hot_tensor(tensor_t *tensor, void *range) {
     assert(tensor->tensor_type != TENSOR_TYPE_FLOAT && tensor->tensor_type != TENSOR_TYPE_DOUBLE && tensor->tensor_type != TENSOR_TYPE_LDOUBLE);
     size_t range_s, index;

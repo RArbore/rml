@@ -64,6 +64,7 @@ typedef enum {
     CL_OP_ABS,
     CL_OP_CLAMP,
     CL_OP_SUM,
+    CL_OP_DIAG,
     CL_OP_MAX,
     CL_OP_MIN,
 } cl_op_t;

@@ -573,3 +573,7 @@ tensor_t *rml_cl_sum_tensor(tensor_t *tensor) {
     rml_cl_free_buffer(b);
     return result;
 }
+
+tensor_t *rml_cl_diag_tensor(tensor_t *tensor, size_t num_dims) {
+
+}

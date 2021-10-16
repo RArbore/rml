@@ -62,6 +62,7 @@ const char *kernel_names[] = {
     "rml_abs",
     "rml_clamp",
     "rml_sum",
+    "rml_diag",
     "rml_max",
     "rml_min",
 };

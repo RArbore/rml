@@ -69,6 +69,7 @@ typedef enum {
     OP_CODE_ABS,
     OP_CODE_CLAMP,
     OP_CODE_SUM,
+    OP_CODE_DIAG,
     OP_CODE_ONE_HOT,
     OP_CODE_MAX,
     OP_CODE_MIN,
@@ -239,6 +240,9 @@ extern void *rml_min_tensor(tensor_t *tensor);
 
 // Find sum of all values of tensor
 extern tensor_t *rml_sum_tensor(tensor_t *tensor);
+
+// Diagonalize a vector
+extern tensor_t *rml_diag_tensor(tensor_t *tensor, size_t num_dims);
 
 // Convert labels to one-hot representation
 extern tensor_t *rml_one_hot_tensor(tensor_t *tensor, void *range);

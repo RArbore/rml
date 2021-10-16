@@ -67,4 +67,6 @@ void *rml_cl_min_tensor(tensor_t *tensor);
 
 tensor_t *rml_cl_sum_tensor(tensor_t *tensor);
 
+tensor_t *rml_cl_diag_tensor(tensor_t *tensor, size_t num_dims);
+
 #endif // TENSOR_CL_H_
