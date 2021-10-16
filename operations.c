@@ -19,16 +19,30 @@ tensor_t *rml_softmax_tensor(tensor_t *tensor) {
     void *max = rml_max_tensor(tensor);
     SWITCH_ENUM_TYPES(tensor->tensor_type, SCALE_VOID_POINTER_VAL, max, 0, -1);
 
+    void *minus_one;
+    SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
+    SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
+
     tensor_t *decremented = rml_increment_tensor(tensor, max);
     tensor_t *exp = rml_exp_tensor(decremented);
     tensor_t *exp_sum = rml_sum_tensor(exp);
-    SWITCH_ENUM_TYPES(tensor->tensor_type, INV_VOID_POINTER, exp_sum->data, 0);
-    tensor_t *result = rml_scale_tensor(exp, exp_sum->data);
+    tensor_t *inv = rml_pow_tensor(exp_sum, minus_one);
+    size_t dims[] = {1, 1};
+    tensor_t *inv_reshape = rml_reshape_tensor(inv, dims,  2);
+    tensor_t *ones = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, exp->dims->flat_size, 1));
+    rml_cl_make_same_device(ones, tensor);
+    tensor_t *inv_repeat = rml_matmul_tensor(ones, inv_reshape);
+    tensor_t *result = rml_mul_tensor(exp, inv_repeat);
 
     free(max);
+    free(minus_one);
     rml_free_tensor(decremented);
     rml_free_tensor(exp);
     rml_free_tensor(exp_sum);
+    rml_free_tensor(inv);
+    rml_free_tensor(inv_reshape);
+    rml_free_tensor(ones);
+    rml_free_tensor(inv_repeat);
 
     result->op_code = OP_CODE_SOFTMAX;
     result->source_a = tensor;
