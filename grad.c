@@ -38,8 +38,15 @@ void rml_calc_gradient(tensor_t *tensor) {
             break;
         }
         case OP_CODE_MATMUL: {
-            tensor_t *grad_a = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
-            tensor_t *grad_b = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_b->dims->flat_size));
+            tensor_t *grad_a = NULL, *grad_b = NULL;
+            if (rml_cl_tensor_on_cl(tensor)) {
+                grad_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
+                grad_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_b->dims->flat_size));
+            }
+            else {
+                grad_a = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
+                grad_b = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_b->dims->flat_size));
+            }
             tensor_t *b_transpose = rml_transpose_tensor(tensor->source_b);
             for (size_t i = 0; i < tensor->dims->flat_size / b_transpose->dims->dims[0]; i ++) {
                 size_t pos[2];
@@ -62,7 +69,9 @@ void rml_calc_gradient(tensor_t *tensor) {
                     upper[0] = i + 1;
                     upper[1] = j + 1;
                     tensor_t *scale_constant = rml_slice_tensor(tensor->source_a, lower, upper);
-                    tensor_t *ones_vec = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, tensor->source_b->dims->dims[1], 1));
+                    tensor_t *ones_vec;
+                    if (rml_cl_tensor_on_cl(tensor)) ones_vec = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, tensor->source_b->dims->dims[1], 1));
+                    else ones_vec = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, tensor->source_b->dims->dims[1], 1));
                     tensor_t *scalar_repeat = rml_matmul_tensor(ones_vec, scale_constant);
                     tensor_t *scalar_reshape = rml_reshape_tensor(scalar_repeat, &tensor->source_b->dims->dims[1],  1);
                     tensor_t *scalar_diag = rml_diag_tensor(scalar_reshape, 2);
@@ -82,17 +91,33 @@ void rml_calc_gradient(tensor_t *tensor) {
             break;
         }
         case OP_CODE_CONCAT: {
-            tensor_t *zeros_a = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
-            tensor_t *zeros_b = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
-            tensor_t *ones_a = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
-            tensor_t *ones_b = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
-            tensor_t *cat_a = rml_concat_tensor(ones_a, zeros_a, *((size_t *) tensor->op_data));
-            tensor_t *cat_b = rml_concat_tensor(zeros_b, ones_b, *((size_t *) tensor->op_data));
-            tensor_t *grad_a = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_a->dims->flat_size, tensor->source_a->dims->flat_size));
-            tensor_t *grad_b = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_b->dims->flat_size, tensor->source_b->dims->flat_size));
-            tensor_t *one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
-            rml_print_tensor(cat_a);
-            rml_print_tensor(cat_b);
+            tensor_t *zeros_a = NULL, *zeros_b = NULL, *ones_a = NULL, *ones_b = NULL, *cat_a = NULL, *cat_b = NULL, *grad_a = NULL, *grad_b = NULL, *one = NULL;
+            if (rml_cl_tensor_on_cl(tensor)) {
+                zeros_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+                zeros_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+                ones_a = rml_cl_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+                ones_b = rml_cl_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+                cat_a = rml_concat_tensor(ones_a, zeros_a, *((size_t *) tensor->op_data));
+                cat_b = rml_concat_tensor(zeros_b, ones_b, *((size_t *) tensor->op_data));
+                grad_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_a->dims->flat_size, tensor->source_a->dims->flat_size));
+                grad_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_b->dims->flat_size, tensor->source_b->dims->flat_size));
+                one = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+                rml_print_tensor(cat_a);
+                rml_print_tensor(cat_b);
+            }
+            else {
+                zeros_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+                zeros_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+                ones_a = rml_cl_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+                ones_b = rml_cl_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+                cat_a = rml_concat_tensor(ones_a, zeros_a, *((size_t *) tensor->op_data));
+                cat_b = rml_concat_tensor(zeros_b, ones_b, *((size_t *) tensor->op_data));
+                grad_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_a->dims->flat_size, tensor->source_a->dims->flat_size));
+                grad_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_b->dims->flat_size, tensor->source_b->dims->flat_size));
+                one = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+                rml_print_tensor(cat_a);
+                rml_print_tensor(cat_b);
+            }
             for (size_t r = 0, c = 0; r < cat_a->dims->flat_size; r++) {
                 int is_zero;
                 SWITCH_ENUM_TYPES(tensor->tensor_type, IS_ZERO_VOID_POINTER, cat_a->data, r, is_zero);
@@ -131,8 +156,15 @@ void rml_calc_gradient(tensor_t *tensor) {
             break;
         }
         case OP_CODE_SLICE: {
-            tensor_t *grad = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
-            tensor_t *one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+            tensor_t *grad = NULL, *one = NULL;
+            if (rml_cl_tensor_on_cl(tensor)) {
+                grad = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
+                one = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+            }
+            else {
+                grad = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
+                one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+            }
             size_t pos_workspace[tensor->dims->num_dims];
             for (size_t i = 0; i < tensor->dims->num_dims; i++) pos_workspace[i] = 0;
             size_t r = 0;
