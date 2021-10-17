@@ -366,7 +366,7 @@ tensor_t *rml_assign_slice_tensor(tensor_t *a, tensor_t *b, size_t *lower_bound)
     result->source_b = b_orig;
     result->op_data = malloc(b->dims->num_dims * sizeof(size_t));
     for (size_t i = 0; i < b->dims->num_dims; i++) {
-        *((size_t *) result->op_data) = lower_bound[i];
+        *((size_t *) result->op_data + i) = lower_bound[i];
     }
 
     return result;
