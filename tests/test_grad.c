@@ -21,7 +21,8 @@ int main() {
     int af[] = {0, 1, 2, 3, 4, 5};
 
     tensor_t *a = rml_init_tensor(TENSOR_TYPE_INT, rml_create_dims(2, 2, 3), af);
-    tensor_t *b = rml_transpose_tensor(a);
+    size_t perms[] = {1, 0};
+    tensor_t *b = rml_permute_tensor(a, perms);
     rml_calc_gradient(b);
     rml_print_tensor(b);
     rml_print_dims(b->jacob_a->dims);

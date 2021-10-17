@@ -424,7 +424,7 @@ tensor_t *rml_permute_tensor(tensor_t *tensor, size_t *perms) {
     result->source_a = tensor;
     result->op_data = malloc(tensor->dims->num_dims * sizeof(size_t));
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
-        *((size_t *) result->op_data) = perms[i];
+        *((size_t *) result->op_data + i) = perms[i];
     }
 
     return result;
