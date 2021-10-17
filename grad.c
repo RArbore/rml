@@ -327,6 +327,44 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor->jacob_a = grad;
             break;
         }
+        case OP_CODE_CAST: {
+            tensor_t *grad = NULL;
+            if (rml_cl_tensor_on_cl(tensor)) grad = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
+            else grad = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
+            tensor_t *new_grad = rml_diag_tensor(grad, 2);
+            rml_free_tensor(grad);
+            grad = new_grad;
+            new_grad->source_a = NULL;
+            tensor->jacob_a = grad;
+            break;
+        }
+        case OP_CODE_ADD: {
+            tensor_t *grad = NULL;
+            if (rml_cl_tensor_on_cl(tensor)) grad = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
+            else grad = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
+            tensor_t *new_grad = rml_diag_tensor(grad, 2);
+            rml_free_tensor(grad);
+            grad = new_grad;
+            new_grad->source_a = NULL;
+            tensor->jacob_a = grad;
+            tensor->jacob_b = rml_clone_tensor(grad);
+            break;
+        }
+        case OP_CODE_SUB: {
+            void *minus_one;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
+            tensor_t *grad = NULL;
+            if (rml_cl_tensor_on_cl(tensor)) grad = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
+            else grad = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
+            tensor_t *new_grad = rml_diag_tensor(grad, 2);
+            rml_free_tensor(grad);
+            grad = new_grad;
+            new_grad->source_a = NULL;
+            tensor->jacob_a = grad;
+            tensor->jacob_a = rml_scale_tensor(grad, minus_one);
+            break;
+        }
         default:
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
     }
