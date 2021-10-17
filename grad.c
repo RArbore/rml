@@ -130,6 +130,42 @@ void rml_calc_gradient(tensor_t *tensor) {
             rml_free_tensor(one);
             break;
         }
+        case OP_CODE_SLICE: {
+            tensor_t *grad = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
+            tensor_t *one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+            size_t pos_workspace[tensor->dims->num_dims];
+            for (size_t i = 0; i < tensor->dims->num_dims; i++) pos_workspace[i] = 0;
+            size_t r = 0;
+            for (size_t c = 0; c < tensor->source_a->dims->flat_size; c++) {
+                int violated = 0;
+                for (size_t d = 0; d < tensor->dims->num_dims; d++) {
+                    if (pos_workspace[d] < *((size_t *) tensor->op_data + d) || pos_workspace[d] >= *((size_t *) tensor->op_data + d + tensor->dims->num_dims)) {
+                        violated = 1;
+                        break;
+                    }
+                }
+                if (!violated) {
+                    size_t pos[2];
+                    pos[0] = r++;
+                    pos[1] = c;
+                    tensor_t *new_grad = rml_assign_slice_tensor(grad, one, pos);
+                    rml_free_tensor(grad);
+                    grad = new_grad;
+                    new_grad->source_a = NULL;
+                }
+                pos_workspace[tensor->dims->num_dims - 1]++;
+                for (size_t d = tensor->dims->num_dims - 1; d > 0; d--) {
+                    if (pos_workspace[d] >= tensor->source_a->dims->dims[d]) {
+                        pos_workspace[d] = 0;
+                        pos_workspace[d - 1]++;
+                    }
+                }
+            }
+            tensor->jacob_a = grad;
+            tensor->jacob_b = NULL;
+            rml_free_tensor(one);
+            break;
+        }
         default:
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
     }

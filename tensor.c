@@ -328,7 +328,7 @@ tensor_t *rml_slice_tensor(tensor_t *tensor, size_t *lower_bound, size_t *upper_
     result->op_data = malloc(2 * tensor->dims->num_dims * sizeof(size_t));
     for (size_t i = 0; i < tensor->dims->num_dims; i++) {
         *((size_t *) result->op_data + i) = lower_bound[i];
-        *((size_t *) result->op_data + i + tensor->dims->num_dims) = upper_bound[i + tensor->dims->num_dims];
+        *((size_t *) result->op_data + i + tensor->dims->num_dims) = upper_bound[i];
     }
 
     return result;

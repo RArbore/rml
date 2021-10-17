@@ -53,6 +53,7 @@ dkms.conf
 
 test_tensors
 test_mnist
+test_grad
 test_cl
 *.csv
 *.bin
