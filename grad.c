@@ -252,6 +252,32 @@ void rml_calc_gradient(tensor_t *tensor) {
             rml_free_tensor(one);
             break;
         }
+        case OP_CODE_TRANSPOSE: {
+            tensor_t *grad = NULL, *one = NULL;
+            if (rml_cl_tensor_on_cl(tensor)) {
+                grad = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
+                one = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+            }
+            else {
+                grad = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, tensor->dims->flat_size, tensor->source_a->dims->flat_size));
+                one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
+            }
+            for (size_t old_i = 0; old_i < tensor->dims->flat_size; old_i++) {
+                size_t r = old_i / tensor->source_a->dims->dims[1];
+                size_t c = old_i % tensor->source_a->dims->dims[1];
+                size_t new_i = r + c * tensor->dims->dims[1];
+                size_t pos[2];
+                pos[0] = new_i;
+                pos[1] = old_i;
+                tensor_t *new_grad = rml_assign_slice_tensor(grad, one, pos);
+                rml_free_tensor(grad);
+                grad = new_grad;
+                new_grad->source_a = NULL;
+            }
+            tensor->jacob_a = grad;
+            rml_free_tensor(one);
+            break;
+        }
         default:
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
     }

@@ -19,14 +19,11 @@
 
 int main() {
     int af[] = {0, 1, 2, 3, 4, 5};
-    int bf[] = {6, 7, 8, 9};
 
     tensor_t *a = rml_init_tensor(TENSOR_TYPE_INT, rml_create_dims(2, 2, 3), af);
-    tensor_t *b = rml_init_tensor(TENSOR_TYPE_INT, rml_create_dims(2, 2, 2), bf);
-    size_t lower[] = {0, 0};
-    tensor_t *c = rml_assign_slice_tensor(a, b, lower);
-    rml_calc_gradient(c);
-    rml_print_tensor(c);
-    rml_print_tensor(c->jacob_a);
-    rml_print_tensor(c->jacob_b);
+    tensor_t *b = rml_transpose_tensor(a);
+    rml_calc_gradient(b);
+    rml_print_tensor(b);
+    rml_print_dims(b->jacob_a->dims);
+    rml_print_tensor(b->jacob_a);
 }
