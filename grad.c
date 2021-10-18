@@ -365,6 +365,40 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor->jacob_a = rml_scale_tensor(grad, minus_one);
             break;
         }
+        case OP_CODE_MUL: {
+            tensor_t *source_a_reshape = rml_reshape_tensor(tensor->source_a, &tensor->source_a->dims->flat_size, 1);
+            tensor_t *source_b_reshape = rml_reshape_tensor(tensor->source_b, &tensor->source_b->dims->flat_size, 1);
+            tensor_t *source_a_diag = rml_diag_tensor(source_a_reshape, 2);
+            tensor_t *source_b_diag = rml_diag_tensor(source_b_reshape, 2);
+            tensor->jacob_a = source_b_diag;
+            tensor->jacob_b = source_a_diag;
+            rml_free_tensor(source_a_reshape);
+            rml_free_tensor(source_b_reshape);
+            break;
+        }
+        case OP_CODE_DIV: {
+            void *minus_one;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
+            void *minus_two;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_two, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_two, -2, 0);
+            tensor_t *source_a_reshape = rml_reshape_tensor(tensor->source_a, &tensor->source_a->dims->flat_size, 1);
+            tensor_t *source_b_reshape = rml_reshape_tensor(tensor->source_b, &tensor->source_b->dims->flat_size, 1);
+            tensor_t *source_a_diag = rml_diag_tensor(source_a_reshape, 2);
+            tensor_t *source_b_diag = rml_diag_tensor(source_b_reshape, 2);
+            tensor_t *source_a_neg = rml_scale_tensor(source_a_diag, minus_one);
+            tensor_t *source_b_inv_sq = rml_pow_tensor(source_b_diag, minus_two);
+            tensor->jacob_a = rml_pow_tensor(source_b_diag, minus_one);
+            tensor->jacob_b = rml_mul_tensor(source_a_neg, source_b_inv_sq);
+            rml_free_tensor(source_a_reshape);
+            rml_free_tensor(source_b_reshape);
+            rml_free_tensor(source_a_diag);
+            rml_free_tensor(source_b_diag);
+            rml_free_tensor(source_a_neg);
+            rml_free_tensor(source_b_inv_sq);
+            break;
+        }
         default:
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
     }
