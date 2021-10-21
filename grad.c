@@ -420,8 +420,10 @@ void rml_calc_gradient(tensor_t *tensor) {
             break;
         }
         case OP_CODE_EXP: {
-            tensor->jacob_a = rml_clone_tensor(tensor);
+            tensor_t *clone = rml_clone_tensor(tensor);
+            tensor->jacob_a = rml_diag_tensor(clone, 2);
             tensor->jacob_b = NULL;
+            rml_free_tensor(clone);
             break;
         }
         default:
