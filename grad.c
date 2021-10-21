@@ -407,6 +407,18 @@ void rml_calc_gradient(tensor_t *tensor) {
             rml_free_tensor(grad);
             break;
         }
+        case OP_CODE_SCALE: {
+            tensor_t *grad = NULL;
+            if (rml_cl_tensor_on_cl(tensor)) grad = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
+            else grad = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
+            tensor_t *scaled = rml_scale_tensor(grad, tensor->op_data);
+            tensor_t *grad_diag = rml_diag_tensor(scaled, 2);
+            tensor->jacob_a = grad_diag;
+            tensor->jacob_b = NULL;
+            rml_free_tensor(grad);
+            rml_free_tensor(scaled);
+            break;
+        }
         default:
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
     }
