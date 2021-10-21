@@ -419,6 +419,11 @@ void rml_calc_gradient(tensor_t *tensor) {
             rml_free_tensor(scaled);
             break;
         }
+        case OP_CODE_EXP: {
+            tensor->jacob_a = rml_clone_tensor(tensor);
+            tensor->jacob_b = NULL;
+            break;
+        }
         default:
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
     }
