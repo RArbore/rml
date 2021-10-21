@@ -450,7 +450,10 @@ void rml_calc_gradient(tensor_t *tensor) {
             free(dec_power);
             break;
         }
-        default:
+        default: {
+            tensor->jacob_a = NULL;
+            tensor->jacob_b = NULL;
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
+        }
     }
 }
