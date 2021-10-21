@@ -426,6 +426,17 @@ void rml_calc_gradient(tensor_t *tensor) {
             rml_free_tensor(clone);
             break;
         }
+        case OP_CODE_LOG: {
+            void *minus_one;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
+            tensor_t *pow = rml_pow_tensor(tensor, minus_one);
+            tensor->jacob_a = rml_diag_tensor(pow, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(pow);
+            free(minus_one);
+            break;
+        }
         default:
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
     }
