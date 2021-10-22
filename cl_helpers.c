@@ -73,6 +73,7 @@ static void rml_cl_kernel_init(cl_device_id device_id) {
     char *program_processed[NUM_TYPES];
     int max_arr_size_len = strlen(cl_max_arr_size);
     for (size_t t = 0; t < NUM_TYPES; t++) {
+	if (t == 1 && !double_support) continue;
         int type_len = strlen(type_names[t]);
         program_processed[t] = malloc(2 * strlen(rml_cl_program) * sizeof(char));
         char *pos_type = strstr(rml_cl_program, "TYPE");
@@ -114,7 +115,7 @@ static void rml_cl_kernel_init(cl_device_id device_id) {
         }
 
         for (size_t op = 0; op < NUM_KERNELS; op++) {
-            if (kernel_names[op][0] != '\0') {
+            if (kernel_names[op][0] != '\0' && (double_support || op != CL_OP_CAST_DOUBLE)) {
                 kernels[op][t] = clCreateKernel(program, kernel_names[op], &err);
                 if (err != CL_SUCCESS) {
                     printf("Couldn't create kernel %s\n", kernel_names[op]);
@@ -141,10 +142,9 @@ void rml_cl_init() {
     }
 
     unsigned long out;
-    if (clGetDeviceInfo(device_id, CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(unsigned long), &out, NULL) == CL_SUCCESS) {
+    if (clGetDeviceInfo(device_id, CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(unsigned long), &out, NULL) == CL_SUCCESS && out != 0) {
         double_support = 1;
     }
-    printf("HELLO: %lu %d\n", out, double_support);
 
     cl_context_properties properties[3];
     properties[0]= CL_CONTEXT_PLATFORM;
