@@ -133,11 +133,13 @@ const char *rml_cl_program =
 "  b[id] = (float) a[id];\n"\
 "}\n"\
 "\n"\
+"#ifdef cl_khr_fp64\n"\
 "__kernel void rml_cast_double(__global TYPE *a, __global double *b)\n"\
 "{\n"\
 "  unsigned int id = get_global_id(0);\n"\
 "  b[id] = (double) a[id];\n"\
 "}\n"\
+"#endif\n"\
 "\n"\
 "__kernel void rml_add(__global TYPE *a, __global TYPE *b, __global TYPE *c)\n"\
 "{\n"\

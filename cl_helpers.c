@@ -18,14 +18,16 @@
 #define NUM_TYPES 2
 #define NUM_KERNELS 35
 
-cl_context context;
-cl_command_queue command_queue;
-cl_kernel kernels[NUM_KERNELS][NUM_TYPES];
-
 const char *type_names[] = {
     "float",
     "double",
 };
+
+cl_context context;
+cl_command_queue command_queue;
+cl_kernel kernels[NUM_KERNELS][NUM_TYPES];
+
+int double_support = 0;
 
 const char *cl_max_arr_size = "1024";
 
@@ -137,6 +139,12 @@ void rml_cl_init() {
         printf("Unable to get device_id for OpenCL (finding a gpu).");
         return;
     }
+
+    unsigned int out;
+    if (clGetDeviceInfo(device_id, CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(unsigned int), &out, NULL) == CL_SUCCESS) {
+	double_support = 1;
+    }
+    printf("%u\n", out);
 
     cl_context_properties properties[3];
     properties[0]= CL_CONTEXT_PLATFORM;
