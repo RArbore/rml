@@ -140,11 +140,11 @@ void rml_cl_init() {
         return;
     }
 
-    unsigned int out;
-    if (clGetDeviceInfo(device_id, CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(unsigned int), &out, NULL) == CL_SUCCESS) {
-	double_support = 1;
+    unsigned long out;
+    if (clGetDeviceInfo(device_id, CL_DEVICE_DOUBLE_FP_CONFIG, sizeof(unsigned long), &out, NULL) == CL_SUCCESS) {
+        double_support = 1;
     }
-    printf("%u\n", out);
+    printf("HELLO: %lu %d\n", out, double_support);
 
     cl_context_properties properties[3];
     properties[0]= CL_CONTEXT_PLATFORM;
