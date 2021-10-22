@@ -23,23 +23,23 @@ install: librml.so
 	cp rml.h /usr/include/rml.h
 librml.so: internal.o cl_kernels.o cl_helpers.o fileio.o graph.o grad.o operations.o tensor.o tensor_cl.o tensor_blas.o
 	$(CC) -shared -Wl,-soname,$@ -o $@ $^ $(L_FLAGS) $(W_FLAGS)
-tensor_blas.o: tensor_blas.c rml.h internal.h tensor_blas.h
+tensor_blas.o: tensor_blas.c rml.h internal.h tensor.h tensor_blas.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
-tensor_cl.o: tensor_cl.c rml.h internal.h tensor_cl.h
+tensor_cl.o: tensor_cl.c rml.h internal.h cl_helpers.h tensor.h tensor_cl.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
-tensor.o: tensor.c rml.h internal.h tensor.h
+tensor.o: tensor.c rml.h internal.h tensor_blas.h cl_helpers.h tensor_cl.h tensor.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
-operations.o: operations.c rml.h internal.h operations.h
+operations.o: operations.c rml.h internal.h tensor.h operations.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
-grad.o: grad.c rml.h grad.h
+grad.o: grad.c rml.h tensor_cl.h grad.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
 graph.o: graph.c rml.h graph.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
-fileio.o: fileio.c rml.h internal.h fileio.h
+fileio.o: fileio.c rml.h internal.h tensor.h fileio.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
-cl_helpers.o: cl_helpers.c rml.h cl_helpers.h
+cl_helpers.o: cl_helpers.c rml.h cl_kernels.h tensor.h cl_helpers.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
-cl_kernels.o: cl_kernels.c rml.h cl_kernels.h
+cl_kernels.o: cl_kernels.c cl_kernels.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
 internal.o: internal.c rml.h internal.h
 	$(CC) $< -c -o $@ $(OBJ_FLAGS)
