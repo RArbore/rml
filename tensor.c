@@ -869,6 +869,8 @@ tensor_t *rml_diag_tensor(tensor_t *tensor,  size_t num_dims) {
         SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->data, tensor->data, new_index, i);
         new_index += inc_amount;
     }
+    result->op_data = malloc(sizeof(size_t));
+    *((size_t *) result->op_data) = num_dims;
     result->op_code = OP_CODE_DIAG;
     result->source_a = tensor;
 

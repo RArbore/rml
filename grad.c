@@ -668,6 +668,34 @@ void rml_calc_gradient(tensor_t *tensor) {
             free(minus_one);
             break;
         }
+        case OP_CODE_SUM: {
+            if (rml_cl_tensor_on_cl(tensor)) {
+                tensor->jacob_a = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, tensor->jacob_a->dims->flat_size));
+            }
+            else {
+                tensor->jacob_a = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, tensor->jacob_a->dims->flat_size));
+            }
+            tensor->jacob_b = NULL;
+            break;
+        }
+        case OP_CODE_DIAG: {
+            tensor_t *ones;
+            if (rml_cl_tensor_on_cl(tensor)) {
+                ones = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->jacob_a->dims->flat_size));
+            }
+            else {
+                ones = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->jacob_a->dims->flat_size));
+            }
+            tensor_t *diag = rml_diag_tensor(ones, *((size_t *) tensor->op_data) + 1);
+            size_t dims[2];
+            dims[0] = tensor->dims->flat_size;
+            dims[1] = tensor->jacob_a->dims->flat_size;
+            tensor->jacob_a = rml_reshape_tensor(diag, dims, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(ones);
+            rml_free_tensor(diag);
+            break;
+        }
         default: {
             tensor->jacob_a = NULL;
             tensor->jacob_b = NULL;
