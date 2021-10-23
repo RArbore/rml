@@ -17,6 +17,7 @@
 #define GRAD_H_
 
 #include <stdio.h>
+#include <float.h>
 
 #include "tensor_cl.h"
 #include "rml.h"

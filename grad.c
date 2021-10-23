@@ -645,6 +645,29 @@ void rml_calc_gradient(tensor_t *tensor) {
             free(small);
             break;
         }
+        case OP_CODE_CLAMP: {
+            void *small;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, small, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, small, FLT_EPSILON, 0);
+            void *minus_one;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
+            tensor_t *diff = rml_sub_tensor(tensor->source_a, tensor);
+            tensor_t *inc = rml_increment_tensor(diff, small);
+            tensor_t *div = rml_div_tensor(diff, inc);
+            tensor_t *inc2 = rml_increment_tensor(div, minus_one);
+            tensor_t *grad = rml_scale_tensor(inc2, minus_one);
+            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(diff);
+            rml_free_tensor(inc);
+            rml_free_tensor(div);
+            rml_free_tensor(inc2);
+            rml_free_tensor(grad);
+            free(small);
+            free(minus_one);
+            break;
+        }
         default: {
             tensor->jacob_a = NULL;
             tensor->jacob_b = NULL;
