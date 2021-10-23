@@ -468,6 +468,33 @@ void rml_calc_gradient(tensor_t *tensor) {
             free(minus_one);
             break;
         }
+        case OP_CODE_TAN: {
+            void *minus_two;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_two, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_two, -2, 0);
+            tensor_t *cos = rml_cos_tensor(tensor->source_a);
+            tensor_t *inv_sq = rml_pow_tensor(cos, minus_two);
+            tensor->jacob_a = rml_diag_tensor(inv_sq, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(cos);
+            rml_free_tensor(inv_sq);
+            free(minus_two);
+            break;
+        }
+        case OP_CODE_SINH: {
+            tensor_t *cosh = rml_cosh_tensor(tensor->source_a);
+            tensor->jacob_a = rml_diag_tensor(cosh, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(cosh);
+            break;
+        }
+        case OP_CODE_COSH: {
+            tensor_t *sinh = rml_sinh_tensor(tensor->source_a);
+            tensor->jacob_a = rml_diag_tensor(sinh, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(sinh);
+            break;
+        }
         default: {
             tensor->jacob_a = NULL;
             tensor->jacob_b = NULL;
