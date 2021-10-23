@@ -495,6 +495,23 @@ void rml_calc_gradient(tensor_t *tensor) {
             rml_free_tensor(sinh);
             break;
         }
+        case OP_CODE_TANH: {
+            tensor_t *sinh = rml_sinh_tensor(tensor->source_a);
+            tensor_t *cosh = rml_cosh_tensor(tensor->source_a);
+            tensor_t *sinh2 = rml_mul_tensor(sinh, sinh);
+            tensor_t *cosh2 = rml_mul_tensor(cosh, cosh);
+            tensor_t *numer = rml_sub_tensor(cosh2, sinh2);
+            tensor_t *grad = rml_div_tensor(numer, cosh2);
+            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(sinh);
+            rml_free_tensor(cosh);
+            rml_free_tensor(sinh2);
+            rml_free_tensor(cosh2);
+            rml_free_tensor(numer);
+            rml_free_tensor(grad);
+            break;
+        }
         default: {
             tensor->jacob_a = NULL;
             tensor->jacob_b = NULL;
