@@ -34,8 +34,8 @@ static void rml_free_graph_internal(tensor_t *root, tensor_t ***freed, size_t *n
         if (root == (*freed)[i]) return;
     }
     if (root == NULL || root->op_code == OP_CODE_PARAM) return;
-    rml_free_graph(root->source_a);
-    rml_free_graph(root->source_b);
+    rml_free_graph_internal(root->source_a, freed, num_freed, freed_size);
+    rml_free_graph_internal(root->source_b, freed, num_freed, freed_size);
     rml_free_tensor(root);
     if (*num_freed < *freed_size) {
         (*freed)[(*num_freed)++] = root;
