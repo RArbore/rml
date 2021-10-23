@@ -37,7 +37,7 @@ static void rml_free_graph_internal(tensor_t *root, tensor_t ***freed, size_t *n
     rml_free_graph(root->source_a);
     rml_free_graph(root->source_b);
     rml_free_tensor(root);
-    if (&num_freed < &freed_size) {
+    if (*num_freed < *freed_size) {
         (*freed)[(*num_freed)++] = root;
     }
     else {
