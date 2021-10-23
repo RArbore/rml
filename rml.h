@@ -71,12 +71,6 @@ typedef enum {
     OP_CODE_SUM,
     OP_CODE_DIAG,
     OP_CODE_ONE_HOT,
-    OP_CODE_MAX,
-    OP_CODE_MIN,
-    OP_CODE_SOFTMAX,
-    OP_CODE_RELU,
-    OP_CODE_LEAKYRELU,
-    OP_CODE_CROSS_ENTROPY,
 } op_code_t;
 
 typedef struct {

@@ -28,7 +28,7 @@ tensor_t *rml_softmax_tensor(tensor_t *tensor) {
     tensor_t *exp_sum = rml_sum_tensor(exp);
     tensor_t *inv = rml_pow_tensor(exp_sum, minus_one);
     size_t dims[] = {1, 1};
-    tensor_t *inv_reshape = rml_reshape_tensor(inv, dims,  2);
+    tensor_t *inv_reshape = rml_reshape_tensor(inv, dims, 2);
     tensor_t *ones = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, exp->dims->flat_size, 1));
     rml_cl_make_same_device(ones, tensor);
     tensor_t *inv_repeat = rml_matmul_tensor(ones, inv_reshape);
@@ -36,17 +36,6 @@ tensor_t *rml_softmax_tensor(tensor_t *tensor) {
 
     free(max);
     free(minus_one);
-    rml_free_tensor(decremented);
-    rml_free_tensor(exp);
-    rml_free_tensor(exp_sum);
-    rml_free_tensor(inv);
-    rml_free_tensor(inv_reshape);
-    rml_free_tensor(ones);
-    rml_free_tensor(inv_repeat);
-
-    result->op_code = OP_CODE_SOFTMAX;
-    result->source_a = tensor;
-    result->source_b = NULL;
 
     return result;
 }
@@ -56,10 +45,6 @@ tensor_t *rml_relu_tensor(tensor_t *tensor) {
     SWITCH_ENUM_TYPES(tensor->tensor_type, CALLOC_VOID_POINTER, zero, 1);
     tensor_t *result = rml_clamp_tensor(tensor, zero, NULL);
     free(zero);
-
-    result->op_code = OP_CODE_RELU;
-    result->source_a = tensor;
-    result->source_b = NULL;
 
     return result;
 }
@@ -74,25 +59,11 @@ tensor_t *rml_leakyrelu_tensor(tensor_t *tensor, void *mult) {
     tensor_t *result = rml_add_tensor(above, below_scaled);
 
     free(zero);
-    rml_free_tensor(above);
-    rml_free_tensor(below);
-    rml_free_tensor(below_scaled);
-
-    result->op_code = OP_CODE_LEAKYRELU;
-    result->source_a = tensor;
-    result->source_b = NULL;
-    result->op_data = malloc(rml_sizeof_type(tensor->tensor_type));
-    SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->op_data, mult, 0, 0);
 
     return result;
 }
 
 tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label) {
-    assert(rml_cl_same_device(2, pred, label));
-    assert(rml_dims_equiv(pred->dims, label->dims));
-    tensor_t *pred_orig = pred, *label_orig = label;
-    CAST_TENSORS_WIDEN(pred, label);
-
     void *minus_one;
     SWITCH_ENUM_TYPES(pred->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
     SWITCH_ENUM_TYPES(pred->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
@@ -109,29 +80,11 @@ tensor_t *rml_cross_entropy_loss_tensor(tensor_t *pred, tensor_t *label) {
     tensor_t *result = rml_scale_tensor(added, minus_one);
 
     free(minus_one);
-    rml_free_tensor(log_p);
-    rml_free_tensor(one);
-    rml_free_tensor(one_minus_p);
-    rml_free_tensor(log_one_minus_p);
-    rml_free_tensor(one_minus_label);
-    rml_free_tensor(term_one);
-    rml_free_tensor(term_two);
-    rml_free_tensor(added);
-    CLEANUP_CAST_TENSORS_WIDEN;
-
-    result->op_code = OP_CODE_CROSS_ENTROPY;
-    result->source_a = pred_orig;
-    result->source_b = label_orig;
 
     return result;
 }
 
 tensor_t *rml_cross_entropy_loss_safe_tensor(tensor_t* pred, tensor_t *label) {
-    assert(rml_cl_same_device(2, pred, label));
-    assert(rml_dims_equiv(pred->dims, label->dims));
-    tensor_t *pred_orig = pred, *label_orig = label;
-    CAST_TENSORS_WIDEN(pred, label);
-
     void *mult, *inc;
     SWITCH_ENUM_TYPES(pred->tensor_type, MALLOC_VOID_POINTER, mult, 1);
     SWITCH_ENUM_TYPES(pred->tensor_type, ASSIGN_VOID_POINTER, mult, 0.9999998, 0);
@@ -144,12 +97,6 @@ tensor_t *rml_cross_entropy_loss_safe_tensor(tensor_t* pred, tensor_t *label) {
 
     free(mult);
     free(inc);
-    rml_free_tensor(pred_adj1);
-    rml_free_tensor(pred_adj2);
-    CLEANUP_CAST_TENSORS_WIDEN;
-
-    result->source_a = pred_orig;
-    result->source_b = label_orig;
 
     return result;
 }
