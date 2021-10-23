@@ -556,6 +556,25 @@ void rml_calc_gradient(tensor_t *tensor) {
             free(minus_half);
             break;
         }
+        case OP_CODE_ATAN: {
+            void *one;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, one, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, one, 1, 0);
+            void *minus_one;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
+            tensor_t *sq = rml_mul_tensor(tensor->source_a, tensor->source_a);
+            tensor_t *inc = rml_increment_tensor(sq, one);
+            tensor_t *grad = rml_pow_tensor(inc, minus_one);
+            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(sq);
+            rml_free_tensor(inc);
+            rml_free_tensor(grad);
+            free(one);
+            free(minus_one);
+            break;
+        }
         default: {
             tensor->jacob_a = NULL;
             tensor->jacob_b = NULL;
