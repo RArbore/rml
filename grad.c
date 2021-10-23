@@ -420,10 +420,8 @@ void rml_calc_gradient(tensor_t *tensor) {
             break;
         }
         case OP_CODE_EXP: {
-            tensor_t *clone = rml_clone_tensor(tensor);
-            tensor->jacob_a = rml_diag_tensor(clone, 2);
+            tensor->jacob_a = rml_diag_tensor(tensor, 2);
             tensor->jacob_b = NULL;
-            rml_free_tensor(clone);
             break;
         }
         case OP_CODE_LOG: {
@@ -448,6 +446,26 @@ void rml_calc_gradient(tensor_t *tensor) {
             rml_free_tensor(pow);
             rml_free_tensor(grad);
             free(dec_power);
+            break;
+        }
+        case OP_CODE_SIN: {
+            tensor_t *cos = rml_cos_tensor(tensor->source_a);
+            tensor->jacob_a = rml_diag_tensor(cos, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(cos);
+            break;
+        }
+        case OP_CODE_COS: {
+            void *minus_one;
+            SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
+            SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
+            tensor_t *sin = rml_sin_tensor(tensor->source_a);
+            tensor_t *scaled = rml_scale_tensor(sin, minus_one);
+            tensor->jacob_a = rml_diag_tensor(scaled, 2);
+            tensor->jacob_b = NULL;
+            rml_free_tensor(sin);
+            rml_free_tensor(scaled);
+            free(minus_one);
             break;
         }
         default: {
