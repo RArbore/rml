@@ -713,3 +713,43 @@ int rml_recur_calc_gradients(tensor_t *tensor) {
     if (a || b) rml_calc_gradient(tensor);
     return a || b;
 }
+
+static gradient_t *rml_merge_gradients(gradient_t *a, gradient_t *b) {
+    gradient_t *ret = malloc(sizeof(gradient_t));
+    size_t size = a->num_items + b->num_items;
+    ret->param = malloc(size * sizeof(tensor_t *));
+    ret->grad = malloc(size * sizeof(tensor_t *));
+    for (size_t i = 0; i < a->num_items; i++) {
+        ret->param[i] = rml_clone_tensor(a->param[i]);
+        ret->grad[i] = rml_clone_tensor(a->grad[i]);
+    }
+    size_t repeats = 0;
+    for (size_t i = 0; i < b->num_items; i++) {
+        size_t c;
+        for (c = 0; c < a->num_items; c++) {
+            if (ret->param[c] == b->param[i]) {
+                tensor_t *sum = rml_add_tensor(ret->grad[c], b->grad[i]);
+                rml_free_tensor(ret->grad[c]);
+                ret->grad[c] = sum;
+                repeats++;
+                break;
+            }
+        }
+        if (c == a->num_items) {
+            ret->param[c + i - repeats] = rml_clone_tensor(b->param[i]);
+            ret->grad[c + i - repeats] = rml_clone_tensor(b->grad[i]);
+        }
+    }
+    ret->param = realloc(ret->param, (size - repeats) * sizeof(tensor_t *));
+    ret->grad = realloc(ret->grad, (size - repeats) * sizeof(tensor_t *));
+    return ret;
+}
+
+static gradient_t *rml_backward_tensor_internal(tensor_t *tensor, tensor_t *acc_grad) {
+
+}
+
+gradient_t *rml_backward_tensor(tensor_t *tensor) {
+    assert(tensor->dims->num_dims == 1 && tensor->dims->flat_size == 1);
+
+}

@@ -33,6 +33,7 @@ typedef enum {
     TENSOR_TYPE_LDOUBLE,
 } tensor_type_t;
 
+// Core rml operation op codes
 typedef enum {
     OP_CODE_CREATE = 0x00,
     OP_CODE_PARAM,
@@ -73,6 +74,7 @@ typedef enum {
     OP_CODE_ONE_HOT,
 } op_code_t;
 
+// Struct representing dimensionality of tensor
 typedef struct {
     size_t num_dims;
     size_t *dims;
@@ -92,6 +94,13 @@ typedef struct tensor_t {
     struct tensor_t *jacob_b;
     void *cl_mem;
 } tensor_t;
+
+// Gradient struct - stores pointer to parameter tensor and calculated gradient with respect to loss
+typedef struct gradient_t {
+    size_t num_items;
+    tensor_t **param;
+    tensor_t **grad;
+} gradient_t;
 
 // Create a dimensions struct (variadic)
 extern dims_t *rml_create_dims(size_t count, ...);
@@ -305,5 +314,8 @@ extern void rml_cl_make_same_device(tensor_t *tensor, tensor_t *dest);
 
 // Check if tensor is on a CL device
 extern int rml_cl_tensor_on_cl(tensor_t *tensor);
+
+// Perform backpropagation on graph
+extern gradient_t *rml_backward_tensor(tensor_t *tensor);
 
 #endif // RML_H_
