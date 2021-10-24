@@ -17,8 +17,8 @@ rml is a simple C library for machine learning. rml is under active development 
   - *DONE* Framework for constructing tensor operations using OpenCL kernels
   - *DONE* CL implementations of core operations
 - Backprop gradients over generated graph
-  - *IN-PROGRESS* Core operation jacobian calculations
-  - *TODO* Chain rule jacobians together for full gradients
+  - *DONE* Core operation jacobian calculations
+  - *IN-PROGRESS* Chain rule jacobians together for full gradients
 - *TODO* Gradient descent optimization
 - *TODO* Python bindings
 - *TODO* Basic deep learning layers (inference)
