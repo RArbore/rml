@@ -318,4 +318,7 @@ extern int rml_cl_tensor_on_cl(tensor_t *tensor);
 // Perform backpropagation on graph
 extern gradient_t *rml_backward_tensor(tensor_t *tensor);
 
+// Free gradient struct
+extern void rml_free_gradient(gradient_t *grad);
+
 #endif // RML_H_
