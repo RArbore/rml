@@ -24,4 +24,6 @@
 
 void rml_calc_gradient(tensor_t *tensor);
 
+int rml_recur_calc_gradients(tensor_t *tensor);
+
 #endif // GRAD_H_

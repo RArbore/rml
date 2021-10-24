@@ -16,6 +16,7 @@
 #include "grad.h"
 
 void rml_calc_gradient(tensor_t *tensor) {
+    if (tensor == NULL) return;
     switch (tensor->op_code) {
         case OP_CODE_CREATE: {
             tensor->jacob_a = NULL;
@@ -31,8 +32,7 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *ones = NULL;
             if (rml_cl_tensor_on_cl(tensor)) ones = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
             else ones = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
-            tensor_t *identity = rml_diag_tensor(ones, 2);
-            tensor->jacob_a = identity;
+            tensor->jacob_a = rml_diag_tensor(ones, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(ones);
             break;
@@ -702,4 +702,14 @@ void rml_calc_gradient(tensor_t *tensor) {
             printf("Op code #%d doesn't have an associated gradient function.\n", tensor->op_code);
         }
     }
+}
+
+int rml_recur_calc_gradients(tensor_t *tensor) {
+    if (tensor == NULL) return 0;
+    if (tensor->op_code == OP_CODE_CREATE) return 0;
+    if (tensor->op_code == OP_CODE_PARAM) return 1;
+    int a = rml_recur_calc_gradients(tensor->source_a);
+    int b = rml_recur_calc_gradients(tensor->source_b);
+    if (a || b) rml_calc_gradient(tensor);
+    return a || b;
 }
