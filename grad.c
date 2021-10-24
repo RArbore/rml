@@ -670,10 +670,10 @@ void rml_calc_gradient(tensor_t *tensor) {
         }
         case OP_CODE_SUM: {
             if (rml_cl_tensor_on_cl(tensor)) {
-                tensor->jacob_a = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, tensor->jacob_a->dims->flat_size));
+                tensor->jacob_a = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, tensor->source_a->dims->flat_size));
             }
             else {
-                tensor->jacob_a = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, tensor->jacob_a->dims->flat_size));
+                tensor->jacob_a = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, tensor->source_a->dims->flat_size));
             }
             tensor->jacob_b = NULL;
             break;
@@ -751,6 +751,7 @@ static gradient_t *rml_merge_gradients(gradient_t *a, gradient_t *b) {
         ret->param = realloc(ret->param, (size - repeats) * sizeof(tensor_t *));
         ret->grad = realloc(ret->grad, (size - repeats) * sizeof(tensor_t *));
     }
+    ret->num_items = size - repeats;
     return ret;
 }
 
@@ -796,14 +797,19 @@ static gradient_t *rml_backward_tensor_internal(tensor_t *tensor, tensor_t *acc_
 
 gradient_t *rml_backward_tensor(tensor_t *tensor) {
     assert(tensor->dims->num_dims == 1 && tensor->dims->flat_size == 1);
+    rml_recur_calc_gradients(tensor);
     tensor_t *one;
     if (rml_cl_tensor_on_cl(tensor)) {
-        one = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, 1));
+        one = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
     }
     else {
-        one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, 1));
+        one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
     }
     gradient_t *grad = rml_backward_tensor_internal(tensor, one);
     rml_free_tensor(one);
+    for (size_t i = 0; i < grad->num_items; i++) {
+        rml_free_dims(grad->grad[i]->dims);
+        grad->grad[i]->dims = rml_clone_dims(grad->param[i]->dims);
+    }
     return grad;
 }

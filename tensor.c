@@ -69,6 +69,10 @@ void rml_free_dims(dims_t *dims) {
 }
 
 void rml_print_dims(dims_t *dims) {
+    if (dims == NULL) {
+        printf("NULL\n");
+        return;
+    }
     for (size_t i = 0; i < dims->num_dims; i++) {
         printf("%lu", dims->dims[i]);
         if (i + 1 < dims->num_dims) printf(" ");
@@ -218,6 +222,10 @@ void rml_free_tensor(tensor_t *tensor) {
 }
 
 void rml_print_tensor(tensor_t *tensor) {
+    if (tensor == NULL) {
+        printf("NULL\n");
+        return;
+    }
     assert(!rml_cl_tensor_on_cl(tensor));
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         PRINT_VOID_POINTER(tensor->tensor_type, tensor->data, i);
