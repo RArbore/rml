@@ -872,7 +872,7 @@ tensor_t *rml_diag_tensor(tensor_t *tensor,  size_t num_dims) {
 
     tensor_t *result = rml_zeros_tensor(tensor->tensor_type, dims);
     size_t new_index = 0;
-    size_t inc_amount = (dims->flat_size - 1) / (tensor->dims->flat_size - 1);
+    size_t inc_amount = (tensor->dims->flat_size - 1) > 0 ? (dims->flat_size - 1) / (tensor->dims->flat_size - 1) : 0;
     for (size_t i = 0; i < tensor->dims->flat_size; i++) {
         SWITCH_ENUM_TYPES(tensor->tensor_type, COPY_VOID_POINTER, result->data, tensor->data, new_index, i);
         new_index += inc_amount;

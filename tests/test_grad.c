@@ -23,9 +23,11 @@ int main() {
     tensor_t *a = rml_init_tensor(TENSOR_TYPE_INT, rml_create_dims(2, 2, 3), af);
     rml_set_param_tensor(a);
     rml_print_tensor(a);
-    tensor_t *loss = rml_sum_tensor(a);
+    tensor_t *sum = rml_sum_tensor(a);
+    int scalar = 2;
+    tensor_t *loss = rml_scale_tensor(sum, &scalar);
     gradient_t *grad = rml_backward_tensor(loss);
     rml_print_tensor(loss);
-    rml_print_tensor(loss->jacob_a);
     rml_print_dims(grad->grad[0]->dims);
+    rml_print_tensor(grad->grad[0]);
 }

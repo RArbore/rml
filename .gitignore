@@ -57,3 +57,4 @@ test_grad
 test_cl
 *.csv
 *.bin
+vgcore*
