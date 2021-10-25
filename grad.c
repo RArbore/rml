@@ -441,10 +441,12 @@ void rml_calc_gradient(tensor_t *tensor) {
             SWITCH_ENUM_TYPES(tensor->tensor_type, INCREMENT_VOID_POINTER_VAL, dec_power, 0, -1);
             tensor_t *pow = rml_pow_tensor(tensor->source_a, dec_power);
             tensor_t *grad = rml_scale_tensor(pow, tensor->op_data);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *grad_reshaped = rml_reshape_tensor(grad, &tensor->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(grad_reshaped, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(pow);
             rml_free_tensor(grad);
+            rml_free_tensor(grad_reshaped);
             free(dec_power);
             break;
         }

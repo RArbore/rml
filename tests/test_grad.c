@@ -18,14 +18,14 @@
 #include <rml.h>
 
 int main() {
-    int af[] = {0, 1, 2, 3, 4, 5};
+    float af[] = {0., 1., 2., 3., 4., 5.};
 
-    tensor_t *a = rml_init_tensor(TENSOR_TYPE_INT, rml_create_dims(2, 2, 3), af);
+    tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), af);
     rml_set_param_tensor(a);
     rml_print_tensor(a);
-    tensor_t *sum = rml_sum_tensor(a);
-    int scalar = 2;
-    tensor_t *loss = rml_scale_tensor(sum, &scalar);
+    float scalar = 2;
+    tensor_t *pow = rml_pow_tensor(a, &scalar);
+    tensor_t *loss = rml_sum_tensor(pow);
     gradient_t *grad = rml_backward_tensor(loss);
     rml_print_tensor(loss);
     rml_print_dims(grad->grad[0]->dims);
