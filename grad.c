@@ -420,8 +420,10 @@ void rml_calc_gradient(tensor_t *tensor) {
             break;
         }
         case OP_CODE_EXP: {
-            tensor->jacob_a = rml_diag_tensor(tensor, 2);
+            tensor_t *reshape = rml_reshape_tensor(tensor, &tensor->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
+            rml_free_tensor(reshape);
             break;
         }
         case OP_CODE_LOG: {
@@ -429,9 +431,11 @@ void rml_calc_gradient(tensor_t *tensor) {
             SWITCH_ENUM_TYPES(tensor->tensor_type, MALLOC_VOID_POINTER, minus_one, 1);
             SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
             tensor_t *pow = rml_pow_tensor(tensor, minus_one);
-            tensor->jacob_a = rml_diag_tensor(pow, 2);
+            tensor_t *reshape = rml_reshape_tensor(pow, &pow->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(pow);
+            rml_free_tensor(reshape);
             free(minus_one);
             break;
         }
@@ -452,9 +456,11 @@ void rml_calc_gradient(tensor_t *tensor) {
         }
         case OP_CODE_SIN: {
             tensor_t *cos = rml_cos_tensor(tensor->source_a);
-            tensor->jacob_a = rml_diag_tensor(cos, 2);
+            tensor_t *reshape = rml_reshape_tensor(cos, &cos->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(cos);
+            rml_free_tensor(reshape);
             break;
         }
         case OP_CODE_COS: {
@@ -463,10 +469,12 @@ void rml_calc_gradient(tensor_t *tensor) {
             SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_one, -1, 0);
             tensor_t *sin = rml_sin_tensor(tensor->source_a);
             tensor_t *scaled = rml_scale_tensor(sin, minus_one);
-            tensor->jacob_a = rml_diag_tensor(scaled, 2);
+            tensor_t *reshape = rml_reshape_tensor(scaled, &scaled->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sin);
             rml_free_tensor(scaled);
+            rml_free_tensor(reshape);
             free(minus_one);
             break;
         }
@@ -476,25 +484,31 @@ void rml_calc_gradient(tensor_t *tensor) {
             SWITCH_ENUM_TYPES(tensor->tensor_type, ASSIGN_VOID_POINTER, minus_two, -2, 0);
             tensor_t *cos = rml_cos_tensor(tensor->source_a);
             tensor_t *inv_sq = rml_pow_tensor(cos, minus_two);
-            tensor->jacob_a = rml_diag_tensor(inv_sq, 2);
+            tensor_t *reshape = rml_reshape_tensor(inv_sq, &inv_sq->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(cos);
             rml_free_tensor(inv_sq);
+            rml_free_tensor(reshape);
             free(minus_two);
             break;
         }
         case OP_CODE_SINH: {
             tensor_t *cosh = rml_cosh_tensor(tensor->source_a);
-            tensor->jacob_a = rml_diag_tensor(cosh, 2);
+            tensor_t *reshape = rml_reshape_tensor(cosh, &cosh->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(cosh);
+            rml_free_tensor(reshape);
             break;
         }
         case OP_CODE_COSH: {
             tensor_t *sinh = rml_sinh_tensor(tensor->source_a);
-            tensor->jacob_a = rml_diag_tensor(sinh, 2);
+            tensor_t *reshape = rml_reshape_tensor(sinh, &sinh->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sinh);
+            rml_free_tensor(reshape);
             break;
         }
         case OP_CODE_TANH: {
@@ -504,7 +518,8 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *cosh2 = rml_mul_tensor(cosh, cosh);
             tensor_t *numer = rml_sub_tensor(cosh2, sinh2);
             tensor_t *grad = rml_div_tensor(numer, cosh2);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sinh);
             rml_free_tensor(cosh);
@@ -512,6 +527,7 @@ void rml_calc_gradient(tensor_t *tensor) {
             rml_free_tensor(cosh2);
             rml_free_tensor(numer);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             break;
         }
         case OP_CODE_ASIN: {
@@ -525,12 +541,14 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *dec = rml_increment_tensor(sq, minus_one);
             tensor_t *scal = rml_scale_tensor(dec, minus_one);
             tensor_t *grad = rml_pow_tensor(scal, minus_half);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sq);
             rml_free_tensor(dec);
             rml_free_tensor(scal);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             free(minus_one);
             free(minus_half);
             break;
@@ -547,13 +565,15 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *scal = rml_scale_tensor(dec, minus_one);
             tensor_t *inv_rt = rml_pow_tensor(scal, minus_half);
             tensor_t *grad = rml_scale_tensor(inv_rt, minus_one);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sq);
             rml_free_tensor(dec);
             rml_free_tensor(scal);
             rml_free_tensor(inv_rt);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             free(minus_one);
             free(minus_half);
             break;
@@ -568,11 +588,13 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *sq = rml_mul_tensor(tensor->source_a, tensor->source_a);
             tensor_t *inc = rml_increment_tensor(sq, one);
             tensor_t *grad = rml_pow_tensor(inc, minus_one);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sq);
             rml_free_tensor(inc);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             free(one);
             free(minus_one);
             break;
@@ -587,11 +609,13 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *sq = rml_mul_tensor(tensor->source_a, tensor->source_a);
             tensor_t *inc = rml_increment_tensor(sq, one);
             tensor_t *grad = rml_pow_tensor(inc, minus_half);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sq);
             rml_free_tensor(inc);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             free(one);
             free(minus_half);
             break;
@@ -606,11 +630,13 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *sq = rml_mul_tensor(tensor->source_a, tensor->source_a);
             tensor_t *inc = rml_increment_tensor(sq, minus_one);
             tensor_t *grad = rml_pow_tensor(inc, minus_half);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sq);
             rml_free_tensor(inc);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             free(minus_one);
             free(minus_half);
             break;
@@ -623,12 +649,14 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *dec = rml_increment_tensor(sq, minus_one);
             tensor_t *scal = rml_scale_tensor(dec, minus_one);
             tensor_t *grad = rml_pow_tensor(scal, minus_one);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(sq);
             rml_free_tensor(dec);
             rml_free_tensor(scal);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             free(minus_one);
             break;
         }
@@ -639,11 +667,13 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *abs = rml_abs_tensor(tensor->source_a);
             tensor_t *inc = rml_increment_tensor(abs, small);
             tensor_t *grad = rml_div_tensor(tensor->source_a, inc);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(abs);
             rml_free_tensor(inc);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             free(small);
             break;
         }
@@ -659,13 +689,15 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *div = rml_div_tensor(diff, inc);
             tensor_t *inc2 = rml_increment_tensor(div, minus_one);
             tensor_t *grad = rml_scale_tensor(inc2, minus_one);
-            tensor->jacob_a = rml_diag_tensor(grad, 2);
+            tensor_t *reshape = rml_reshape_tensor(grad, &grad->dims->flat_size, 1);
+            tensor->jacob_a = rml_diag_tensor(reshape, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(diff);
             rml_free_tensor(inc);
             rml_free_tensor(div);
             rml_free_tensor(inc2);
             rml_free_tensor(grad);
+            rml_free_tensor(reshape);
             free(small);
             free(minus_one);
             break;
