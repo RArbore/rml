@@ -32,7 +32,8 @@ tensor_t *rml_softmax_tensor(tensor_t *tensor) {
     tensor_t *ones = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, exp->dims->flat_size, 1));
     rml_cl_make_same_device(ones, tensor);
     tensor_t *inv_repeat = rml_matmul_tensor(ones, inv_reshape);
-    tensor_t *result = rml_mul_tensor(exp, inv_repeat);
+    tensor_t *inv_repeat_reshape = rml_reshape_tensor(inv_repeat, tensor->dims->dims, tensor->dims->num_dims);
+    tensor_t *result = rml_mul_tensor(exp, inv_repeat_reshape);
 
     free(max);
     free(minus_one);
