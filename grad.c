@@ -88,35 +88,32 @@ void rml_calc_gradient(tensor_t *tensor) {
             }
             tensor->jacob_a = grad_a;
             tensor->jacob_b = grad_b;
+            rml_free_tensor(b_transpose);
             break;
         }
         case OP_CODE_CONCAT: {
             tensor_t *zeros_a = NULL, *zeros_b = NULL, *ones_a = NULL, *ones_b = NULL, *cat_a = NULL, *cat_b = NULL, *grad_a = NULL, *grad_b = NULL, *one = NULL;
             if (rml_cl_tensor_on_cl(tensor)) {
-                zeros_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
-                zeros_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
-                ones_a = rml_cl_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
-                ones_b = rml_cl_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+                zeros_a = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+                zeros_b = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+                ones_a = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+                ones_b = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
                 cat_a = rml_concat_tensor(ones_a, zeros_a, *((size_t *) tensor->op_data));
                 cat_b = rml_concat_tensor(zeros_b, ones_b, *((size_t *) tensor->op_data));
                 grad_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_a->dims->flat_size, tensor->source_a->dims->flat_size));
                 grad_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_b->dims->flat_size, tensor->source_b->dims->flat_size));
                 one = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
-                rml_print_tensor(cat_a);
-                rml_print_tensor(cat_b);
             }
             else {
-                zeros_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
-                zeros_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
-                ones_a = rml_cl_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
-                ones_b = rml_cl_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+                zeros_a = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+                zeros_b = rml_zeros_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
+                ones_a = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_a->dims));
+                ones_b = rml_ones_tensor(tensor->tensor_type, rml_clone_dims(tensor->source_b->dims));
                 cat_a = rml_concat_tensor(ones_a, zeros_a, *((size_t *) tensor->op_data));
                 cat_b = rml_concat_tensor(zeros_b, ones_b, *((size_t *) tensor->op_data));
-                grad_a = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_a->dims->flat_size, tensor->source_a->dims->flat_size));
-                grad_b = rml_cl_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_b->dims->flat_size, tensor->source_b->dims->flat_size));
-                one = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
-                rml_print_tensor(cat_a);
-                rml_print_tensor(cat_b);
+                grad_a = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_a->dims->flat_size, tensor->source_a->dims->flat_size));
+                grad_b = rml_zeros_tensor(tensor->tensor_type, rml_create_dims(2, cat_b->dims->flat_size, tensor->source_b->dims->flat_size));
+                one = rml_ones_tensor(tensor->tensor_type, rml_create_dims(2, 1, 1));
             }
             for (size_t r = 0, c = 0; r < cat_a->dims->flat_size; r++) {
                 int is_zero;
@@ -401,8 +398,7 @@ void rml_calc_gradient(tensor_t *tensor) {
             tensor_t *grad = NULL;
             if (rml_cl_tensor_on_cl(tensor)) grad = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
             else grad = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
-            tensor_t *grad_diag = rml_diag_tensor(grad, 2);
-            tensor->jacob_a = grad_diag;
+            tensor->jacob_a = rml_diag_tensor(grad, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(grad);
             break;
@@ -412,8 +408,7 @@ void rml_calc_gradient(tensor_t *tensor) {
             if (rml_cl_tensor_on_cl(tensor)) grad = rml_cl_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
             else grad = rml_ones_tensor(tensor->tensor_type, rml_create_dims(1, tensor->dims->flat_size));
             tensor_t *scaled = rml_scale_tensor(grad, tensor->op_data);
-            tensor_t *grad_diag = rml_diag_tensor(scaled, 2);
-            tensor->jacob_a = grad_diag;
+            tensor->jacob_a = rml_diag_tensor(scaled, 2);
             tensor->jacob_b = NULL;
             rml_free_tensor(grad);
             rml_free_tensor(scaled);
@@ -796,6 +791,7 @@ void rml_free_gradient(gradient_t *grad) {
     }
     free(grad->param);
     free(grad->grad);
+    free(grad);
 }
 
 static gradient_t *rml_backward_tensor_internal(tensor_t *tensor, tensor_t *acc_grad) {
@@ -814,19 +810,19 @@ static gradient_t *rml_backward_tensor_internal(tensor_t *tensor, tensor_t *acc_
     }
     rml_free_tensor(new_grad_a);
     rml_free_tensor(new_grad_b);
-    if (a != NULL || b != NULL) {
-        gradient_t *ret = rml_merge_gradients(a, b);
-        rml_free_gradient(a);
-        rml_free_gradient(b);
-        return ret;
+    if (tensor->op_code == OP_CODE_PARAM) {
+        gradient_t *scratch = malloc(sizeof(gradient_t));
+        scratch->num_items = 1;
+        scratch->param = malloc(sizeof(tensor_t *));
+        scratch->grad = malloc(sizeof(tensor_t *));
+        *(scratch->param) = tensor;
+        *(scratch->grad) = rml_clone_tensor(acc_grad);
+        return scratch;
     }
-    gradient_t *scratch = malloc(sizeof(gradient_t));
-    scratch->num_items = 1;
-    scratch->param = malloc(sizeof(tensor_t *));
-    scratch->grad = malloc(sizeof(tensor_t *));
-    *(scratch->param) = tensor;
-    *(scratch->grad) = rml_clone_tensor(acc_grad);
-    return scratch;
+    gradient_t *ret = rml_merge_gradients(a, b);
+    rml_free_gradient(a);
+    rml_free_gradient(b);
+    return ret;
 }
 
 gradient_t *rml_backward_tensor(tensor_t *tensor) {

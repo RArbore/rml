@@ -204,20 +204,8 @@ void rml_free_tensor(tensor_t *tensor) {
     free(tensor->op_data);
     if (tensor->cl_mem != NULL) rml_cl_free_buffer(*((cl_mem *) tensor->cl_mem));
     free(tensor->cl_mem);
-    if (tensor->jacob_a != NULL) {
-        rml_free_dims(tensor->jacob_a->dims);
-        free(tensor->jacob_a->data);
-        free(tensor->jacob_a->op_data);
-        if (tensor->jacob_a->cl_mem != NULL) rml_cl_free_buffer(*((cl_mem *) tensor->jacob_a->cl_mem));
-        free(tensor->jacob_a->cl_mem);
-    }
-    if (tensor->jacob_b != NULL) {
-        rml_free_dims(tensor->jacob_b->dims);
-        free(tensor->jacob_b->data);
-        free(tensor->jacob_b->op_data);
-        if (tensor->jacob_b->cl_mem != NULL) rml_cl_free_buffer(*((cl_mem *) tensor->jacob_b->cl_mem));
-        free(tensor->jacob_b->cl_mem);
-    }
+    rml_free_tensor(tensor->jacob_a);
+    rml_free_tensor(tensor->jacob_b);
     free(tensor);
 }
 

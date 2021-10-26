@@ -19,15 +19,22 @@
 
 int main() {
     float af[] = {0., 1., 2., 3., 4., 5.};
+    float bf[] = {0., 1., 2., 3., 4., 5., 6., 7., 8.};
 
-    tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), af);
-    rml_set_param_tensor(a);
-    rml_print_tensor(a);
     float scalar = 2;
-    tensor_t *pow = rml_pow_tensor(a, &scalar);
+    tensor_t *a1 = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), af);
+    rml_set_param_tensor(a1);
+    tensor_t *a2 = rml_scale_tensor(a1, &scalar);
+    tensor_t *b1 = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 3, 3), bf);
+    tensor_t *b2 = rml_matmul_tensor(a1, b1);
+    tensor_t *c = rml_concat_tensor(a2, b2, 0);
+    tensor_t *pow = rml_pow_tensor(c, &scalar);
     tensor_t *loss = rml_sum_tensor(pow);
     gradient_t *grad = rml_backward_tensor(loss);
     rml_print_tensor(loss);
     rml_print_dims(grad->grad[0]->dims);
     rml_print_tensor(grad->grad[0]);
+    rml_free_graph(loss);
+    rml_free_tensor(a1);
+    rml_free_gradient(grad);
 }
