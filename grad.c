@@ -739,7 +739,7 @@ int rml_recur_calc_gradients(tensor_t *tensor) {
     if (tensor->op_code == OP_CODE_PARAM) return 1;
     int a = rml_recur_calc_gradients(tensor->source_a);
     int b = rml_recur_calc_gradients(tensor->source_b);
-    if (a || b) rml_calc_gradient(tensor);
+    if ((a || b) && tensor->jacob_a == NULL) rml_calc_gradient(tensor);
     return a || b;
 }
 
