@@ -97,9 +97,9 @@ typedef struct tensor_t {
 
 // Gradient struct - stores pointer to parameter tensor and calculated gradient with respect to loss
 typedef struct gradient_t {
-    size_t num_items;
-    tensor_t **param;
-    tensor_t **grad;
+    tensor_t *param;
+    tensor_t *grad;
+    struct gradient_t *next;
 } gradient_t;
 
 // Create a dimensions struct (variadic)
