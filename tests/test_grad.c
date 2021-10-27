@@ -34,7 +34,7 @@ int main() {
         rml_print_tensor(loss);
 
         rml_print_tensor(a);
-        tensor_t *updated = rml_sub_tensor(a, grad->grad[0]);
+        tensor_t *updated = rml_sub_tensor(a, grad->grad);
         rml_free_tensor(a);
         a = updated;
 

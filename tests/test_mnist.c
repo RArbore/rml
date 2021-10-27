@@ -64,7 +64,7 @@ int main() {
     printf("Loaded data\n");
     for (size_t j = 0; j < 1; j++) {
         clock_t t = clock();
-        for (size_t i = 0; i < 1; i++) {
+        for (size_t i = 0; i < 100; i++) {
             size_t begin = i * 784;
             size_t end = (i + 1) * 784;
             tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
@@ -92,11 +92,10 @@ int main() {
             gradient_t *grad = rml_backward_tensor(loss);
             rml_free_gradient(grad);
             rml_free_graph(loss);
-            printf("Hello\n");
         }
         t = clock() - t;
-        double seconds = ((double) t) / CLOCKS_PER_SEC;
-        printf("Ms taken per iter: %f\n", seconds / 60.);
+        double s = ((double) t) / CLOCKS_PER_SEC;
+        printf("Ms taken per iter: %f\n", s * 10.);
     }
     rml_free_tensor(w1);
     rml_free_tensor(b1);
