@@ -18,23 +18,28 @@
 #include <rml.h>
 
 int main() {
-    float af[] = {0., 1., 2., 3., 4., 5.};
-    float bf[] = {0., 1., 2., 3., 4., 5., 6., 7., 8.};
+    float p[] = {0., 1., 2., 3., 4., 5.};
+    float l[] = {0., 0., 0., 1., 0., 0.};
+    float pow = 2;
 
-    float scalar = 2;
-    tensor_t *a1 = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), af);
-    rml_set_param_tensor(a1);
-    tensor_t *a2 = rml_scale_tensor(a1, &scalar);
-    tensor_t *b1 = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 3, 3), bf);
-    tensor_t *b2 = rml_matmul_tensor(a1, b1);
-    tensor_t *c = rml_concat_tensor(a2, b2, 0);
-    tensor_t *pow = rml_pow_tensor(c, &scalar);
-    tensor_t *loss = rml_sum_tensor(pow);
-    gradient_t *grad = rml_backward_tensor(loss);
-    rml_print_tensor(loss);
-    rml_print_dims(grad->grad[0]->dims);
-    rml_print_tensor(grad->grad[0]);
-    rml_free_graph(loss);
-    rml_free_tensor(a1);
-    rml_free_gradient(grad);
+    tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), p);
+    for (size_t i = 0; i < 1000; i++) {
+        rml_set_param_tensor(a);
+        tensor_t *label = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), l);
+        tensor_t *b = rml_softmax_tensor(a);
+        tensor_t *diff = rml_sub_tensor(b, label);
+        tensor_t *power = rml_pow_tensor(diff, &pow);
+        tensor_t *loss = rml_sum_tensor(power);
+        gradient_t *grad = rml_backward_tensor(loss);
+        rml_print_tensor(loss);
+
+        rml_print_tensor(a);
+        tensor_t *updated = rml_sub_tensor(a, grad->grad[0]);
+        rml_free_tensor(a);
+        a = updated;
+
+        rml_free_graph(loss);
+        rml_free_gradient(grad);
+    }
+    rml_free_tensor(a);
 }

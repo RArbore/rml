@@ -18,7 +18,7 @@
 #include <rml.h>
 
 int main() {
-    tensor_t *model_flat = rml_read_tensor_csv_raw("model.csv", TENSOR_TYPE_FLOAT, rml_create_dims(1, 13002));
+    tensor_t *model_flat = rml_read_tensor_bin("model.bin", TENSOR_TYPE_FLOAT, rml_create_dims(1, 13002));
     size_t start = 0;
     size_t w1_s = start + 784 * 16;
     size_t b1_s = w1_s + 16;
@@ -57,14 +57,14 @@ int main() {
     rml_set_param_tensor(b2);
     rml_set_param_tensor(w3);
     rml_set_param_tensor(b3);
-    tensor_t *images_flat = rml_read_tensor_csv_raw("images.csv", TENSOR_TYPE_FLOAT, rml_create_dims(1, 784 * 60000));
-    tensor_t *labels = rml_read_tensor_csv_raw("labels.csv", TENSOR_TYPE_USHORT, rml_create_dims(1, 60000));
+    tensor_t *images_flat = rml_read_tensor_bin("images.bin", TENSOR_TYPE_FLOAT, rml_create_dims(1, 784 * 60000));
+    tensor_t *labels = rml_read_tensor_bin("labels.bin", TENSOR_TYPE_USHORT, rml_create_dims(1, 60000));
     float point_two = 0.2;
     size_t image_shape[] = {784, 1};
     printf("Loaded data\n");
-    for (;;) {
+    for (size_t j = 0; j < 1; j++) {
         clock_t t = clock();
-        for (size_t i = 0; i < 60000; i++) {
+        for (size_t i = 0; i < 1; i++) {
             size_t begin = i * 784;
             size_t end = (i + 1) * 784;
             tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
@@ -88,7 +88,11 @@ int main() {
             tensor_t *one_hot = rml_cast_tensor(one_hot_us, TENSOR_TYPE_FLOAT);
             tensor_t *one_hot_reshaped = rml_reshape_tensor(one_hot, softmax->dims->dims, softmax->dims->num_dims);
             tensor_t *cross_entropy = rml_cross_entropy_loss_safe_tensor(softmax, one_hot_reshaped);
-            rml_free_graph(cross_entropy);
+            tensor_t *loss = rml_sum_tensor(cross_entropy);
+            gradient_t *grad = rml_backward_tensor(loss);
+            rml_free_gradient(grad);
+            rml_free_graph(loss);
+            printf("Hello\n");
         }
         t = clock() - t;
         double seconds = ((double) t) / CLOCKS_PER_SEC;
