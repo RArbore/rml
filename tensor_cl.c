@@ -602,3 +602,10 @@ tensor_t *rml_cl_diag_tensor(tensor_t *tensor, size_t num_dims) {
 
     return result;
 }
+
+void rml_cl_sub_tensor_inplace(tensor_t *a, tensor_t *b) {
+    rml_cl_set_kernel_arg(CL_OP_SUB, rml_cl_typeof_tensor(a), 0, a->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SUB, rml_cl_typeof_tensor(a), 1, b->cl_mem, sizeof(cl_mem));
+    rml_cl_set_kernel_arg(CL_OP_SUB, rml_cl_typeof_tensor(a), 2, a->cl_mem, sizeof(cl_mem));
+    rml_cl_enqueue_range_kernel(CL_OP_SUB, rml_cl_typeof_tensor(a), &a->dims->flat_size);
+}

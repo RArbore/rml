@@ -917,3 +917,17 @@ size_t rml_sizeof_type(tensor_type_t tensor_type) {
             return sizeof(long double);
     }
 }
+
+void rml_sub_tensor_inplace(tensor_t *a, tensor_t *b) {
+    assert(rml_cl_same_device(2, a, b));
+    assert(rml_dims_equiv(a->dims, b->dims));
+    assert(a->tensor_type == b->tensor_type);
+    if (rml_cl_tensor_on_cl(a)) rml_cl_sub_tensor_inplace(a, b);
+    if (a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE) {
+        rml_blas_sub_tensor_inplace(a, b);
+        return;
+    }
+
+    assert(rml_dims_equiv(a->dims, b->dims));
+    SWITCH_ENUM_TYPES(a->tensor_type, SUB_TENSORS, a, b, a);
+}

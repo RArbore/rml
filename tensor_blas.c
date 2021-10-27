@@ -112,3 +112,14 @@ tensor_t *rml_blas_scale_tensor(tensor_t *a, void *scalar) {
 
     return result;
 }
+
+void rml_blas_sub_tensor_inplace(tensor_t *a, tensor_t *b) {
+    assert(a->tensor_type == TENSOR_TYPE_FLOAT || a->tensor_type == TENSOR_TYPE_DOUBLE);
+
+    if (a->tensor_type == TENSOR_TYPE_FLOAT) {
+        cblas_saxpy(a->dims->flat_size, -1., (float *) b->data, 1, (float *) a->data, 1);
+    }
+    else {
+        cblas_daxpy(a->dims->flat_size, -1., (double *) b->data, 1, (double *) a->data, 1);
+    }
+}

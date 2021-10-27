@@ -33,4 +33,6 @@ tensor_t *rml_floating_point_op_tensor(tensor_t *tensor, float (*f)(float), doub
 
 size_t rml_sizeof_type(tensor_type_t tensor_type);
 
+void rml_sub_tensor_inplace(tensor_t *a, tensor_t *b);
+
 #endif // TENSOR_H_

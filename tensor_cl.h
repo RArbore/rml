@@ -69,4 +69,6 @@ tensor_t *rml_cl_sum_tensor(tensor_t *tensor);
 
 tensor_t *rml_cl_diag_tensor(tensor_t *tensor, size_t num_dims);
 
+void rml_cl_sub_tensor_inplace(tensor_t *a, tensor_t *b);
+
 #endif // TENSOR_CL_H_
