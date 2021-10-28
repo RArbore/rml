@@ -67,15 +67,15 @@ int main() {
     tensor_t *images_flat = rml_cast_tensor(images_flat_raw, TENSOR_TYPE_DOUBLE);
     tensor_t *labels = rml_read_tensor_bin("labels.bin", TENSOR_TYPE_USHORT, rml_create_dims(1, 60000));
     double point_two = 0.2;
-    double lr = 0.0001;
+    double lr = -0.0001;
     double scale_down = 0.0001;
     size_t image_shape[] = {784, 1};
     printf("Loaded data\n");
     for (size_t j = 0; j < 1; j++) {
         clock_t t = clock();
         for (size_t i = 0; i < 10000; i++) {
-            size_t begin = i * 784;
-            size_t end = (i + 1) * 784;
+            size_t begin = j * 784;
+            size_t end = (j + 1) * 784;
             tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
             rml_set_initial_tensor(image_flat);
             tensor_t *image = rml_reshape_tensor(image_flat, image_shape, 2);
@@ -89,8 +89,8 @@ int main() {
             tensor_t *image_b3 = rml_add_tensor(b3, image_w3);
             tensor_t *scaled = rml_scale_tensor(image_b3, &scale_down);
             tensor_t *softmax = rml_softmax_tensor(scaled);
-            size_t label_begin = i;
-            size_t label_end = i + 1;
+            size_t label_begin = j;
+            size_t label_end = j + 1;
             unsigned short label_range = 10;
             tensor_t *label = rml_slice_tensor(labels, &label_begin, &label_end);
             rml_set_initial_tensor(label);
