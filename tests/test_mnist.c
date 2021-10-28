@@ -18,7 +18,11 @@
 #include <rml.h>
 
 int main() {
-    tensor_t *model_flat = rml_read_tensor_bin("model.bin", TENSOR_TYPE_FLOAT, rml_create_dims(1, 13002));
+    //tensor_t *model_flat = rml_read_tensor_bin("model.bin", TENSOR_TYPE_DOUBLE, rml_create_dims(1, 13002));
+    double two = 2., minus_one = -1;
+    tensor_t *rand = rml_rand_tensor(TENSOR_TYPE_DOUBLE, rml_create_dims(1, 13002));
+    tensor_t *rand_scaled = rml_scale_tensor(rand, &two);
+    tensor_t *model_flat = rml_increment_tensor(rand_scaled, &minus_one);
     size_t start = 0;
     size_t w1_s = start + 784 * 16;
     size_t b1_s = w1_s + 16;
@@ -32,6 +36,8 @@ int main() {
     tensor_t *b2_flat = rml_slice_tensor(model_flat, &w2_s, &b2_s);
     tensor_t *w3_flat = rml_slice_tensor(model_flat, &b2_s, &w3_s);
     tensor_t *b3_flat = rml_slice_tensor(model_flat, &w3_s, &b3_s);
+    rml_free_tensor(rand);
+    rml_free_tensor(rand_scaled);
     rml_free_tensor(model_flat);
     size_t w1_sh[] = {16, 784};
     size_t b1_sh[] = {16, 1};
@@ -57,14 +63,17 @@ int main() {
     rml_set_param_tensor(b2);
     rml_set_param_tensor(w3);
     rml_set_param_tensor(b3);
-    tensor_t *images_flat = rml_read_tensor_bin("images.bin", TENSOR_TYPE_FLOAT, rml_create_dims(1, 784 * 60000));
+    tensor_t *images_flat_raw = rml_read_tensor_bin("images.bin", TENSOR_TYPE_FLOAT, rml_create_dims(1, 784 * 60000));
+    tensor_t *images_flat = rml_cast_tensor(images_flat_raw, TENSOR_TYPE_DOUBLE);
     tensor_t *labels = rml_read_tensor_bin("labels.bin", TENSOR_TYPE_USHORT, rml_create_dims(1, 60000));
-    float point_two = 0.2;
+    double point_two = 0.2;
+    double lr = 0.0001;
+    double scale_down = 0.0001;
     size_t image_shape[] = {784, 1};
     printf("Loaded data\n");
     for (size_t j = 0; j < 1; j++) {
         clock_t t = clock();
-        for (size_t i = 0; i < 100; i++) {
+        for (size_t i = 0; i < 10000; i++) {
             size_t begin = i * 784;
             size_t end = (i + 1) * 784;
             tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
@@ -78,18 +87,21 @@ int main() {
             tensor_t *image_l2 = rml_leakyrelu_tensor(image_b2, &point_two);
             tensor_t *image_w3 = rml_matmul_tensor(w3, image_l2);
             tensor_t *image_b3 = rml_add_tensor(b3, image_w3);
-            tensor_t *softmax = rml_softmax_tensor(image_b3);
+            tensor_t *scaled = rml_scale_tensor(image_b3, &scale_down);
+            tensor_t *softmax = rml_softmax_tensor(scaled);
             size_t label_begin = i;
             size_t label_end = i + 1;
             unsigned short label_range = 10;
             tensor_t *label = rml_slice_tensor(labels, &label_begin, &label_end);
             rml_set_initial_tensor(label);
             tensor_t *one_hot_us = rml_one_hot_tensor(label, &label_range);
-            tensor_t *one_hot = rml_cast_tensor(one_hot_us, TENSOR_TYPE_FLOAT);
+            tensor_t *one_hot = rml_cast_tensor(one_hot_us, TENSOR_TYPE_DOUBLE);
             tensor_t *one_hot_reshaped = rml_reshape_tensor(one_hot, softmax->dims->dims, softmax->dims->num_dims);
             tensor_t *cross_entropy = rml_cross_entropy_loss_safe_tensor(softmax, one_hot_reshaped);
             tensor_t *loss = rml_sum_tensor(cross_entropy);
+            rml_print_tensor(loss);
             gradient_t *grad = rml_backward_tensor(loss);
+            rml_grad_desc_step(grad, &lr);
             rml_free_gradient(grad);
             rml_free_graph(loss);
         }
@@ -104,5 +116,6 @@ int main() {
     rml_free_tensor(w3);
     rml_free_tensor(b3);
     rml_free_tensor(images_flat);
+    rml_free_tensor(images_flat_raw);
     rml_free_tensor(labels);
 }
