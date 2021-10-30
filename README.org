@@ -19,7 +19,9 @@ rml is a simple C library for machine learning. rml is under active development 
 - Backprop gradients over generated graph
   - *DONE* Core operation jacobian calculations
   - *DONE* Chain rule jacobians together for full gradients
-- *IN-PROGRESS* Gradient descent optimization
+- Gradient descent optimization
+  - *DONE* Single gradient step
+  - *IN-PROGRESS* Batching
 - *TODO* Python bindings
 - *TODO* Basic deep learning layers (inference)
 - *TODO* More complex layers (convolutional, recurrent, etc.)
