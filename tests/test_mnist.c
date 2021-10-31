@@ -13,11 +13,18 @@
     You should have received a copy of the GNU Lesser General Public License
     along with rml. If not, see <https://www.gnu.org/licenses/>.  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <rml.h>
 
+#define DATA_SIZE 1000
+#define EPOCHS 100
+#define BATCH_SIZE 100
+#define NUM_BATCHES DATA_SIZE / BATCH_SIZE
+
 int main() {
+    srand(time(NULL));
     //tensor_t *model_flat = rml_read_tensor_bin("model.bin", TENSOR_TYPE_FLOAT, rml_create_dims(1, 13002));
     float two = 2., minus_one = -1;
     tensor_t *rand = rml_rand_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(1, 13002));
@@ -66,49 +73,59 @@ int main() {
     tensor_t *images_flat = rml_read_tensor_bin("images.bin", TENSOR_TYPE_FLOAT, rml_create_dims(1, 784 * 60000));
     tensor_t *labels = rml_read_tensor_bin("labels.bin", TENSOR_TYPE_USHORT, rml_create_dims(1, 60000));
     float point_two = 0.2;
-    float lr = 0.01;
-    float scale_down = 0.0001;
+    float lr = 0.001;
+    float scale_down = 0.001;
     size_t image_shape[] = {784, 1};
     printf("Loaded data\n");
-    for (size_t j = 0; j < 1; j++) {
-        clock_t t = clock();
-        for (size_t i = 0; i < 10000; i++) {
-            size_t begin = j * 784;
-            size_t end = (j + 1) * 784;
-            tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
-            rml_set_initial_tensor(image_flat);
-            tensor_t *image = rml_reshape_tensor(image_flat, image_shape, 2);
-            tensor_t *image_w1 = rml_matmul_tensor(w1, image);
-            tensor_t *image_b1 = rml_add_tensor(b1, image_w1);
-            tensor_t *image_l1 = rml_leakyrelu_tensor(image_b1, &point_two);
-            tensor_t *image_w2 = rml_matmul_tensor(w2, image_l1);
-            tensor_t *image_b2 = rml_add_tensor(b2, image_w2);
-            tensor_t *image_l2 = rml_leakyrelu_tensor(image_b2, &point_two);
-            tensor_t *image_w3 = rml_matmul_tensor(w3, image_l2);
-            tensor_t *image_b3 = rml_add_tensor(b3, image_w3);
-            tensor_t *scaled = rml_scale_tensor(image_b3, &scale_down);
-            tensor_t *softmax = rml_softmax_tensor(scaled);
-            size_t label_begin = j;
-            size_t label_end = j + 1;
-            unsigned short label_range = 10;
-            tensor_t *label = rml_slice_tensor(labels, &label_begin, &label_end);
-            rml_set_initial_tensor(label);
-            tensor_t *one_hot_us = rml_one_hot_tensor(label, &label_range);
-            tensor_t *one_hot = rml_cast_tensor(one_hot_us, TENSOR_TYPE_FLOAT);
-            tensor_t *one_hot_reshaped = rml_reshape_tensor(one_hot, softmax->dims->dims, softmax->dims->num_dims);
-            //tensor_t *cross_entropy = rml_cross_entropy_loss_safe_tensor(softmax, one_hot_reshaped);
-            tensor_t *diff = rml_sub_tensor(softmax, one_hot_reshaped);
-            tensor_t *sq = rml_pow_tensor(diff, &two);
-            tensor_t *loss = rml_sum_tensor(sq);
-            rml_print_tensor(loss);
-            gradient_t *grad = rml_backward_tensor(loss);
-            rml_single_grad_desc_step(grad, &lr);
-            rml_free_gradient(grad);
-            rml_free_graph(loss);
+    for (size_t k = 0; k < EPOCHS; k++) {
+        float epoch_loss = 0.;
+        for (size_t j = 0; j < NUM_BATCHES; j++) {
+            //clock_t t = clock();
+            gradient_t *grads[BATCH_SIZE];
+            for (size_t i = 0; i < BATCH_SIZE; i++) {
+                size_t begin = (j * BATCH_SIZE + i) * 784;
+                size_t end = begin + 784;
+                tensor_t *image_flat = rml_slice_tensor(images_flat, &begin, &end);
+                rml_set_initial_tensor(image_flat);
+                tensor_t *image = rml_reshape_tensor(image_flat, image_shape, 2);
+                tensor_t *image_w1 = rml_matmul_tensor(w1, image);
+                tensor_t *image_b1 = rml_add_tensor(b1, image_w1);
+                tensor_t *image_l1 = rml_leakyrelu_tensor(image_b1, &point_two);
+                tensor_t *image_w2 = rml_matmul_tensor(w2, image_l1);
+                tensor_t *image_b2 = rml_add_tensor(b2, image_w2);
+                tensor_t *image_l2 = rml_leakyrelu_tensor(image_b2, &point_two);
+                tensor_t *image_w3 = rml_matmul_tensor(w3, image_l2);
+                tensor_t *image_b3 = rml_add_tensor(b3, image_w3);
+                tensor_t *scaled = rml_scale_tensor(image_b3, &scale_down);
+                tensor_t *softmax = rml_softmax_tensor(scaled);
+                size_t label_begin = j * BATCH_SIZE + i;
+                size_t label_end = j * BATCH_SIZE + i + 1;
+                unsigned short label_range = 10;
+                tensor_t *label = rml_slice_tensor(labels, &label_begin, &label_end);
+                rml_set_initial_tensor(label);
+                tensor_t *one_hot_us = rml_one_hot_tensor(label, &label_range);
+                tensor_t *one_hot = rml_cast_tensor(one_hot_us, TENSOR_TYPE_FLOAT);
+                tensor_t *one_hot_reshaped = rml_reshape_tensor(one_hot, softmax->dims->dims, softmax->dims->num_dims);
+                //tensor_t *cross_entropy = rml_cross_entropy_loss_safe_tensor(softmax, one_hot_reshaped);
+                tensor_t *diff = rml_sub_tensor(softmax, one_hot_reshaped);
+                tensor_t *sq = rml_pow_tensor(diff, &two);
+                tensor_t *loss = rml_sum_tensor(sq);
+                size_t zero = 0;
+                float *loss_prim = rml_primitive_access_tensor(loss, &zero);
+                epoch_loss += *loss_prim;
+                free(loss_prim);
+                grads[i] = rml_backward_tensor(loss);
+                rml_free_graph(loss);
+            }
+            for (size_t i = 0; i < BATCH_SIZE; i++) {
+                rml_single_grad_desc_step(grads[i], &lr);
+                rml_free_gradient(grads[i]);
+            }
+            //t = clock() - t;
+            //float s = ((double) t) / CLOCKS_PER_SEC;
+            //printf("Ms taken per iter: %f\n", s * 10.);
         }
-        t = clock() - t;
-        float s = ((double) t) / CLOCKS_PER_SEC;
-        printf("Ms taken per iter: %f\n", s * 10.);
+        printf("Epoch loss : %f\n", epoch_loss / DATA_SIZE);
     }
     rml_free_tensor(w1);
     rml_free_tensor(b1);
