@@ -20,7 +20,7 @@ test_tensors: test_tensors.o
 test_tensors.o: test_tensors.c
 	$(CC) -c -o $@ $^
 test_mnist: test_mnist.o
-	$(CC) -o $@ $^ -lrml
+	$(CC) -o $@ $^ -lrml -lpthread
 test_mnist.o: test_mnist.c
 	$(CC) -c -o $@ $^
 test_cl: test_cl.o
