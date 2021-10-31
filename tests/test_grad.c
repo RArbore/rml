@@ -21,6 +21,7 @@ int main() {
     float p[] = {0., 1., 2., 3., 4., 5.};
     float l[] = {0., 0., 0., 1., 0., 0.};
     float pow = 2;
+    float lr = 0.01;
 
     tensor_t *a = rml_init_tensor(TENSOR_TYPE_FLOAT, rml_create_dims(2, 2, 3), p);
     for (size_t i = 0; i < 1000; i++) {
@@ -33,10 +34,7 @@ int main() {
         gradient_t *grad = rml_backward_tensor(loss);
         rml_print_tensor(loss);
 
-        rml_print_tensor(a);
-        tensor_t *updated = rml_sub_tensor(a, grad->grad);
-        rml_free_tensor(a);
-        a = updated;
+        rml_single_grad_desc_step(grad, &lr);
 
         rml_free_graph(loss);
         rml_free_gradient(grad);

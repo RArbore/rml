@@ -828,7 +828,7 @@ gradient_t *rml_backward_tensor(tensor_t *tensor) {
     return grad;
 }
 
-void rml_grad_desc_step(gradient_t *grad, void *learning_rate) {
+void rml_single_grad_desc_step(gradient_t *grad, void *learning_rate) {
     while (grad != NULL) {
         tensor_t *scaled = rml_scale_tensor(grad->grad, learning_rate);
         rml_sub_tensor_inplace(grad->param, scaled);

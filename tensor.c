@@ -927,7 +927,5 @@ void rml_sub_tensor_inplace(tensor_t *a, tensor_t *b) {
         rml_blas_sub_tensor_inplace(a, b);
         return;
     }
-
-    assert(rml_dims_equiv(a->dims, b->dims));
     SWITCH_ENUM_TYPES(a->tensor_type, SUB_TENSORS, a, b, a);
 }

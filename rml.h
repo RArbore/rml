@@ -322,6 +322,6 @@ extern gradient_t *rml_backward_tensor(tensor_t *tensor);
 extern void rml_free_gradient(gradient_t *grad);
 
 // Perform 1 gradient step
-extern void rml_grad_desc_step(gradient_t *grad, void *learning_rate);
+extern void rml_single_grad_desc_step(gradient_t *grad, void *learning_rate);
 
 #endif // RML_H_
