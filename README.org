@@ -1,5 +1,5 @@
 #+TITLE: rml
-rml is a simple C library for machine learning. rml is under active development - below is a list of planned features:
+rml is a simple C library for machine learning.
 - Tensors (initialization, destruction, basic operations)
   - *DONE* Initialization, management, building block operations
   - *PERPETUAL IN-PROGRESS* More complex operations on tensors
@@ -22,11 +22,6 @@ rml is a simple C library for machine learning. rml is under active development 
 - Gradient descent optimization
   - *DONE* Single gradient step
   - *DONE* Batching
-  - *TODO* More sophisticated optimizers
-- *TODO* Python bindings
-- *TODO* Basic deep learning layers (inference)
-- *TODO* More complex layers (convolutional, recurrent, etc.)
-- *TODO* Export models to Bluespec design
 rml is free / libre software licensed under the LGPL v3.0.
 rml can be easily installed on most Linux distributions.
 1. Clone the repository,
@@ -46,5 +41,3 @@ To use rml in your C program...
 2. Compile with rml,
 
    =$ gcc ... -lrml ...=
-
-Currently, rml is just a library for C. Once rml's core functionality is finished, bindings will be created for other languages.
